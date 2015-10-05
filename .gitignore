@@ -33,3 +33,13 @@ build/
 
 # unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
 .rvmrc
+
+# rubymine
+.idea
+
+# project specific
+/.cache/
+/.logs/
+
+# mac
+.DS_Store
