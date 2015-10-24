@@ -112,8 +112,6 @@ class ConflictDetector
   end
 
   def get_conflicting_branch_names(git, target_branch_name, source_branch_names)
-    log_message("\nProcessing target branch: #{target_branch_name}")
-
     conflicting_branch_names = []
     branches_checked = 0
     source_branch_names.each do |source_branch_name|
@@ -157,30 +155,40 @@ class ConflictDetector
 
     # delete branches that were not updated by the git data
     # i.e. they have been deleted from git
-    Branch.branches_not_updated_since(start_time).delete
+    Branch.branches_not_updated_since(start_time).destroy_all
 
-    Branch.untested_branches.each do |branch|
+    branches = Branch.untested_branches
+    log_message("\nBranches to process: #{branches.join(', ')}")
 
+    tested_pairs = []
+    branches.each do |branch|
+      log_message("\nProcessing target branch: #{branch}")
+
+      # exclude combinations we have already tested from the list
+      branches_to_test = branches.select do |tested_branch|
+        log_message("Skipping #{tested_branch}, already tested this combination")
+        !tested_pairs.include?("#{branch}:#{tested_branch}")
+      end
+
+      # check this branch with the others to see if they conflict
+      conflicts = get_conflicting_branch_names(git, branch, branches_to_test)
+
+      branches_to_test.each do |tested_branch|
+        # record or clear the conflict based on the test result
+        if conflicts.include?(tested_branch.to_s)
+          branch.create_conflict(tested_branch, start_time)
+        else
+          branch.clear_conflict(tested_branch)
+        end
+
+        # record the fact that we tested these branches
+        tested_pairs << "#{branch}:#{tested_branch}"
+        tested_pairs << "#{tested_branch}:#{branch}"
+      end
     end
-    # get list of all branches where modified > last_tested_at_date or last_tested_at_date is null
-      # for each branch in list
-        # test with another branch in the list
-          # add conflict to DB or remove the conflict if there is none
-        # add the branch pair to a new list
-        # if the branch pair is in the list, then don't test it, prevents duplicate checks
 
-
-    # purge deleted branches (where last_tested_at_date < now())
     # get list of conflicts where last_tested_at_date > now()
     # send notifications out
-
-
-
-
-
-    log_message("\nBranches to process: #{branches.join', '}")
-
-    get_conflicting_branch_names(git, '89/h/STORY-2989_White_Pages_Gender_Field', branches)
   end
 end
 
