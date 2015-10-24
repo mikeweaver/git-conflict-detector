@@ -70,7 +70,8 @@ describe 'Branch' do
     end
 
     it 'can be compared with a regular expression' do
-      expect(@branch).to match(/mypath.*/)
+      expect(@branch =~ /mypath.*/).to be_truthy
+      expect(@branch =~ /notmypath.*/).to be_falsey
     end
   end
 
