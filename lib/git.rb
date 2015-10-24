@@ -79,9 +79,10 @@ module Git
         []
       rescue GitError => ex
         Git::get_conflict_list_from_failed_merge_output(ex.error_message)
+      ensure
+        # cleanup our "mess"
+        execute("reset --hard origin/#{target_branch_name}")
       end
-      # cleanup our "mess"
-      execute("reset --hard origin/#{target_branch_name}")
     end
   end
 end
