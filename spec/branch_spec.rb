@@ -1,21 +1,4 @@
-require_relative '../environment'
-require_relative '../models/branch.rb'
-require_relative '../lib/git.rb'
-require 'database_cleaner'
-
-RSpec.configure do |config|
-
-  config.before(:suite) do
-    DatabaseCleaner.strategy = :transaction
-  end
-
-  config.around(:each) do |example|
-    DatabaseCleaner.cleaning do
-      example.run
-    end
-  end
-
-end
+require 'spec_helper'
 
 describe 'Branch' do
 

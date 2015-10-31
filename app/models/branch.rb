@@ -1,25 +1,18 @@
-require 'active_record'
-require_relative 'user'
-require_relative 'conflict'
-
-ActiveRecord::Schema.define do
-  create_table :branches do |table|
-    table.column :name, :string, limit: 1024, null: false
-    table.column :git_updated_at,  :datetime, null: false
-    table.column :git_tested_at,  :datetime, null: true
-    table.column :created_at, :datetime
-    table.column :updated_at, :datetime
-  end
-end
-
 class Branch < ActiveRecord::Base
+  fields do
+    git_tested_at :datetime, null: true
+    git_updated_at :datetime, null: false
+    name :text, limit: 1024, null: false
+    timestamps
+  end
+
   validates :name, uniqueness: true
 
-  has_many :users, as: :authors
-  has_many :conflicts
+  belongs_to :author, class_name: User, inverse_of: :branches
+  has_many :conflicts, foreign_key: :branch_a, dependent: :destroy
 
   def self.create_branch_from_git_data(branch_data)
-    branch = Branch.find_or_initialize_by_name(branch_data.name)
+    branch = Branch.where(name: branch_data.name).first_or_initialize
     branch.git_updated_at = branch_data.last_modified_date
     branch.updated_at = Time.now # force updated time
     branch.save
@@ -36,7 +29,7 @@ class Branch < ActiveRecord::Base
     x = 5
   end
 
-  scope :untested_branches, where("git_tested_at IS ? OR git_updated_at > git_tested_at", nil)
+  scope :untested_branches, lambda { where("git_tested_at IS ? OR git_updated_at > git_tested_at", nil) }
 
   scope :branches_not_updated_since, lambda { |checked_at_date| where("updated_at < ?", checked_at_date) }
 

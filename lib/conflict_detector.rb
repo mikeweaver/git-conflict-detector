@@ -1,8 +1,7 @@
 require 'yaml'
 require 'fileutils'
 require_relative 'git'
-require_relative '../environment'
-require_relative '../models/branch'
+require_relative '../app/models/branch'
 
 # TODO: Cache results and suppress duplicate warnings
 # TODO: Cache results and skip merges that are already known failures
@@ -39,9 +38,9 @@ class ConflictDetector
     File.open(@settings[:log_file], 'a') {|f| f.write("#{message}\n") }
   end
 
-  def call_git(git, command)
+  def call_git(git, command, run_in_repo_path=true)
     log_message("Cmd: git #{command}")
-    git.execute(command)
+    git.execute(command, run_in_repo_path)
   end
 
   def should_ignore_branch_by_list?(branch)
@@ -87,8 +86,7 @@ class ConflictDetector
       # remove branches that no longer exist on origin and update all branches that do
       call_git(git, 'fetch --prune --all')
     else
-      raise "Need to fix path issue first!"
-      #call_git(git, "clone #{git.repo_url}")
+      call_git(git, "clone #{git.repo_url} #{git.repo_path}", false)
     end
   end
 
@@ -142,7 +140,7 @@ class ConflictDetector
   end
 
   def run
-    git = Git::Git.new('git@github.com:Invoca/web.git', '/Users/mweaver/invoca/git-conflict-detector/.cache/web')
+    git = Git::Git.new('git@github.com:Invoca/web.git', '/Users/mweaver/invoca/git-conflict-detector/tmp/cache/git/web')
 
     start_time = DateTime.now
 

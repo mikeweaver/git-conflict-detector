@@ -41,10 +41,15 @@ module Git
       @repo_path = repo_path
     end
 
-    def execute(command)
+    def execute(command, run_in_repo_path=true)
       command = "#{GIT_PATH} #{command}"
 
-      stdout_andstderr_str, status = Open3.capture2e(command, {chdir: @repo_path})
+      options = if run_in_repo_path
+        {chdir: @repo_path}
+      else
+        {}
+      end
+      stdout_andstderr_str, status = Open3.capture2e(command, options)
       unless status.success?
         raise GitError.new(command, status, stdout_andstderr_str)
       end
