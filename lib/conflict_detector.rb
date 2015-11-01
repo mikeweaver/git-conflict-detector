@@ -107,8 +107,9 @@ class ConflictDetector
 
       log_message("Attempt to merge #{source_branch_name}")
       conflicts = git.detect_conflicts(target_branch_name, source_branch_name)
-      log_message("SUCCESS: #{source_branch_name} can be merged into #{target_branch_name} without conflicts")
-      if conflicts
+      if conflicts.empty?
+        log_message("SUCCESS: #{source_branch_name} can be merged into #{target_branch_name} without conflicts")
+      else
         if should_ignore_conflicts?(conflicts)
           log_message("#{target_branch_name} conflicts with #{source_branch_name}, but all conflicting files are on the ignore list.")
         else
