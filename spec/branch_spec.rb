@@ -9,7 +9,7 @@ describe 'Branch' do
         updated_at,
         'Author Name',
         'author@email.com')
-    branch = Branch.create_branch_from_git_data(git_data)
+    branch = Branch.create_from_git_data(git_data)
 
     expect(branch.name).to eq('mypath/mybranch')
     expect(branch.git_updated_at).to eq(updated_at)
@@ -26,7 +26,7 @@ describe 'Branch' do
             DateTime.now,
             'Author Name',
             'author@email.com')
-        Branch.create_branch_from_git_data(git_data)
+        Branch.create_from_git_data(git_data)
       end
     end
 
@@ -48,7 +48,7 @@ describe 'Branch' do
           DateTime.now,
           'Author Name',
           'author@email.com')
-      @branch = Branch.create_branch_from_git_data(git_data)
+      @branch = Branch.create_from_git_data(git_data)
     end
 
     it 'prints its name when stringified' do
