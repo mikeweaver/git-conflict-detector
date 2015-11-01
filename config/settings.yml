@@ -1,5 +1,4 @@
-log_directory:
-- '.logs'
+log_directory: '.logs'
 cache_directory: '.cache'
 log_file: 'log/git.log'
 maximum_branches_to_check: 100
