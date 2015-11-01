@@ -164,8 +164,12 @@ class ConflictDetector
 
       # exclude combinations we have already tested from the list
       branches_to_test = branches.select do |tested_branch|
-        log_message("Skipping #{tested_branch}, already tested this combination")
-        !tested_pairs.include?("#{branch}:#{tested_branch}")
+        if tested_pairs.include?("#{branch}:#{tested_branch}")
+          log_message("Skipping #{tested_branch}, already tested this combination")
+          false
+        else
+          true
+        end
       end
 
       # check this branch with the others to see if they conflict
