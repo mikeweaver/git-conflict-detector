@@ -79,8 +79,7 @@ module Git
     def detect_conflicts(target_branch_name, source_branch_name)
       # attempt the merge and gather conflicts, if found
       begin
-        execute("checkout #{source_branch_name}")
-        execute("pull origin #{source_branch_name}")
+        execute("pull --no-commit origin #{source_branch_name}")
         []
       rescue GitError => ex
         Git::get_conflict_list_from_failed_merge_output(ex.error_message)
