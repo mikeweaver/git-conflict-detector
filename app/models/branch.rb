@@ -9,7 +9,7 @@ class Branch < ActiveRecord::Base
   validates :name, uniqueness: true
 
   belongs_to :author, class_name: User, inverse_of: :branches
-  has_many :conflicts, foreign_key: :branch_a, dependent: :destroy
+  has_many :conflicts, foreign_key: :branch_a_id, dependent: :destroy
 
   def self.create_branch_from_git_data(branch_data)
     branch = Branch.where(name: branch_data.name).first_or_initialize
