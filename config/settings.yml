@@ -1,0 +1,11 @@
+log_directory:
+- '.logs'
+cache_directory: '.cache'
+log_file: 'log/git.log'
+maximum_branches_to_check: 100
+repos_to_check: ['Invoca/web']
+ignore_branches: [] #regex
+ignore_branches_modified_days_ago: 3
+only_branches: ['^89/.*$', 'master'] #regex
+ignore_conflicts_in_file_paths: ['^db/schema.sql$', '^test/fixtures/.*$', '^lib/data/generated/.*$'] #regex
+master_branch_name: 'master'

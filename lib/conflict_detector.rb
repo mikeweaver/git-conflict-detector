@@ -9,26 +9,8 @@ require_relative '../app/models/branch'
 
 class ConflictDetector
 
-  DEFAULT_SETTINGS = {
-    log_directory: '.logs',
-    cache_directory: '.cache',
-    log_file: ".logs/git.log",
-    maximum_branches_to_check: 100,
-    repos_to_check: ['Invoca/web'],
-    ignore_branches: [], #regex
-    ignore_branches_modified_days_ago: 3,
-    only_branches: ['^89/.*$', 'master'], #regex
-    ignore_conflicts_in_file_paths: ['^db/schema.sql$', '^test/fixtures/.*$', '^lib/data/generated/.*$'], #regex
-    master_branch_name: 'master'
-  }.freeze
-
-  def initialize(settings_file_path='settings.yml')
-    if File.exists?(settings_file_path)
-      @settings = DEFAULT_SETTINGS.clone.merge(YAML.load(File.read(settings_file_path)))
-    else
-      @settings = DEFAULT_SETTINGS.clone
-    end
-
+  def initialize(settings_file_path='config/settings.yml')
+    @settings = YAML.load(File.read(settings_file_path)).symbolize_keys
     FileUtils.mkdir_p(@settings[:log_directory])
     FileUtils.mkdir_p(@settings[:cache_directory])
   end
