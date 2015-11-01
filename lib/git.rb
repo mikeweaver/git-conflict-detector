@@ -71,8 +71,8 @@ module Git
 
 
     def self.get_conflict_list_from_failed_merge_output(failed_merged_output)
-      failed_merged_output.split("\n").grep(/CONFLICT/).each do |conflict|
-        conflict.sub!(/CONFLICT \(.*\): Merge conflict in /, '').sub!(/ deleted in .*/, '')
+      failed_merged_output.split("\n").grep(/CONFLICT/).collect! do |conflict|
+        conflict.sub(/CONFLICT \(.*\): /, '').sub(/Merge conflict in /, '').sub(/ deleted in .*/, '')
       end
     end
 
