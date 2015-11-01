@@ -13,12 +13,13 @@ module Git
   end
 
   class Branch
-    attr_reader :name, :last_modified_date, :author_email
+    attr_reader :name, :last_modified_date, :author_name, :author_email
 
-    def initialize(name, last_modified_date, author_email)
+    def initialize(name, last_modified_date, author_name, author_email)
       @name = name
       @last_modified_date = last_modified_date
       @author_email = author_email
+      @author_name = author_name
     end
 
     def to_s
@@ -58,14 +59,15 @@ module Git
     end
 
     def get_branch_list
-      raw_output = execute('for-each-ref refs/remotes/ --format=\'%(refname:short)~%(authordate:iso8601)\'')
+      raw_output = execute('for-each-ref refs/remotes/ --format=\'%(refname:short)~%(authordate:iso8601)~%(authorname)~%(authoremail)\'')
 
-      raw_output.split("\n").map! do |branch_and_date|
-        branch_and_date = branch_and_date.split('~')
-        branch_and_date = Branch.new(
-            branch_and_date[0].sub!('origin/', ''),
-            DateTime::parse(branch_and_date[1]),
-            '')
+      raw_output.split("\n").collect! do |raw_branch_data|
+        branch_data = raw_branch_data.split('~')
+        Branch.new(
+            branch_data[0].sub!('origin/', ''),
+            DateTime::parse(branch_data[1]),
+            branch_data[2],
+            branch_data[3].gsub!(/[<>]/,''))
       end
     end
 

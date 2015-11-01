@@ -15,6 +15,7 @@ class Branch < ActiveRecord::Base
     branch = Branch.where(name: branch_data.name).first_or_initialize
     branch.git_updated_at = branch_data.last_modified_date
     branch.updated_at = Time.now # force updated time
+    branch.author = User.create_from_git_data(branch_data)
     branch.save
     branch
   end

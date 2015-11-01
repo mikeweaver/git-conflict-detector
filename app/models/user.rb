@@ -5,7 +5,15 @@ class User < ActiveRecord::Base
     timestamps
   end
 
-  validates :name, uniqueness: true
+  validates :name, :uniqueness => {:scope => :email}
+  
+  has_many :branches, foreign_key: "author_id"
 
-  has_and_belongs_to_many :branches, join_table: :user_branches
+  def self.create_from_git_data(branch_data)
+    user = User.where(name: branch_data.author_name, email: branch_data.author_email).first_or_initialize
+    user.name = branch_data.author_name
+    user.email = branch_data.author_email
+    user.save
+    user
+  end
 end

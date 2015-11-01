@@ -7,6 +7,7 @@ describe 'Branch' do
     git_data = Git::Branch.new(
         'mypath/mybranch',
         updated_at,
+        'Author Name',
         'author@email.com')
     branch = Branch.create_branch_from_git_data(git_data)
 
@@ -23,6 +24,7 @@ describe 'Branch' do
         git_data = Git::Branch.new(
             "path/branch#{i}",
             DateTime.now,
+            'Author Name',
             'author@email.com')
         Branch.create_branch_from_git_data(git_data)
       end
@@ -44,6 +46,7 @@ describe 'Branch' do
       git_data = Git::Branch.new(
           'mypath/mybranch',
           DateTime.now,
+          'Author Name',
           'author@email.com')
       @branch = Branch.create_branch_from_git_data(git_data)
     end
