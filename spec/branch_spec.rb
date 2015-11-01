@@ -56,6 +56,23 @@ describe 'Branch' do
       expect(@branch =~ /mypath.*/).to be_truthy
       expect(@branch =~ /notmypath.*/).to be_falsey
     end
+
+    it 'can be marked as tested' do
+      expect(@branch.git_tested_at).to be_nil
+      current_time = Time.now + 1000
+      Timecop.freeze(current_time) do
+        @branch.mark_as_tested
+        @branch.reload
+        expect(@branch.git_tested_at).to eq(current_time)
+      end
+
+      current_time = Time.now + 2000
+      Timecop.freeze(current_time) do
+        @branch.mark_as_tested
+        @branch.reload
+        expect(@branch.git_tested_at).to eq(current_time)
+      end
+    end
   end
 
 end

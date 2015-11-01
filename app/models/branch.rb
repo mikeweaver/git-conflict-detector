@@ -19,6 +19,10 @@ class Branch < ActiveRecord::Base
     branch
   end
 
+  def mark_as_tested
+    update_column(:git_tested_at, Time.now)
+  end
+
   def create_conflict(conflicting_branch, checked_at_date)
     # if conflict exists, then update the last_tested_date, set last_checked_date to nil
     # otherwise, insert conflict

@@ -156,6 +156,10 @@ class ConflictDetector
     Branch.branches_not_updated_since(start_time).destroy_all
 
     branches = Branch.untested_branches
+    if branches.empty?
+      log_message("\nNo branches to process, exiting")
+      return
+    end
     log_message("\nBranches to process: #{branches.join(', ')}")
 
     tested_pairs = []
@@ -187,6 +191,8 @@ class ConflictDetector
         tested_pairs << "#{branch}:#{tested_branch}"
         tested_pairs << "#{tested_branch}:#{branch}"
       end
+
+      branch.mark_as_tested
     end
 
     # get list of conflicts where last_tested_at_date > now()

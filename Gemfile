@@ -37,6 +37,7 @@ group :development, :test do
   gem 'byebug'
   gem 'rspec'
   gem 'database_cleaner'
+  gem 'timecop'
 end
 
 group :development do
