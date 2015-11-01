@@ -138,19 +138,21 @@ class ConflictDetector
     # i.e. they have been deleted from git
     Branch.branches_not_updated_since(start_time).destroy_all
 
-    branches = Branch.untested_branches
-    if branches.empty?
+    # get the list of branches that are new or have been updated since they were last tested
+    untested_branches = Branch.untested_branches
+    if untested_branches.empty?
       log_message("\nNo branches to process, exiting")
       return
     end
-    log_message("\nBranches to process: #{branches.join(', ')}")
+    log_message("\nBranches to process: #{untested_branches.join(', ')}")
 
     tested_pairs = []
-    branches.each do |branch|
+    all_branches = Branch.all
+    untested_branches.each do |branch|
       log_message("\nProcessing target branch: #{branch}")
 
       # exclude combinations we have already tested from the list
-      branches_to_test = branches.select do |tested_branch|
+      branches_to_test = all_branches.select do |tested_branch|
         if tested_pairs.include?("#{branch}:#{tested_branch}")
           log_message("Skipping #{tested_branch}, already tested this combination")
           false
