@@ -60,13 +60,11 @@ class ConflictDetector
       # move to the master branch
       call_git(git, "checkout #{@settings[:master_branch_name]}")
 
-      # remove all local branches, if there are any
-      #if call_git(git, 'branch | grep -v \*')
-      #  call_git(git, 'branch -D `git branch | grep -v \* | xargs`')
-      #end
-
       # remove branches that no longer exist on origin and update all branches that do
       call_git(git, 'fetch --prune --all')
+
+      # pull all of the branches
+      call_git(git, 'pull --all')
     else
       call_git(git, "clone #{git.repo_url} #{git.repo_path}", false)
     end
@@ -92,6 +90,10 @@ class ConflictDetector
   end
 
   def get_conflicting_branch_names(git, target_branch_name, source_branch_names)
+    # get onto the target branch
+    git.execute("checkout #{target_branch_name}")
+    git.execute("reset --hard origin/#{target_branch_name}")
+
     conflicting_branch_names = []
     branches_checked = 0
     source_branch_names.each do |source_branch_name|
