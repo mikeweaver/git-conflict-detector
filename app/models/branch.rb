@@ -24,16 +24,6 @@ class Branch < ActiveRecord::Base
     update_column(:git_tested_at, Time.now)
   end
 
-  def create_conflict(conflicting_branch, checked_at_date)
-    # if conflict exists, then update the last_tested_date, set last_checked_date to nil
-    # otherwise, insert conflict
-    x = 5
-  end
-
-  def clear_conflict(formerly_conflicting_branch)
-    x = 5
-  end
-
   scope :untested_branches, lambda { where("git_tested_at IS ? OR git_updated_at > git_tested_at", nil) }
 
   scope :branches_not_updated_since, lambda { |checked_at_date| where("updated_at < ?", checked_at_date) }

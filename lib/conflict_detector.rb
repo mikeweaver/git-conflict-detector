@@ -169,9 +169,9 @@ class ConflictDetector
       branches_to_test.each do |tested_branch|
         # record or clear the conflict based on the test result
         if conflicts.include?(tested_branch.to_s)
-          branch.create_conflict(tested_branch, start_time)
+          Conflict.create!(branch, tested_branch, start_time)
         else
-          branch.clear_conflict(tested_branch)
+          Conflict.clear!(branch, tested_branch, start_time)
         end
 
         # record the fact that we tested these branches
