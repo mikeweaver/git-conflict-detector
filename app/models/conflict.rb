@@ -25,6 +25,19 @@ class Conflict < ActiveRecord::Base
       branch_ids)
   }
 
+  scope :by_user, lambda { |user|
+    Conflict.joins(:branch_a).joins(:branch_b).where(
+      '(branches.author_id == ? OR branch_bs_conflicts.author_id == ?)',
+      user.id,
+      user.id)
+  }
+
+  scope :after_tested_date, lambda { |tested_after|
+     Conflict.where('last_tested_date >= ?', tested_after)
+  }
+
+  scope :unresolved, lambda { Conflict.where(resolved: false) }
+
   def self.create(branch_a, branch_b, checked_at_date)
     conflict = new_conflict(branch_a, branch_b, checked_at_date)
     conflict.save

@@ -2,16 +2,21 @@ require 'spec_helper'
 
 describe 'Conflict' do
 
-  before do
-    @branches = []
-    (0..2).each do |i|
+  def create_test_branches(user_name, count)
+    branches = []
+    (0..count - 1).each do |i|
       git_data = Git::Branch.new(
-          "path/branch#{i}",
+          "path/#{user_name}/branch#{i}",
           DateTime.now,
-          'Author Name',
+          user_name,
           'author@email.com')
-      @branches << Branch.create_from_git_data(git_data)
+      branches << Branch.create_from_git_data(git_data)
     end
+    branches
+  end
+
+  before do
+    @branches = create_test_branches('Author Name', 3)
   end
 
   it 'can be created' do
@@ -75,6 +80,22 @@ describe 'Conflict' do
     conflict.branch_b = @branches[1]
     conflict.last_tested_date = Time.now()
     expect { conflict.save! }.to raise_exception
+  end
+
+  it 'can be looked up by user' do
+    DIFFERENT_NAME = 'Different Name'
+    other_branches = create_test_branches(DIFFERENT_NAME, 2)
+    Conflict.create!(@branches[0], @branches[1], Time.now)
+    Conflict.create!(other_branches[0], other_branches[1], Time.now)
+
+    # check name filtering
+    conflicts = Conflict.unresolved.by_user(User.where(name: DIFFERENT_NAME).first).after_tested_date(2.minutes.ago)
+    expect(conflicts.size).to eq(1)
+    expect(conflicts[0].branch_a.author.name).to eq(DIFFERENT_NAME)
+
+    # check tested date filtering
+    conflicts = Conflict.unresolved.by_user(User.where(name: DIFFERENT_NAME).first).after_tested_date(2.minutes.from_now)
+    expect(conflicts.size).to eq(0)
   end
 
 end

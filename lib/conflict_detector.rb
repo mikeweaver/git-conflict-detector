@@ -124,6 +124,15 @@ class ConflictDetector
     conflicting_branch_names
   end
 
+  def send_conflict_emails(conflicts_newer_than)
+    User.all.each do |user|
+      conflicts = Conflict.unresolved.by_user(user).after_tested_date(conflicts_newer_than)
+      if conflicts
+        ConflictsMailer.conflicts_email(user, conflicts).deliver_now
+      end
+    end
+  end
+
   def run
     git = Git::Git.new('git@github.com:Invoca/web.git', '/Users/mweaver/invoca/git-conflict-detector/tmp/cache/git/web')
 
@@ -182,8 +191,8 @@ class ConflictDetector
       branch.mark_as_tested
     end
 
-    # get list of conflicts where last_tested_at_date > now()
     # send notifications out
+    send_conflict_emails(start_time)
   end
 end
 
