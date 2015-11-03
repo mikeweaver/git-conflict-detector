@@ -33,7 +33,11 @@ class Conflict < ActiveRecord::Base
   }
 
   scope :after_tested_date, lambda { |tested_after|
-     Conflict.where('last_tested_date >= ?', tested_after)
+    Conflict.where('last_tested_date >= ?', tested_after)
+  }
+
+  scope :before_tested_date, lambda { |tested_after|
+    Conflict.where('last_tested_date < ?', tested_after)
   }
 
   scope :unresolved, lambda { Conflict.where(resolved: false) }
