@@ -75,13 +75,13 @@ class ConflictDetector
 
     branches.delete_if do |branch|
       if should_ignore_branch_by_list?(branch)
-        log_message("Skipping branch #{branch}, it is on the ignore list")
+        log_message("Skipping branch #{branch.name}, it is on the ignore list")
         true
       elsif !should_include_branch?(branch)
-        log_message("Skipping branch #{branch}, it is not on the include list")
+        log_message("Skipping branch #{branch.name}, it is not on the include list")
         true
       elsif should_ignore_branch_by_date?(branch)
-        log_message("Skipping branch #{branch}, it has not been modified in over #{@settings[:ignore_branches_modified_days_ago]} days")
+        log_message("Skipping branch #{branch.name}, it has not been modified in over #{@settings[:ignore_branches_modified_days_ago]} days")
         true
       else
         false
@@ -89,14 +89,14 @@ class ConflictDetector
     end
   end
 
-  def get_conflicting_branch_names(git, target_branch_name, source_branch_names)
+  def get_conflicting_branch_names(git, target_branch, source_branches)
     # get onto the target branch
-    git.execute("checkout #{target_branch_name}")
-    git.execute("reset --hard origin/#{target_branch_name}")
+    git.execute("checkout #{target_branch.name}")
+    git.execute("reset --hard origin/#{target_branch.name}")
 
     conflicting_branch_names = []
     branches_checked = 0
-    source_branch_names.each do |source_branch_name|
+    source_branches.each do |source_branch|
       # break if we have tested enough branches already
       branches_checked += 1
       if @settings[:maximum_branches_to_check] && (branches_checked > @settings[:maximum_branches_to_check])
@@ -105,18 +105,18 @@ class ConflictDetector
       end
 
       # don't try to merge the branch with itself
-      next if target_branch_name == source_branch_name
+      next if target_branch.name == source_branch.name
 
-      log_message("Attempt to merge #{source_branch_name}")
-      conflicts = git.detect_conflicts(target_branch_name, source_branch_name)
+      log_message("Attempt to merge #{source_branch.name}")
+      conflicts = git.detect_conflicts(target_branch.name, source_branch.name)
       if conflicts.empty?
-        log_message("SUCCESS: #{source_branch_name} can be merged into #{target_branch_name} without conflicts")
+        log_message("SUCCESS: #{source_branch.name} can be merged into #{target_branch.name} without conflicts")
       else
         if should_ignore_conflicts?(conflicts)
-          log_message("#{target_branch_name} conflicts with #{source_branch_name}, but all conflicting files are on the ignore list.")
+          log_message("#{target_branch.name} conflicts with #{source_branch.name}, but all conflicting files are on the ignore list.")
         else
-          log_message("WARNING: #{target_branch_name} conflicts with #{source_branch_name}\nConflicting files:\n#{conflicts}")
-          conflicting_branch_names << source_branch_name
+          log_message("WARNING: #{target_branch.name} conflicts with #{source_branch.name}\nConflicting files:\n#{conflicts}")
+          conflicting_branch_names << source_branch.name
         end
       end
     end
@@ -160,12 +160,12 @@ class ConflictDetector
     tested_pairs = []
     all_branches = Branch.all
     untested_branches.each do |branch|
-      log_message("\nProcessing target branch: #{branch}")
+      log_message("\nProcessing target branch: #{branch.name}")
 
       # exclude combinations we have already tested from the list
       branches_to_test = all_branches.select do |tested_branch|
-        if tested_pairs.include?("#{branch}:#{tested_branch}")
-          log_message("Skipping #{tested_branch}, already tested this combination")
+        if tested_pairs.include?("#{branch.name}:#{tested_branch.name}")
+          log_message("Skipping #{tested_branch.name}, already tested this combination")
           false
         else
           true
@@ -177,15 +177,15 @@ class ConflictDetector
 
       branches_to_test.each do |tested_branch|
         # record or clear the conflict based on the test result
-        if conflicts.include?(tested_branch.to_s)
+        if conflicts.include?(tested_branch.name)
           Conflict.create!(branch, tested_branch, start_time)
         else
           Conflict.clear!(branch, tested_branch, start_time)
         end
 
         # record the fact that we tested these branches
-        tested_pairs << "#{branch}:#{tested_branch}"
-        tested_pairs << "#{tested_branch}:#{branch}"
+        tested_pairs << "#{branch.name}:#{tested_branch.name}"
+        tested_pairs << "#{tested_branch.name}:#{branch.name}"
       end
 
       branch.mark_as_tested
