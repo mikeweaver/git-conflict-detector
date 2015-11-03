@@ -35,4 +35,8 @@ class Branch < ActiveRecord::Base
   def =~(rhs)
     name =~ rhs
   end
+
+  def <=>(rhs)
+    name <=> rhs.name
+  end
 end

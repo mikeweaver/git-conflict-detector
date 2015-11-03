@@ -18,6 +18,25 @@ describe 'Branch' do
     expect(branch.updated_at).not_to be_nil
   end
 
+  it 'can be sorted alphabetically by name' do
+    names = ['b', 'd', 'a', 'c']
+    (0..3).each do |i|
+      git_data = Git::Branch.new(
+          names[i],
+          DateTime.now,
+          'Author Name',
+          'author@email.com')
+      Branch.create_from_git_data(git_data)
+    end
+    # ensure they came out of the DB in the same order we put them in
+    expect(Branch.first.name).to eq('b')
+
+    # sort the names and the branches, they should match
+    names.sort.zip(Branch.all.sort).each do |name, branch|
+      expect(branch.name).to eq(name)
+    end
+  end
+
   context 'with two existing branches' do
     before do
       (0..1).each do |i|
