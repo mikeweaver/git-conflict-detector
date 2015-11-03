@@ -27,7 +27,7 @@ class Conflict < ActiveRecord::Base
 
   scope :by_user, lambda { |user|
     Conflict.joins(:branch_a).joins(:branch_b).where(
-      '(branches.author_id == ? OR branch_bs_conflicts.author_id == ?)',
+      '(branches.author_id = ? OR branch_bs_conflicts.author_id = ?)',
       user.id,
       user.id)
   }
