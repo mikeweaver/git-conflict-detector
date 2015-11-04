@@ -81,6 +81,7 @@ module Git
     def detect_conflicts(target_branch_name, source_branch_name)
       # attempt the merge and gather conflicts, if found
       begin
+        # TODO: Assert we are actually on the target branch and have a clean working dir
         execute("pull --no-commit origin #{source_branch_name}")
         []
       rescue GitError => ex

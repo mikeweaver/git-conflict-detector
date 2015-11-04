@@ -33,6 +33,10 @@ describe 'ConflictDetector' do
     expect(Branch.first.git_tested_at).to be > start_time
     expect(Branch.second.git_tested_at).to be > start_time
     expect(Branch.last.git_tested_at).to be > start_time
+
+    # a single notification email should be sent
+    # TODO: why doesn't this expectation work!!!
+    #expect(ConflictsMailer).to receive(:conflicts_email)
   end
 
 end

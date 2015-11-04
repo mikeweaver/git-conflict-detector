@@ -3,9 +3,12 @@ require 'fileutils'
 require_relative 'git'
 require_relative '../app/models/branch'
 
-# TODO: Cache results and suppress duplicate warnings
-# TODO: Cache results and skip merges that are already known failures
-# TODO: OO this thing, its a mess
+# TODO: Include conflicting file list in email (maybe use HTML collapsible divs?)
+# TODO: Check GitHub API to see if we can lookup more info about the user
+# TODO: Complete until tests
+# TODO: Setting to redirect all email to single address
+# TODO: Setting to restrict which users are notified
+# TODO: General code cleanup, refactoring
 
 class ConflictDetector
 
@@ -170,6 +173,7 @@ class ConflictDetector
       log_message("\nProcessing target branch: #{branch.name}")
 
       # exclude combinations we have already tested from the list
+      # TODO: Extract into function
       branches_to_test = all_branches.select do |tested_branch|
         if tested_pairs.include?("#{branch.name}:#{tested_branch.name}")
           log_message("Skipping #{tested_branch.name}, already tested this combination")
