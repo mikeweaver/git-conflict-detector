@@ -6,15 +6,14 @@ require_relative '../app/models/branch'
 # TODO: Include conflicting file list in email (maybe use HTML collapsible divs?)
 # TODO: Check GitHub API to see if we can lookup more info about the user
 # TODO: Complete until tests
-# TODO: Setting to redirect all email to single address
-# TODO: Setting to restrict which users are notified
 # TODO: General code cleanup, refactoring
+# TODO: Multi-repo settings?
 
 class ConflictDetector
 
   def initialize(settings_file_path='config/settings.yml')
     @settings = YAML.load(File.read(settings_file_path)).symbolize_keys
-    FileUtils.mkdir_p(@settings[:log_directory])
+    FileUtils.mkdir_p(File.dirname(@settings[:log_file]))
     FileUtils.mkdir_p(@settings[:cache_directory])
   end
 
@@ -128,7 +127,12 @@ class ConflictDetector
   end
 
   def send_conflict_emails(conflicts_newer_than)
-    User.all.each do |user|
+    # only email users in the filter
+    users_to_email = User.all.select {|user|
+      @settings[:email_filter].empty? || @settings[:email_filter].include?(user.email.downcase)
+    }
+
+    users_to_email.each do |user|
       # TODO: Move this query into a single spec to improve readability
       # TODO: Consider including conflicting files in the email
       new_conflicts = Conflict.unresolved.by_user(user).status_changed_after(conflicts_newer_than).all
@@ -136,6 +140,7 @@ class ConflictDetector
       unless new_conflicts.blank? && resolved_conflicts.blank?
         ConflictsMailer.conflicts_email(
             user,
+            @settings[:email_override].present? ? @settings[:email_override] : user.email,
             new_conflicts,
             resolved_conflicts,
             Conflict.unresolved.by_user(user).status_changed_before(conflicts_newer_than).all).deliver_now
