@@ -16,7 +16,7 @@ class Conflict < ActiveRecord::Base
     end
   end
 
-  scope :conflict_by_branches, lambda { |branch_a, branch_b|
+  scope :by_branches, lambda { |branch_a, branch_b|
     (branch_a.present? and branch_b.present?) or return nil
     branch_ids = [branch_a.id, branch_b.id]
     Conflict.where(
@@ -55,7 +55,7 @@ class Conflict < ActiveRecord::Base
   end
 
   def self.clear!(branch_a, branch_b, checked_at_date)
-    conflict = conflict_by_branches(branch_a, branch_b).first
+    conflict = by_branches(branch_a, branch_b).first
     if conflict && !conflict.resolved
       conflict.status_last_changed_date = checked_at_date
       conflict.resolved = true
@@ -66,7 +66,7 @@ class Conflict < ActiveRecord::Base
   private
 
   def self.new_conflict(branch_a, branch_b, checked_at_date)
-    conflict = conflict_by_branches(branch_a, branch_b).first
+    conflict = by_branches(branch_a, branch_b).first
     if conflict
       if conflict.resolved
         conflict.status_last_changed_date = checked_at_date
