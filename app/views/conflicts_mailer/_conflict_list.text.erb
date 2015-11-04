@@ -1,0 +1,7 @@
+<% conflicts.each do |conflict| %>
+<% if @user.id == conflict.branch_a.author.id %>
+<%=conflict.branch_a.name %> conflicts with <%=conflict.branch_b.name%>
+<% else %>
+<%=conflict.branch_b.name %> conflicts with <%=conflict.branch_a.name%>
+<% end %>
+<% end %>

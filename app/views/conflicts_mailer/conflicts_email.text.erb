@@ -1,17 +1,8 @@
 Conflicts detected on updated branches:
-<% @new_conflicts.each do |conflict| %>
-<% if @user.id == conflict.branch_a.author.id %>
-<%=conflict.branch_a.name %> conflicts with <%=conflict.branch_b.name%>
-<% else %>
-<%=conflict.branch_b.name %> conflicts with <%=conflict.branch_a.name%>
-<% end %>
-<% end %>
+<%= render partial: 'conflict_list', locals: {conflicts: @new_conflicts} %>
+
+Conflicts that have been resolved:
+<%= render partial: 'conflict_list', locals: {conflicts: @resolved_conflicts} %>
 
 Existing conflicts on untouched branches:
-<% @existing_conflicts.each do |conflict| %>
-<% if @user.id == conflict.branch_a.author.id %>
-<%=conflict.branch_a.name %> conflicts with <%=conflict.branch_b.name%>
-<% else %>
-<%=conflict.branch_b.name %> conflicts with <%=conflict.branch_a.name%>
-<% end %>
-<% end %>
+<%= render partial: 'conflict_list', locals: {conflicts: @existing_conflicts} %>

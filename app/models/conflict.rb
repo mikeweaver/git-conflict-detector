@@ -1,7 +1,7 @@
 class Conflict < ActiveRecord::Base
   fields do
     resolved :boolean, null: false, default: false
-    last_tested_date :datetime, null: false
+    status_last_changed_date :datetime, null: false
     timestamps
   end
 
@@ -32,15 +32,17 @@ class Conflict < ActiveRecord::Base
       user.id)
   }
 
-  scope :after_tested_date, lambda { |tested_after|
-    Conflict.where('last_tested_date >= ?', tested_after)
+  scope :status_changed_after, lambda { |after_date|
+    Conflict.where('status_last_changed_date >= ?', after_date)
   }
 
-  scope :before_tested_date, lambda { |tested_after|
-    Conflict.where('last_tested_date < ?', tested_after)
+  scope :status_changed_before, lambda { |after_date|
+    Conflict.where('status_last_changed_date < ?', after_date)
   }
 
   scope :unresolved, lambda { Conflict.where(resolved: false) }
+
+  scope :resolved, lambda { Conflict.where(resolved: true) }
 
   def self.create(branch_a, branch_b, checked_at_date)
     conflict = new_conflict(branch_a, branch_b, checked_at_date)
@@ -54,8 +56,8 @@ class Conflict < ActiveRecord::Base
 
   def self.clear!(branch_a, branch_b, checked_at_date)
     conflict = conflict_by_branches(branch_a, branch_b).first
-    if conflict
-      conflict.last_tested_date = checked_at_date
+    if conflict && !conflict.resolved
+      conflict.status_last_changed_date = checked_at_date
       conflict.resolved = true
       conflict.save!
     end
@@ -66,10 +68,12 @@ class Conflict < ActiveRecord::Base
   def self.new_conflict(branch_a, branch_b, checked_at_date)
     conflict = conflict_by_branches(branch_a, branch_b).first
     if conflict
-      conflict.last_tested_date = checked_at_date
-      conflict.resolved = false
+      if conflict.resolved
+        conflict.status_last_changed_date = checked_at_date
+        conflict.resolved = false
+      end
     else
-      conflict = new(branch_a: branch_a, branch_b: branch_b, last_tested_date: checked_at_date)
+      conflict = new(branch_a: branch_a, branch_b: branch_b, status_last_changed_date: checked_at_date)
     end
     conflict
   end

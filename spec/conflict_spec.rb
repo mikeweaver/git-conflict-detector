@@ -26,7 +26,7 @@ describe 'Conflict' do
     expect(Conflict.all.size).to eq(1)
   end
 
-  it 're-creating updates last_tested_date' do
+  it 're-creating does not update the status_last_changed_date' do
     tested_at1 = Time.now()
     Conflict.create!(@branches[0], @branches[1], tested_at1)
     tested_at2 = Time.now()
@@ -34,7 +34,7 @@ describe 'Conflict' do
 
     expect(tested_at1).not_to eq(tested_at2)
     expect(Conflict.all.size).to eq(1)
-    expect(Conflict.first.last_tested_date).to eq(tested_at2)
+    expect(Conflict.first.status_last_changed_date).to eq(tested_at1)
   end
 
   it 'can be cleared' do
@@ -75,10 +75,10 @@ describe 'Conflict' do
 
   it 'does not allow duplicate conflicts' do
     Conflict.create!(@branches[0], @branches[1], Time.now())
-    conflict = Conflict.new
-    conflict.branch_a = @branches[0]
-    conflict.branch_b = @branches[1]
-    conflict.last_tested_date = Time.now()
+    conflict = Conflict.new(
+        branch_a: @branches[0],
+        branch_b: @branches[1],
+        status_last_changed_date: Time.now())
     expect { conflict.save! }.to raise_exception
   end
 
@@ -89,12 +89,12 @@ describe 'Conflict' do
     Conflict.create!(other_branches[0], other_branches[1], Time.now)
 
     # check name filtering
-    conflicts = Conflict.unresolved.by_user(User.where(name: DIFFERENT_NAME).first).after_tested_date(2.minutes.ago)
+    conflicts = Conflict.unresolved.by_user(User.where(name: DIFFERENT_NAME).first).status_changed_after(2.minutes.ago)
     expect(conflicts.size).to eq(1)
     expect(conflicts[0].branch_a.author.name).to eq(DIFFERENT_NAME)
 
     # check tested date filtering
-    conflicts = Conflict.unresolved.by_user(User.where(name: DIFFERENT_NAME).first).after_tested_date(2.minutes.from_now)
+    conflicts = Conflict.unresolved.by_user(User.where(name: DIFFERENT_NAME).first).status_changed_after(2.minutes.from_now)
     expect(conflicts.size).to eq(0)
   end
 

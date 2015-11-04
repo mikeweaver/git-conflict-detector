@@ -126,12 +126,16 @@ class ConflictDetector
 
   def send_conflict_emails(conflicts_newer_than)
     User.all.each do |user|
-      new_conflicts = Conflict.unresolved.by_user(user).after_tested_date(conflicts_newer_than).all
-      unless new_conflicts.blank?
+      # TODO: Move this query into a single spec to improve readability
+      # TODO: Consider including conflicting files in the email
+      new_conflicts = Conflict.unresolved.by_user(user).status_changed_after(conflicts_newer_than).all
+      resolved_conflicts = Conflict.resolved.by_user(user).status_changed_after(conflicts_newer_than).all
+      unless new_conflicts.blank? && resolved_conflicts.blank?
         ConflictsMailer.conflicts_email(
             user,
             new_conflicts,
-            Conflict.unresolved.by_user(user).before_tested_date(conflicts_newer_than).all).deliver_now
+            resolved_conflicts,
+            Conflict.unresolved.by_user(user).status_changed_before(conflicts_newer_than).all).deliver_now
       end
     end
   end
