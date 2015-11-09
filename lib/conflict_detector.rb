@@ -3,12 +3,6 @@ require 'fileutils'
 require_relative 'git'
 require_relative '../app/models/branch'
 
-# TODO: Include conflicting file list in email (maybe use HTML collapsible divs?)
-# TODO: Check GitHub API to see if we can lookup more info about the user
-# TODO: Complete until tests
-# TODO: General code cleanup, refactoring
-# TODO: Multi-repo settings?
-
 class ConflictDetector
 
   def initialize(settings_file_path='config/settings.yml')
