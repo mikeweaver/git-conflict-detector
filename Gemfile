@@ -49,5 +49,4 @@ group :development do
 end
 
 gem 'hobo_fields'
-gem 'database_cleaner'
 
