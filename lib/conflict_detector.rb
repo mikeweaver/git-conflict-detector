@@ -150,8 +150,8 @@ class ConflictDetector
     end
   end
 
-  def run
-    git = Git::Git.new('git@github.com:Invoca/web.git', '/Users/mweaver/invoca/git-conflict-detector/tmp/cache/git/web')
+  def process_repo(repo_name)
+    git = Git::Git.new("git@github.com:#{repo_name}.git", "#{File.join(@settings[:cache_directory], repo_name)}")
 
     start_time = DateTime.now
 
@@ -211,6 +211,12 @@ class ConflictDetector
 
     # send notifications out
     send_conflict_emails(start_time)
+  end
+
+  def run
+    @settings[:repos_to_check].each do |repo_name|
+      process_repo(repo_name)
+    end
   end
 end
 
