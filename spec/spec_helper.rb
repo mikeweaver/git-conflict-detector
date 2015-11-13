@@ -2,6 +2,8 @@ ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
 require_relative '../lib/git.rb'
+require_relative '../lib/git_branch.rb'
+require_relative '../lib/git_error.rb'
 require 'database_cleaner'
 require 'rake'
 
