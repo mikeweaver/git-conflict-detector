@@ -33,5 +33,7 @@ module GitConflictDetector
         :authentication       => 'plain',
         :enable_starttls_auto => true
     }
+
+    config.autoload_paths += Dir["#{config.root}/lib/**/"]
   end
 end

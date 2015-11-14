@@ -1,7 +1,5 @@
 require 'yaml'
 require 'fileutils'
-require_relative 'git'
-require_relative '../app/models/branch'
 
 class ConflictDetector
 
