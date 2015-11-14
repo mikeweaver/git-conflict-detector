@@ -1,17 +1,17 @@
 <% if !conflicts.empty? %>
-    <h3><%= heading%></h3>
+    <h3><%= heading %></h3>
     <% conflicts.each do |conflict| %>
-    <p>
-        <% if @user.id == conflict.branch_a.author.id %>
-            <%= render partial: 'conflict', locals: {branch_a: conflict.branch_a, branch_b: conflict.branch_b} %>
-        <% else %>
-            <%= render partial: 'conflict', locals: {branch_a: conflict.branch_b, branch_b: conflict.branch_a} %>
-        <% end %>
-    </p>
-    <% conflict.conflicting_files.each do |file| %>
-        <p style="margin-left:20px;margin-top:0px;margin-bottom:0px">
-            <%= file %>
+        <p>
+            <% if @user.id == conflict.branch_a.author.id %>
+                <%= render partial: 'conflict', locals: {branch_a: conflict.branch_a, branch_b: conflict.branch_b, resolved: false} %>
+            <% else %>
+                <%= render partial: 'conflict', locals: {branch_a: conflict.branch_b, branch_b: conflict.branch_a, resolved: false} %>
+            <% end %>
         </p>
-    <% end %>
+        <% conflict.conflicting_files.each do |file| %>
+            <p style="margin-left:20px;margin-top:0px;margin-bottom:0px">
+                <a href="https://github.com/Invoca/web/blob/<%= conflict.branch_a.name %>/<%= file %>" style="text-decoration: none;"><%= file %></a>
+            </p>
+        <% end %>
     <% end %>
 <% end %>

@@ -1,3 +1,10 @@
-<a href="https://www.github.com/<%= @repo_name %>/tree/<%= branch_a.name %>"><%= branch_a.name %></a>
-conflicts with
-<a href="https://www.github.com/<%= @repo_name %>/tree/<%= branch_b.name %>"><%= branch_b.name%></a>
+<% if resolved %>
+    <a href="https://github.com/<%= @repo_name %>/tree/<%= branch_a.name %>" style="text-decoration: none;"><%= branch_a.name %></a>
+    no longer conflicts with
+    <a href="https://github.com/<%= @repo_name %>/tree/<%= branch_b.name %>" style="text-decoration: none;"><%= branch_b.name%></a>
+<% else %>
+    <a href="https://github.com/<%= @repo_name %>/tree/<%= branch_a.name %>" style="text-decoration: none;"><%= branch_a.name %></a>
+    conflicts with
+    <a href="https://github.com/<%= @repo_name %>/tree/<%= branch_b.name %>" style="text-decoration: none;"><%= branch_b.name%></a>
+    <a href="https://github.com/Invoca/web/compare/<%= branch_a.name %>...<%= branch_b.name %>" style="text-decoration: none;">(diff)</a>
+<% end %>
