@@ -1,10 +1,13 @@
 <% if !conflicts.empty? %>
-<%=heading%>
+<%= heading%>
 <% conflicts.each do |conflict| %>
 <% if @user.id == conflict.branch_a.author.id %>
-<%=conflict.branch_a.name %> conflicts with <%=conflict.branch_b.name%>
+<%= conflict.branch_a.name %> conflicts with <%= conflict.branch_b.name%>
 <% else %>
-<%=conflict.branch_b.name %> conflicts with <%=conflict.branch_a.name%>
+<%= conflict.branch_b.name %> conflicts with <%= conflict.branch_a.name%>
+<% end %>
+<% conflict.conflicting_files.each do |file| %>
+    <%= file %>
 <% end %>
 <% end %>
 <% end %>
