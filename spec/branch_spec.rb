@@ -4,7 +4,7 @@ describe 'Branch' do
 
   it 'can create be constructed from git data' do
     updated_at = DateTime.now
-    git_data = Git::Branch.new(
+    git_data = Git::GitBranch.new(
         'mypath/mybranch',
         updated_at,
         'Author Name',
@@ -21,7 +21,7 @@ describe 'Branch' do
   it 'can be sorted alphabetically by name' do
     names = ['b', 'd', 'a', 'c']
     (0..3).each do |i|
-      git_data = Git::Branch.new(
+      git_data = Git::GitBranch.new(
           names[i],
           DateTime.now,
           'Author Name',
@@ -40,7 +40,7 @@ describe 'Branch' do
   context 'with two existing branches' do
     before do
       (0..1).each do |i|
-        git_data = Git::Branch.new(
+        git_data = Git::GitBranch.new(
             "path/branch#{i}",
             DateTime.now,
             'Author Name',
@@ -62,7 +62,7 @@ describe 'Branch' do
   context 'with an existing branch' do
 
     before do
-      git_data = Git::Branch.new(
+      git_data = Git::GitBranch.new(
           'mypath/mybranch',
           DateTime.now,
           'Author Name',

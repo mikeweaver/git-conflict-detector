@@ -1,5 +1,5 @@
 module Git
-  class Conflict
+  class GitConflict
     attr_reader :branch_a, :branch_b, :conflicting_files
 
     def initialize(branch_a, branch_b, conflicting_files)

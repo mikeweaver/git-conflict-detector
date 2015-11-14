@@ -1,5 +1,5 @@
 module Git
-  class Branch
+  class GitBranch
     attr_reader :name, :last_modified_date, :author_name, :author_email
 
     def initialize(name, last_modified_date, author_name, author_email)

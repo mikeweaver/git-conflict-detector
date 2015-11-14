@@ -43,17 +43,17 @@ describe 'Git' do
           1)
 
       branch_list = []
-      branch_list << Git::Branch.new(
+      branch_list << Git::GitBranch.new(
           'test_1',
           DateTime::parse('2015-10-19 17:58:24 -0700'),
           'Nicholas Ellis',
           'nellis@invoca.com')
-      branch_list << Git::Branch.new(
+      branch_list << Git::GitBranch.new(
           'test_build',
           DateTime::parse('2015-10-19 15:03:22 -0700'),
           'Bob Smith',
           'bob@invoca.com')
-      branch_list << Git::Branch.new(
+      branch_list << Git::GitBranch.new(
           'test_build_b',
           DateTime::parse('2015-10-19 16:52:40 -0700'),
           'Nicholas Ellis',
@@ -75,7 +75,7 @@ describe 'Git' do
           create_mock_open_status(0)],
          ['ingored output', create_mock_open_status(1)])
 
-      conflict = Git::Conflict.new(
+      conflict = Git::GitConflict.new(
           '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
           '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
           ['test/workers/adwords_detail_worker_test.rb', 'pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js'])

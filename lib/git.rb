@@ -33,7 +33,7 @@ module Git
 
       raw_output.split("\n").collect! do |raw_branch_data|
         branch_data = raw_branch_data.split('~')
-        Git::Branch.new(
+        GitBranch.new(
             branch_data[0].sub!('origin/', ''),
             DateTime::parse(branch_data[1]),
             branch_data[2],
@@ -50,7 +50,7 @@ module Git
       rescue GitError => ex
         conflicting_files = Git::get_conflict_list_from_failed_merge_output(ex.error_message)
         unless conflicting_files.empty?
-          Conflict.new(
+          GitConflict.new(
               target_branch_name,
               source_branch_name,
               conflicting_files)

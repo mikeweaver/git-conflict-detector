@@ -5,7 +5,7 @@ describe 'Conflict' do
   def create_test_branches(user_name, count)
     branches = []
     (0..count - 1).each do |i|
-      git_data = Git::Branch.new(
+      git_data = Git::GitBranch.new(
           "path/#{user_name}/branch#{i}",
           DateTime.now,
           user_name,

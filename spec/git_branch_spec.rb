@@ -4,7 +4,7 @@ describe 'GitBranch' do
 
   it 'can be created' do
     last_modified_date = Time.now
-    conflict = Git::Branch.new('name', last_modified_date , 'author_name', 'author@email.com')
+    conflict = Git::GitBranch.new('name', last_modified_date , 'author_name', 'author@email.com')
 
     expect(conflict.name).to eq('name')
     expect(conflict.last_modified_date).to eq(last_modified_date)

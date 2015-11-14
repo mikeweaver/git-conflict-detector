@@ -5,7 +5,7 @@ describe 'ConflictDetector' do
   def create_test_branches
     test_branches = []
     (0..2).each do |i|
-      test_branches << Git::Branch.new(
+      test_branches << Git::GitBranch.new(
           "path/branch#{i}",
           DateTime.now,
           'Author Name',
@@ -20,7 +20,7 @@ describe 'ConflictDetector' do
     expect(conflict_detector).to receive(:setup_repo)
     expect(conflict_detector).to receive(:get_branch_list) { create_test_branches }
     expect(conflict_detector).to receive(:get_conflicts ).exactly(3).times.and_return(
-      [Git::Conflict.new('path/branch0', 'path/branch1', ['dir/file.rb'])], [], [])
+      [Git::GitConflict.new('path/branch0', 'path/branch1', ['dir/file.rb'])], [], [])
     conflict_detector.run
 
     # a single conflict should be found
