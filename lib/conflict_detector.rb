@@ -120,7 +120,7 @@ class ConflictDetector
     conflicts
   end
 
-  def send_conflict_emails(conflicts_newer_than)
+  def send_conflict_emails(repo_name, conflicts_newer_than)
     # only email users in the filter
     users_to_email = User.all.select {|user|
       @settings[:email_filter].empty? || @settings[:email_filter].include?(user.email.downcase)
@@ -135,6 +135,7 @@ class ConflictDetector
         ConflictsMailer.conflicts_email(
             user,
             @settings[:email_override].present? ? @settings[:email_override] : user.email,
+            repo_name,
             new_conflicts,
             resolved_conflicts,
             Conflict.unresolved.by_user(user).status_changed_before(conflicts_newer_than).all).deliver_now
@@ -211,7 +212,7 @@ class ConflictDetector
     end
 
     # send notifications out
-    send_conflict_emails(start_time)
+    send_conflict_emails(repo_name, start_time)
   end
 
   def run

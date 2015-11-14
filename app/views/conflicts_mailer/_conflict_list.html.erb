@@ -1,0 +1,17 @@
+<% if !conflicts.empty? %>
+    <h3><%= heading%></h3>
+    <% conflicts.each do |conflict| %>
+    <p>
+        <% if @user.id == conflict.branch_a.author.id %>
+            <%= render partial: 'conflict', locals: {branch_a: conflict.branch_a, branch_b: conflict.branch_b} %>
+        <% else %>
+            <%= render partial: 'conflict', locals: {branch_a: conflict.branch_b, branch_b: conflict.branch_a} %>
+        <% end %>
+    </p>
+    <% conflict.conflicting_files.each do |file| %>
+        <p style="margin-left:20px;margin-top:0px;margin-bottom:0px">
+            <%= file %>
+        </p>
+    <% end %>
+    <% end %>
+<% end %>
