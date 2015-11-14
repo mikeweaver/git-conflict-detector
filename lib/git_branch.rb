@@ -16,5 +16,9 @@ module Git
     def =~(rhs)
       @name =~ rhs
     end
+
+    def ==(rhs)
+      @name == rhs.name && @last_modified_date == rhs.last_modified_date && @author_email == rhs.author_email && @author_name == rhs.author_name
+    end
   end
 end

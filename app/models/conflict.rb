@@ -1,9 +1,12 @@
 class Conflict < ActiveRecord::Base
   fields do
     resolved :boolean, null: false, default: false
+    conflicting_files :string, null: false, default: '[]'
     status_last_changed_date :datetime, null: false
     timestamps
   end
+
+  serialize :conflicting_files, JSON
 
   belongs_to :branch_a, class_name: Branch, inverse_of: :conflicts, required: true
   belongs_to :branch_b, class_name: Branch, inverse_of: :conflicts, required: true
@@ -11,8 +14,13 @@ class Conflict < ActiveRecord::Base
   validates :branch_a, :branch_b, presence: true
   validates_each :branch_a do |record, attr, value|
     # specifically ignore nil branches, those will be caught by a different validator
-    if (value.present? and record.branch_b.present?) && value.id == record.branch_b.id
+    if (value.present? && record.branch_b.present?) && value.id == record.branch_b.id
       record.errors.add(attr, 'Branch cannot conflict with itself')
+    end
+  end
+  validates_each :conflicting_files do |record, attr, value|
+    unless !value.nil? && value.kind_of?(Array)
+      record.errors.add(attr, 'must be provided')
     end
   end
 
@@ -44,13 +52,13 @@ class Conflict < ActiveRecord::Base
 
   scope :resolved, lambda { Conflict.where(resolved: true) }
 
-  def self.create(branch_a, branch_b, checked_at_date)
-    conflict = new_conflict(branch_a, branch_b, checked_at_date)
+  def self.create(branch_a, branch_b, conflicting_files, checked_at_date)
+    conflict = new_conflict(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict.save
   end
 
-  def self.create!(branch_a, branch_b, checked_at_date)
-    conflict = new_conflict(branch_a, branch_b, checked_at_date)
+  def self.create!(branch_a, branch_b, conflicting_files, checked_at_date)
+    conflict = new_conflict(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict.save!
   end
 
@@ -58,6 +66,7 @@ class Conflict < ActiveRecord::Base
     conflict = by_branches(branch_a, branch_b).first
     if conflict && !conflict.resolved
       conflict.status_last_changed_date = checked_at_date
+      conflict.conflicting_files = []
       conflict.resolved = true
       conflict.save!
     end
@@ -65,15 +74,20 @@ class Conflict < ActiveRecord::Base
 
   private
 
-  def self.new_conflict(branch_a, branch_b, checked_at_date)
+  def self.new_conflict(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict = by_branches(branch_a, branch_b).first
     if conflict
-      if conflict.resolved
+      if conflict.resolved || conflict.conflicting_files != conflicting_files
         conflict.status_last_changed_date = checked_at_date
+        conflict.conflicting_files = conflicting_files
         conflict.resolved = false
       end
     else
-      conflict = new(branch_a: branch_a, branch_b: branch_b, status_last_changed_date: checked_at_date)
+      conflict = new(
+          branch_a: branch_a,
+          branch_b: branch_b,
+          conflicting_files: conflicting_files,
+          status_last_changed_date: checked_at_date)
     end
     conflict
   end

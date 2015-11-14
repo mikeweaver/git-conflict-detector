@@ -87,12 +87,12 @@ class ConflictDetector
     end
   end
 
-  def get_conflicting_branch_names(git, target_branch, source_branches)
+  def get_conflicts(git, target_branch, source_branches)
     # get onto the target branch
     git.execute("checkout #{target_branch.name}")
     git.execute("reset --hard origin/#{target_branch.name}")
 
-    conflicting_branch_names = []
+    conflicts = []
     branches_checked = 0
     source_branches.each do |source_branch|
       # break if we have tested enough branches already
@@ -106,20 +106,20 @@ class ConflictDetector
       next if target_branch.name == source_branch.name
 
       log_message("Attempt to merge #{source_branch.name}")
-      conflicts = git.detect_conflicts(target_branch.name, source_branch.name)
-      if conflicts.empty?
+      conflict = git.detect_conflicts(target_branch.name, source_branch.name)
+      unless conflict.present?
         log_message("SUCCESS: #{source_branch.name} can be merged into #{target_branch.name} without conflicts")
       else
-        if should_ignore_conflicts?(conflicts)
+        if should_ignore_conflicts?(conflict.conflicting_files)
           log_message("#{target_branch.name} conflicts with #{source_branch.name}, but all conflicting files are on the ignore list.")
         else
-          log_message("WARNING: #{target_branch.name} conflicts with #{source_branch.name}\nConflicting files:\n#{conflicts}")
-          conflicting_branch_names << source_branch.name
+          log_message("WARNING: #{target_branch.name} conflicts with #{source_branch.name}\nConflicting files:\n#{conflict.conflicting_files}")
+          conflicts << conflict
         end
       end
     end
 
-    conflicting_branch_names
+    conflicts
   end
 
   def send_conflict_emails(conflicts_newer_than)
@@ -179,18 +179,27 @@ class ConflictDetector
         if tested_pairs.include?("#{branch.name}:#{tested_branch.name}")
           log_message("Skipping #{tested_branch.name}, already tested this combination")
           false
+        elsif branch.name == tested_branch.name
+          false
         else
           true
         end
       end
 
       # check this branch with the others to see if they conflict
-      conflicts = get_conflicting_branch_names(git, branch, branches_to_test)
+      conflicts = get_conflicts(git, branch, branches_to_test)
 
       branches_to_test.each do |tested_branch|
+        # see if we got a conflict for this branch
+        matching_conflicts = conflicts.select do |conflict|
+          conflict.contains_branch(tested_branch.name)
+        end
+        matching_conflicts.size <= 1 or raise "Found more than one conflict for the branch #{tested_branch}!"
+        conflict = matching_conflicts[0]
+
         # record or clear the conflict based on the test result
-        if conflicts.include?(tested_branch.name)
-          Conflict.create!(branch, tested_branch, start_time)
+        unless matching_conflicts.empty?
+          Conflict.create!(branch, tested_branch, conflict.conflicting_files, start_time)
         else
           Conflict.clear!(branch, tested_branch, start_time)
         end

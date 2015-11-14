@@ -19,7 +19,8 @@ describe 'ConflictDetector' do
     conflict_detector = ConflictDetector.new()
     expect(conflict_detector).to receive(:setup_repo)
     expect(conflict_detector).to receive(:get_branch_list) { create_test_branches }
-    expect(conflict_detector).to receive(:get_conflicting_branch_names ).exactly(3).times.and_return(['path/branch1'], [])
+    expect(conflict_detector).to receive(:get_conflicts ).exactly(3).times.and_return(
+      [Git::Conflict.new('path/branch0', 'path/branch1', ['dir/file.rb'])], [], [])
     conflict_detector.run
 
     # a single conflict should be found

@@ -11,5 +11,13 @@ module Git
       @branch_b = branch_b
       @conflicting_files = conflicting_files
     end
+
+    def ==(rhs)
+      @branch_a == rhs.branch_a && @branch_b == rhs.branch_b && @conflicting_files == rhs.conflicting_files
+    end
+
+    def contains_branch(branch_name)
+      @branch_a == branch_name || @branch_b == branch_name
+    end
   end
 end

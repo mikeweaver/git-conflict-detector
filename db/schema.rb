@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151104040937) do
+ActiveRecord::Schema.define(version: 20151114050528) do
 
   create_table "branches", force: :cascade do |t|
     t.datetime "git_tested_at"
@@ -31,6 +31,7 @@ ActiveRecord::Schema.define(version: 20151104040937) do
     t.datetime "updated_at"
     t.integer  "branch_a_id"
     t.integer  "branch_b_id"
+    t.string   "conflicting_files",        default: "[]",  null: false
   end
 
   add_index "conflicts", ["branch_a_id"], name: "index_conflicts_on_branch_a_id"
