@@ -8,7 +8,6 @@ namespace :run do
 
     settings = YAML.load(File.read(args.settings_file_path)).symbolize_keys
 
-    FileUtils.mkdir_p(File.dirname(settings[:log_file]))
     FileUtils.mkdir_p(settings[:cache_directory])
     settings[:email_override].downcase!
     settings[:email_filter].collect! {|email| email.downcase}

@@ -13,13 +13,8 @@ class ConflictDetector
 
   private
 
-  def log_message(message)
-    puts(message)
-    File.open(@settings[:log_file], 'a') {|f| f.write("#{message}\n") }
-  end
-
   def call_git(git, command, run_in_repo_path=true)
-    log_message("Cmd: git #{command}")
+    Rails.logger.debug("Cmd: git #{command}")
     git.execute(command, run_in_repo_path)
   end
 
@@ -73,13 +68,13 @@ class ConflictDetector
 
     branches.delete_if do |branch|
       if should_ignore_branch_by_list?(branch)
-        log_message("Skipping branch #{branch.name}, it is on the ignore list")
+        Rails.logger.info("Skipping branch #{branch.name}, it is on the ignore list")
         true
       elsif !should_include_branch?(branch)
-        log_message("Skipping branch #{branch.name}, it is not on the include list")
+        Rails.logger.info("Skipping branch #{branch.name}, it is not on the include list")
         true
       elsif should_ignore_branch_by_date?(branch)
-        log_message("Skipping branch #{branch.name}, it has not been modified in over #{@settings[:ignore_branches_modified_days_ago]} days")
+        Rails.logger.info("Skipping branch #{branch.name}, it has not been modified in over #{@settings[:ignore_branches_modified_days_ago]} days")
         true
       else
         false
@@ -98,22 +93,22 @@ class ConflictDetector
       # break if we have tested enough branches already
       branches_checked += 1
       if @settings[:maximum_branches_to_check] && (branches_checked > @settings[:maximum_branches_to_check])
-        log_message("WARNING: Checked the maximum number of branches allowed, #{@settings[:maximum_branches_to_check]}, exiting early")
+        Rails.logger.warn("WARNING: Checked the maximum number of branches allowed, #{@settings[:maximum_branches_to_check]}, exiting early")
         break
       end
 
       # don't try to merge the branch with itself
       next if target_branch.name == source_branch.name
 
-      log_message("Attempt to merge #{source_branch.name}")
+      Rails.logger.debug("Attempt to merge #{source_branch.name}")
       conflict = git.detect_conflicts(target_branch.name, source_branch.name)
       unless conflict.present?
-        log_message("SUCCESS: #{source_branch.name} can be merged into #{target_branch.name} without conflicts")
+        Rails.logger.info("MERGED: #{source_branch.name} can be merged into #{target_branch.name} without conflicts")
       else
         if should_ignore_conflicts?(conflict.conflicting_files)
-          log_message("#{target_branch.name} conflicts with #{source_branch.name}, but all conflicting files are on the ignore list.")
+          Rails.logger.info("MERGED: #{target_branch.name} conflicts with #{source_branch.name}, but all conflicting files are on the ignore list.")
         else
-          log_message("WARNING: #{target_branch.name} conflicts with #{source_branch.name}\nConflicting files:\n#{conflict.conflicting_files}")
+          Rails.logger.info("CONFLICT: #{target_branch.name} conflicts with #{source_branch.name}\nConflicting files:\n#{conflict.conflicting_files}")
           conflicts << conflict
         end
       end
@@ -164,21 +159,21 @@ class ConflictDetector
     # get the list of branches that are new or have been updated since they were last tested
     untested_branches = Branch.untested_branches
     if untested_branches.empty?
-      log_message("\nNo branches to process, exiting")
+      Rails.logger.info("\nNo branches to process, exiting")
       return
     end
-    log_message("\nBranches to process: #{untested_branches.join(', ')}")
+    Rails.logger.info("\nBranches to process: #{untested_branches.join(', ')}")
 
     tested_pairs = []
     all_branches = Branch.all
     untested_branches.each do |branch|
-      log_message("\nProcessing target branch: #{branch.name}")
+      Rails.logger.info("\nProcessing target branch: #{branch.name}")
 
       # exclude combinations we have already tested from the list
       # TODO: Extract into function
       branches_to_test = all_branches.select do |tested_branch|
         if tested_pairs.include?("#{branch.name}:#{tested_branch.name}")
-          log_message("Skipping #{tested_branch.name}, already tested this combination")
+          Rails.logger.debug("Skipping #{tested_branch.name}, already tested this combination")
           false
         elsif branch.name == tested_branch.name
           false

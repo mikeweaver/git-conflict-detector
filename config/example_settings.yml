@@ -1,5 +1,4 @@
 cache_directory: './tmp/cache/git'
-log_file: './log/git.log'
 maximum_branches_to_check: 100
 email_override: 'test@email.com' #redirect all emails to this address
 email_filter: [] #only email users in this list. Empty to disable filter.

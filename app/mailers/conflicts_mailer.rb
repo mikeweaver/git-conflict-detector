@@ -3,7 +3,7 @@ class ConflictsMailer < ActionMailer::Base
   default content_type: 'text/plain'
 
   def conflicts_email(user, send_to_email, repo_name, new_conflicts, resolved_conflicts, existing_conflicts)
-    puts "Sending email to #{send_to_email}"
+    Rails.logger.info("Sending email to #{send_to_email}")
     @user = user
     @repo_name = repo_name
     @new_conflicts = new_conflicts.sort.sort
