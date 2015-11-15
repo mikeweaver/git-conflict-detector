@@ -4,7 +4,7 @@ describe 'User' do
 
   it 'can create be constructed from git data' do
     updated_at = DateTime.now
-    git_data = Git::Branch.new(
+    git_data = Git::GitBranch.new(
         'mypath/mybranch',
         updated_at,
         'Author Name',
@@ -19,7 +19,7 @@ describe 'User' do
 
   it 'can have multiple branches related to it' do
     (0..1).each do |i|
-      git_data = Git::Branch.new(
+      git_data = Git::GitBranch.new(
           "path/branch#{i}",
           DateTime.now,
           'Author Name',
