@@ -3,13 +3,15 @@ require 'fileutils'
 
 class ConflictDetector
 
-  def initialize(settings_file_path='config/settings.yml')
-    @settings = YAML.load(File.read(settings_file_path)).symbolize_keys
-    FileUtils.mkdir_p(File.dirname(@settings[:log_file]))
-    FileUtils.mkdir_p(@settings[:cache_directory])
-    @settings[:email_override].downcase!
-    @settings[:email_filter].collect! {|email| email.downcase}
+  def initialize(settings)
+    @settings = settings
   end
+
+  def run
+    process_repo(@settings[:repo_name])
+  end
+
+  private
 
   def log_message(message)
     puts(message)
@@ -213,12 +215,6 @@ class ConflictDetector
 
     # send notifications out
     send_conflict_emails(repo_name, start_time)
-  end
-
-  def run
-    @settings[:repos_to_check].each do |repo_name|
-      process_repo(repo_name)
-    end
   end
 end
 

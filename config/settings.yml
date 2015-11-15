@@ -1,12 +1,13 @@
 cache_directory: './tmp/cache/git'
 log_file: './log/git.log'
 maximum_branches_to_check: 100
-repos_to_check: ['Invoca/web']
-ignore_branches: [] #regex
-ignore_branches_modified_days_ago: 28
-only_branches: ['^90/.*$', 'master'] #regex
-ignore_conflicts_in_file_paths: ['^db/schema.sql$', '^test/fixtures/.*$', '^lib/data/generated/.*$'] #regex
-master_branch_name: 'master'
-email_override: 'mike@weaverfamily.net'
-email_filter: []
-
+email_override: 'test@email.com' #redirect all emails to this address
+email_filter: [] #only email users in this list. Empty to disable filter.
+repos_to_check:
+  MyRepo:
+    repo_name: 'Organization/repo'
+    ignore_branches: [] #regex
+    ignore_branches_modified_days_ago: 28
+    only_branches: ['^folder/.*$', 'master'] #regex
+    ignore_conflicts_in_file_paths: ['^test/fixtures/.*$', '^lib/data/generated/.*$'] #regex
+    master_branch_name: 'master'
