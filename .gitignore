@@ -41,6 +41,7 @@ build/
 # project specific
 /.cache/
 /.logs/
+/config/settings.yml
 
 # mac
 .DS_Store
