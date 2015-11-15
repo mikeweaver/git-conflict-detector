@@ -102,7 +102,7 @@ describe 'Conflict' do
         branch_b: @branches[1],
         conflicting_files: ['test/file.rb'],
         status_last_changed_date: Time.now())
-    expect { conflict.save! }.to raise_exception
+    expect { conflict.save! }.to raise_exception(ActiveRecord::RecordInvalid)
   end
 
   it 'can be looked up by user' do

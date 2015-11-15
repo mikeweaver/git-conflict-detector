@@ -12,6 +12,7 @@ class Conflict < ActiveRecord::Base
   belongs_to :branch_b, class_name: Branch, inverse_of: :conflicts, required: true
 
   validates :branch_a, :branch_b, presence: true
+  validates :branch_a, uniqueness: { scope: :branch_b, message: "Conficts must be unique" }
   validates_each :branch_a do |record, attr, value|
     # specifically ignore nil branches, those will be caught by a different validator
     if (value.present? && record.branch_b.present?) && value.id == record.branch_b.id
