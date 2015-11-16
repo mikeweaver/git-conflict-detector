@@ -117,29 +117,6 @@ class ConflictDetector
     conflicts
   end
 
-  def send_conflict_emails(repo_name, conflicts_newer_than)
-    # only email users in the filter
-    users_to_email = User.all.select {|user|
-      @settings[:email_filter].empty? || @settings[:email_filter].include?(user.email.downcase)
-    }
-
-    users_to_email.each do |user|
-      # TODO: Move this query into a single spec to improve readability
-      # TODO: Consider including conflicting files in the email
-      new_conflicts = Conflict.unresolved.by_user(user).status_changed_after(conflicts_newer_than).all
-      resolved_conflicts = Conflict.resolved.by_user(user).status_changed_after(conflicts_newer_than).all
-      unless new_conflicts.blank? && resolved_conflicts.blank?
-        ConflictsMailer.conflicts_email(
-            user,
-            @settings[:email_override].present? ? @settings[:email_override] : user.email,
-            repo_name,
-            new_conflicts,
-            resolved_conflicts,
-            Conflict.unresolved.by_user(user).status_changed_before(conflicts_newer_than).all).deliver_now
-      end
-    end
-  end
-
   def process_repo(repo_name)
     git = Git::Git.new("git@github.com:#{repo_name}.git", "#{File.join(@settings[:cache_directory], repo_name)}")
 
@@ -209,7 +186,7 @@ class ConflictDetector
     end
 
     # send notifications out
-    send_conflict_emails(repo_name, start_time)
+    ConflictsMailer.send_conflict_emails(repo_name, start_time, @settings[:email_filter], @settings[:email_override])
   end
 end
 

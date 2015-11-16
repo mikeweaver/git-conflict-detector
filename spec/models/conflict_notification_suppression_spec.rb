@@ -37,5 +37,21 @@ describe 'ConflictNotificationSuppression' do
     expect(suppression.suppress_until).to be_nil
   end
 
+  it 'can be filtered by user' do
+    ConflictNotificationSuppression.create(@branches_a[0].author, @branches_b[0], nil)
+    ConflictNotificationSuppression.create(@branches_b[0].author, @branches_b[0], nil)
+
+    suppressions = ConflictNotificationSuppression.by_user(@branches_a[0].author)
+    expect(suppressions.size).to eq(1)
+  end
+
+  it 'can be filtered by suppression date' do
+    ConflictNotificationSuppression.create(@branches_a[0].author, @branches_b[0], nil)
+    ConflictNotificationSuppression.create(@branches_a[0].author, @branches_b[1], 4.days.from_now)
+    ConflictNotificationSuppression.create(@branches_b[0].author, @branches_a[1], 4.days.ago)
+
+    suppressions = ConflictNotificationSuppression.not_expired
+    expect(suppressions.size).to eq(2)
+  end
 end
 

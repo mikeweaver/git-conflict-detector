@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe 'Conflict' do
 
+  DIFFERENT_NAME = 'Different Name'
+
   def create_test_branches(user_name, count)
     branches = []
     (0..count - 1).each do |i|
@@ -105,21 +107,51 @@ describe 'Conflict' do
     expect { conflict.save! }.to raise_exception(ActiveRecord::RecordInvalid)
   end
 
-  it 'can be looked up by user' do
-    DIFFERENT_NAME = 'Different Name'
-    other_branches = create_test_branches(DIFFERENT_NAME, 2)
-    Conflict.create!(@branches[0], @branches[1], ['test/file.rb'], Time.now)
-    Conflict.create!(other_branches[0], other_branches[1], ['test/file.rb'], Time.now)
+  context 'with branches from multiple users' do
+    before do
+      @other_branches = create_test_branches(DIFFERENT_NAME, 2)
+      Conflict.create!(@branches[0], @branches[1], ['test/file.rb'], Time.now)
+      Conflict.create!(@other_branches[0], @other_branches[1], ['test/file.rb'], Time.now)
+    end
 
-    # check name filtering
-    conflicts = Conflict.unresolved.by_user(User.where(name: DIFFERENT_NAME).first).status_changed_after(2.minutes.ago)
-    expect(conflicts.size).to eq(1)
-    expect(conflicts[0].branch_a.author.name).to eq(DIFFERENT_NAME)
+    it 'can be looked up by user' do
+      conflicts = Conflict.unresolved.by_user(User.where(name: DIFFERENT_NAME).first)
+      expect(conflicts.size).to eq(1)
+      expect(conflicts[0].branch_a.author.name).to eq(DIFFERENT_NAME)
+    end
 
-    # check tested date filtering
-    conflicts = Conflict.unresolved.by_user(User.where(name: DIFFERENT_NAME).first).status_changed_after(2.minutes.from_now)
-    expect(conflicts.size).to eq(0)
+    it 'can be filtered by status change date' do
+      conflicts = Conflict.unresolved.status_changed_after(2.minutes.from_now)
+      expect(conflicts.size).to eq(0)
+
+      conflicts = Conflict.unresolved.status_changed_after(2.minutes.ago)
+      expect(conflicts.size).to eq(2)
+    end
+
+    it 'can be filtered by resolution' do
+      unresolved_conflicts = Conflict.unresolved
+      expect(unresolved_conflicts.size).to eq(2)
+
+      resolved_conflicts = Conflict.resolved
+      expect(resolved_conflicts.size).to eq(0)
+
+      unresolved_conflicts.first.resolved = true
+      unresolved_conflicts.first.save
+
+      resolved_conflicts = Conflict.resolved
+      expect(resolved_conflicts.size).to eq(1)
+    end
+
+    it 'can be filtered by branch ids' do
+      conflicts = Conflict.exclude_branches_with_ids([@branches[0].id, @branches[1].id])
+      expect(conflicts.size).to eq(1)
+
+      conflicts = Conflict.exclude_branches_with_ids([@branches[0].id, @branches[1].id, @other_branches[0], @other_branches[1]])
+      expect(conflicts.size).to eq(0)
+
+      conflicts = Conflict.exclude_branches_with_ids([])
+      expect(conflicts.size).to eq(2)
+    end
   end
-
 end
 

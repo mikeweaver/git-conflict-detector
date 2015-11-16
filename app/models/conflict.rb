@@ -53,6 +53,11 @@ class Conflict < ActiveRecord::Base
 
   scope :resolved, lambda { Conflict.where(resolved: true) }
 
+  scope :exclude_branches_with_ids, lambda { |branch_ids|
+    (branch_ids.present? && branch_ids.size > 0) or return Conflict.all
+    Conflict.where('(branch_a_id NOT IN (?) AND branch_b_id NOT IN (?))', branch_ids, branch_ids)
+  }
+
   def self.create(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict = new_conflict(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict.save
