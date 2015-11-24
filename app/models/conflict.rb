@@ -61,6 +61,7 @@ class Conflict < ActiveRecord::Base
   def self.create!(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict = new_conflict(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict.save!
+    conflict
   end
 
   def self.clear!(branch_a, branch_b, checked_at_date)
