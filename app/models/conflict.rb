@@ -11,6 +11,8 @@ class Conflict < ActiveRecord::Base
   belongs_to :branch_a, class_name: Branch, inverse_of: :conflicts, required: true
   belongs_to :branch_b, class_name: Branch, inverse_of: :conflicts, required: true
 
+  has_many :conflict_notification_suppressions, dependent: :destroy
+
   validates :branch_a, :branch_b, presence: true
   validates :branch_a, uniqueness: { scope: :branch_b, message: "Conficts must be unique" }
   validates_each :branch_a do |record, attr, value|
