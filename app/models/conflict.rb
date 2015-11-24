@@ -58,11 +58,6 @@ class Conflict < ActiveRecord::Base
     Conflict.where('(branch_a_id NOT IN (?) AND branch_b_id NOT IN (?))', branch_ids, branch_ids)
   }
 
-  def self.create(branch_a, branch_b, conflicting_files, checked_at_date)
-    conflict = new_conflict(branch_a, branch_b, conflicting_files, checked_at_date)
-    conflict.save
-  end
-
   def self.create!(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict = new_conflict(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict.save!
