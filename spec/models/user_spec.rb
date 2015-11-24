@@ -32,11 +32,10 @@ describe 'User' do
 
   it 'will not allow duplicate name/email combinations' do
     user1 = User.create(name: 'Author Name', email: 'author@email.com')
-    user1.save
-    # rails silently allows this to succedd, but does not create a duplicate
+    user1.save!
     user2 = User.create(name: 'Author Name', email: 'author@email.com')
-    user2.save
-    expect(User.all.size).to eq(1)
+
+    expect { user2.save! }.to raise_exception(ActiveRecord::RecordInvalid)
   end
 
   it 'requires name and email address' do

@@ -17,7 +17,7 @@ class Branch < ActiveRecord::Base
     branch.git_updated_at = branch_data.last_modified_date
     branch.updated_at = Time.now # force updated time
     branch.author = User.create_from_git_data(branch_data)
-    branch.save
+    branch.save!
     branch
   end
 

@@ -136,7 +136,7 @@ describe 'Conflict' do
       expect(resolved_conflicts.size).to eq(0)
 
       unresolved_conflicts.first.resolved = true
-      unresolved_conflicts.first.save
+      unresolved_conflicts.first.save!
 
       resolved_conflicts = Conflict.resolved
       expect(resolved_conflicts.size).to eq(1)

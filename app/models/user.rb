@@ -14,7 +14,7 @@ class User < ActiveRecord::Base
     user = User.where(name: branch_data.author_name, email: branch_data.author_email).first_or_initialize
     user.name = branch_data.author_name
     user.email = branch_data.author_email
-    user.save
+    user.save!
     user
   end
 end
