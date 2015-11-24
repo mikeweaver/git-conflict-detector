@@ -10,7 +10,7 @@ describe 'BranchNotificationSuppression' do
           DateTime.now,
           user_name,
           'author@email.com')
-      branches << Branch.create_from_git_data(git_data)
+      branches << Branch.create_from_git_data!(git_data)
     end
     branches
   end

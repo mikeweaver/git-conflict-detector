@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
   has_many :branches, foreign_key: "author_id"
   has_many :notification_suppressions, dependent: :destroy
 
-  def self.create_from_git_data(branch_data)
+  def self.create_from_git_data!(branch_data)
     user = User.where(name: branch_data.author_name, email: branch_data.author_email).first_or_initialize
     user.name = branch_data.author_name
     user.email = branch_data.author_email

@@ -126,7 +126,7 @@ class ConflictDetector
 
     # get a list of branches and add them to the DB
     get_branch_list(git).each do |branch|
-      Branch.create_from_git_data(branch)
+      Branch.create_from_git_data!(branch)
     end
 
     # delete branches that were not updated by the git data
@@ -182,7 +182,7 @@ class ConflictDetector
         tested_pairs << "#{tested_branch.name}:#{branch.name}"
       end
 
-      branch.mark_as_tested
+      branch.mark_as_tested!
     end
 
     # send notifications out

@@ -9,7 +9,7 @@ describe 'Branch' do
         updated_at,
         'Author Name',
         'author@email.com')
-    branch = Branch.create_from_git_data(git_data)
+    branch = Branch.create_from_git_data!(git_data)
 
     expect(branch.name).to eq('mypath/mybranch')
     expect(branch.git_updated_at).to eq(updated_at)
@@ -26,7 +26,7 @@ describe 'Branch' do
           DateTime.now,
           'Author Name',
           'author@email.com')
-      Branch.create_from_git_data(git_data)
+      Branch.create_from_git_data!(git_data)
     end
     # ensure they came out of the DB in the same order we put them in
     expect(Branch.first.name).to eq('b')
@@ -45,7 +45,7 @@ describe 'Branch' do
             DateTime.now,
             'Author Name',
             'author@email.com')
-        Branch.create_from_git_data(git_data)
+        Branch.create_from_git_data!(git_data)
       end
     end
 
@@ -67,7 +67,7 @@ describe 'Branch' do
           DateTime.now,
           'Author Name',
           'author@email.com')
-      @branch = Branch.create_from_git_data(git_data)
+      @branch = Branch.create_from_git_data!(git_data)
     end
 
     it 'prints its name when stringified' do
@@ -83,14 +83,14 @@ describe 'Branch' do
       expect(@branch.git_tested_at).to be_nil
       current_time = Time.now + 1000
       Timecop.freeze(current_time) do
-        @branch.mark_as_tested
+        @branch.mark_as_tested!
         @branch.reload
         expect(@branch.git_tested_at).to eq(current_time)
       end
 
       current_time = Time.now + 2000
       Timecop.freeze(current_time) do
-        @branch.mark_as_tested
+        @branch.mark_as_tested!
         @branch.reload
         expect(@branch.git_tested_at).to eq(current_time)
       end

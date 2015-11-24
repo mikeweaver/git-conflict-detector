@@ -12,16 +12,16 @@ class Branch < ActiveRecord::Base
   has_many :conflicts, foreign_key: :branch_a_id, dependent: :destroy
   has_many :branch_notification_suppressions, dependent: :destroy
 
-  def self.create_from_git_data(branch_data)
+  def self.create_from_git_data!(branch_data)
     branch = Branch.where(name: branch_data.name).first_or_initialize
     branch.git_updated_at = branch_data.last_modified_date
     branch.updated_at = Time.now # force updated time
-    branch.author = User.create_from_git_data(branch_data)
+    branch.author = User.create_from_git_data!(branch_data)
     branch.save!
     branch
   end
 
-  def mark_as_tested
+  def mark_as_tested!
     update_column(:git_tested_at, Time.now)
   end
 

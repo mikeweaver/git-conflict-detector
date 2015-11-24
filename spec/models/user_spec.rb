@@ -9,7 +9,7 @@ describe 'User' do
         updated_at,
         'Author Name',
         'author@email.com')
-    user = User.create_from_git_data(git_data)
+    user = User.create_from_git_data!(git_data)
 
     expect(user.name).to eq('Author Name')
     expect(user.email).to eq('author@email.com')
@@ -24,7 +24,7 @@ describe 'User' do
           DateTime.now,
           'Author Name',
           'author@email.com')
-      Branch.create_from_git_data(git_data)
+      Branch.create_from_git_data!(git_data)
     end
     user = User.where(email: 'author@email.com').first
     expect(user.branches.size).to eq(2)
