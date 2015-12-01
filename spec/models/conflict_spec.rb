@@ -36,7 +36,7 @@ describe 'Conflict' do
 
     expect(tested_at1).not_to eq(tested_at2)
     expect(Conflict.all.size).to eq(1)
-    expect(Conflict.first.status_last_changed_date).to eq(tested_at1)
+    expect(Conflict.first.status_last_changed_date.to_i).to eq(tested_at1.to_i)
     expect(Conflict.first.conflicting_files).to eq(['test/file.rb'])
   end
 
@@ -48,7 +48,7 @@ describe 'Conflict' do
 
     expect(tested_at1).not_to eq(tested_at2)
     expect(Conflict.all.size).to eq(1)
-    expect(Conflict.first.status_last_changed_date).to eq(tested_at2)
+    expect(Conflict.first.status_last_changed_date.to_i).to eq(tested_at2.to_i)
     expect(Conflict.first.conflicting_files).to eq(['test/file2.rb'])
   end
 
