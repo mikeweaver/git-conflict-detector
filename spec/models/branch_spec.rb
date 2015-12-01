@@ -85,14 +85,14 @@ describe 'Branch' do
       Timecop.freeze(current_time) do
         @branch.mark_as_tested!
         @branch.reload
-        expect(@branch.git_tested_at).to eq(current_time)
+        expect(@branch.git_tested_at.to_i).to eq(current_time.to_i)
       end
 
       current_time = Time.now + 2000
       Timecop.freeze(current_time) do
         @branch.mark_as_tested!
         @branch.reload
-        expect(@branch.git_tested_at).to eq(current_time)
+        expect(@branch.git_tested_at.to_i).to eq(current_time.to_i)
       end
     end
   end
