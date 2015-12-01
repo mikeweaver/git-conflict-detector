@@ -3,6 +3,7 @@ The Git Conflict Detector is a tool that will automatically notify team members 
 
 ## Setup
 TBD
+Change to trigger build
 
 ## Running with Cron
 * To run the conflict detector rake task using cron, enter the following into crontab:
