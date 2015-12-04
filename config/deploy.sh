@@ -49,6 +49,8 @@ cp "$BACKUP_PATH/config/database.yml" "$DEPLOY_PATH/config/"
 
 echo "Bundling"
 pwd
+echo $PATH
+which bundle
 bundle install
 
 echo "Migrating DB"
