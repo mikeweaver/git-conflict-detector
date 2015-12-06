@@ -38,6 +38,7 @@ group :development, :test do
   gem 'rspec'
   gem 'database_cleaner'
   gem 'timecop'
+  gem 'coveralls', require: false
 end
 
 group :development do
