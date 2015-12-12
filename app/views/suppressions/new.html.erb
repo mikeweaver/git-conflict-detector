@@ -1,0 +1,21 @@
+<%= form_for :suppression, url: suppressions_path do |f| %>
+    <div>
+      <%= f.check_box :suppress_conflict, checked: @suppress_conflict%> Suppress the conflict between branch A and B
+    </div>
+    <div>
+      For <%= f.select :suppression_range_conflict, options_for_select(SuppressionsController::SUPPRESSION_RANGES) %><br>
+      <%= f.check_box :suppress_conflict_until_files_change %> unless the conflicting file set changes
+    </div>
+
+    <div>
+      <%= f.check_box :suppress_branch_a %> Suppress ALL existing and future conflcits with branch A:
+      For <%= f.select :suppression_range_branch_a, options_for_select(SuppressionsController::SUPPRESSION_RANGES) %><br>
+    </div>
+
+    <div>
+      <%= f.check_box :suppress_branch_b %> Suppress ALL existing and future conflcits with branch B:
+      For <%= f.select :suppression_range_branch_b, options_for_select(SuppressionsController::SUPPRESSION_RANGES) %><br>
+    </div>
+
+    <%= f.submit %>
+<% end %>
