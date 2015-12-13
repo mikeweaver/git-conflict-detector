@@ -5,21 +5,19 @@ describe 'Conflict' do
   DIFFERENT_NAME = 'Different Name'
 
   before do
-    @branches = create_test_branches('Author Name', 3)
+    @branches = create_test_branches(author_name: 'Author Name', count: 3)
   end
 
   it 'can be created' do
-    tested_at = Time.now()
-    create_test_conflict(@branches[0], @branches[1], tested_at)
-
+    create_test_conflict(@branches[0], @branches[1])
     expect(Conflict.all.size).to eq(1)
   end
 
   it 're-creating does not update the status_last_changed_date' do
     tested_at1 = Time.now()
-    create_test_conflict(@branches[0], @branches[1], tested_at1)
+    create_test_conflict(@branches[0], @branches[1], tested_at: tested_at1)
     tested_at2 = Time.now()
-    create_test_conflict(@branches[0], @branches[1], tested_at2)
+    create_test_conflict(@branches[0], @branches[1], tested_at: tested_at2)
 
     expect(tested_at1).not_to eq(tested_at2)
     expect(Conflict.all.size).to eq(1)
@@ -29,9 +27,9 @@ describe 'Conflict' do
 
   it 're-creating with a different file list does update the status_last_changed_date and file list' do
     tested_at1 = Time.now()
-    create_test_conflict(@branches[0], @branches[1], tested_at1)
+    create_test_conflict(@branches[0], @branches[1], tested_at: tested_at1)
     tested_at2 = Time.now()
-    create_test_conflict(@branches[0], @branches[1], tested_at2, ['test/file2.rb'])
+    create_test_conflict(@branches[0], @branches[1], tested_at: tested_at2, file_list: ['test/file2.rb'])
 
     expect(tested_at1).not_to eq(tested_at2)
     expect(Conflict.all.size).to eq(1)
@@ -73,15 +71,15 @@ describe 'Conflict' do
   it 'requires two branches' do
     expect { create_test_conflict(@branches[0], nil) }.to raise_exception(ActiveRecord::RecordInvalid)
     expect { create_test_conflict(nil, @branches[0]) }.to raise_exception(ActiveRecord::RecordInvalid)
-    expect { create_test_conflict(nil, nil, Time.now, ['test/file.rb']) }.to raise_exception(ActiveRecord::RecordInvalid)
+    expect { create_test_conflict(nil, nil, file_list: ['test/file.rb']) }.to raise_exception(ActiveRecord::RecordInvalid)
   end
 
   it 'requires a file list array' do
-    expect { create_test_conflict(@branches[0], @branches[1], Time.now, nil) }.to raise_exception(ActiveRecord::RecordInvalid)
-    expect { create_test_conflict(@branches[0], @branches[1], Time.now, '') }.to raise_exception(ActiveRecord::RecordInvalid)
+    expect { create_test_conflict(@branches[0], @branches[1], file_list: nil) }.to raise_exception(ActiveRecord::RecordInvalid)
+    expect { create_test_conflict(@branches[0], @branches[1], file_list: '') }.to raise_exception(ActiveRecord::RecordInvalid)
 
     # should not raise
-    create_test_conflict(@branches[0], @branches[1], Time.now, [])
+    create_test_conflict(@branches[0], @branches[1], file_list: [])
   end
 
   it 'does not allow duplicate conflicts' do
@@ -96,7 +94,7 @@ describe 'Conflict' do
 
   context 'with branches from multiple users' do
     before do
-      @other_branches = create_test_branches(DIFFERENT_NAME, 2)
+      @other_branches = create_test_branches(author_name: DIFFERENT_NAME, count: 2)
       @conflict_1 = create_test_conflict(@branches[0], @branches[1])
       @conflict_2 = create_test_conflict(@other_branches[0], @other_branches[1])
     end

@@ -18,7 +18,7 @@ describe 'User' do
   end
 
   it 'can have multiple branches related to it' do
-    create_test_branches('author@email.com', 2)
+    create_test_branches(author_email: 'author@email.com')
     user = User.where(email: 'author@email.com').first
     expect(user.branches.size).to eq(2)
   end

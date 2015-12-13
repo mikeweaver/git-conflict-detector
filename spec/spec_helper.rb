@@ -27,22 +27,23 @@ RSpec.configure do |config|
 
 end
 
-def create_test_branch(name='path/branch', last_modified_date=Time.now, author_name='Author Name', author_email='author@email.com')
+def create_test_branch(name: 'path/branch', last_modified_date: Time.now, author_name: 'Author Name', author_email: 'author@email.com')
   git_data = Git::GitBranch.new(name, last_modified_date, author_name, author_email)
   Branch.create_from_git_data!(git_data)
 end
 
-def create_test_branches(user_name='author@email.com', count=2)
+def create_test_branches(author_name: 'Author Name', author_email: 'author@email.com', count: 2)
   branches = []
   (0..count - 1).each do |i|
     branches << create_test_branch(
-        "path/#{user_name}/branch#{i}",
-        DateTime.now,
-        user_name)
+        name: "path/#{author_name}/branch#{i}",
+        last_modified_date: DateTime.now,
+        author_name: author_name,
+        author_email: author_email)
   end
   branches
 end
 
-def create_test_conflict(branch_a, branch_b, tested_at=Time.now, file_list=['test/file.rb'])
+def create_test_conflict(branch_a, branch_b, tested_at: Time.now, file_list: ['test/file.rb'])
   Conflict.create!(branch_a, branch_b, file_list, tested_at)
 end

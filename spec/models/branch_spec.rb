@@ -14,7 +14,7 @@ describe 'Branch' do
   it 'can be sorted alphabetically by name' do
     names = ['b', 'd', 'a', 'c']
     (0..3).each do |i|
-      git_data = create_test_branch(name=names[i])
+      git_data = create_test_branch(name: names[i])
     end
     # ensure they came out of the DB in the same order we put them in
     expect(Branch.first.name).to eq('b')
@@ -28,7 +28,7 @@ describe 'Branch' do
   context 'with two existing branches' do
     before do
       (0..1).each do |i|
-        create_test_branch(name="path/branch#{i}")
+        create_test_branch(name: "path/branch#{i}")
       end
     end
 

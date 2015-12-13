@@ -3,8 +3,8 @@ require 'spec_helper'
 describe 'BranchNotificationSuppression' do
 
   before do
-    @branches_a = create_test_branches('Author A', 2)
-    @branches_b = create_test_branches('Author B', 2)
+    @branches_a = create_test_branches(author_name: 'Author A', count: 2)
+    @branches_b = create_test_branches(author_name: 'Author B', count: 2)
   end
 
   it 'can be created with a suppression date' do
