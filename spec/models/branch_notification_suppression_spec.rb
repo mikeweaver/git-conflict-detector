@@ -40,5 +40,14 @@ describe 'BranchNotificationSuppression' do
     suppressions = BranchNotificationSuppression.not_expired
     expect(suppressions.size).to eq(2)
   end
+
+  it 'can return list of suppressed branch ids filtered by user' do
+    BranchNotificationSuppression.create!(@branches_a[0].author, @branches_b[0], nil)
+    BranchNotificationSuppression.create!(@branches_a[0].author, @branches_b[1], 4.days.from_now)
+    BranchNotificationSuppression.create!(@branches_b[0].author, @branches_a[1], 4.days.ago)
+
+    branch_ids = BranchNotificationSuppression.suppressed_branch_ids(@branches_a[0].author)
+    expect(branch_ids).to eq([@branches_b[0].id, @branches_b[1].id])
+  end
 end
 

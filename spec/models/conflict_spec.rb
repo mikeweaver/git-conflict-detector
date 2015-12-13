@@ -137,6 +137,31 @@ describe 'Conflict' do
       conflicts = Conflict.exclude_branches_with_ids([])
       expect(conflicts).to eq([@conflict_1, @conflict_2])
     end
+
+    it 'can be filtered by non-self conflicting authored branch ids' do
+      @conflict_3 = create_test_conflict(@branches[2], @other_branches[1])
+      first_user = @branches[0].author
+      second_user = @other_branches[0].author
+
+      # we won't exclude our own branches because they are self conflicting
+      conflicts = Conflict.exclude_non_self_conflicting_authored_branches_with_ids(first_user, [@branches[0].id, @branches[1].id])
+      expect(conflicts).to eq([@conflict_1, @conflict_2, @conflict_3])
+
+      # we won't exclude other branches because they don't belong to us
+      conflicts = Conflict.exclude_non_self_conflicting_authored_branches_with_ids(first_user, [@other_branches[0], @other_branches[1]])
+      expect(conflicts).to eq([@conflict_1, @conflict_2, @conflict_3])
+
+      # we will exclude this branch because it is in conflict with another user
+      conflicts = Conflict.exclude_non_self_conflicting_authored_branches_with_ids(first_user, [@branches[2].id])
+      expect(conflicts).to eq([@conflict_1, @conflict_2])
+
+      # we will exclude this branch because it is in conflict with another user
+      conflicts = Conflict.exclude_non_self_conflicting_authored_branches_with_ids(second_user, [@other_branches[1]])
+      expect(conflicts).to eq([@conflict_1, @conflict_2])
+
+      # we don't have to exclude any branches
+      conflicts = Conflict.exclude_non_self_conflicting_authored_branches_with_ids(first_user, [])
+      expect(conflicts.size).to eq(3)
     end
   end
 end

@@ -36,5 +36,18 @@ describe 'User' do
     expect { User.create(email: 'author@email.com') }.to raise_exception(ActiveRecord::StatementInvalid)
   end
 
+  it 'can return list of users filtered by email address' do
+    user_1 = User.create(name: 'Author Name 1', email: 'email1@email.com')
+    user_2 = User.create(name: 'Author Name 2', email: 'email2@email.com')
+
+    users = User.users_with_emails([])
+    expect(users).to eq([user_1, user_2])
+
+    users = User.users_with_emails([user_1.email])
+    expect(users).to eq([user_1])
+
+    users = User.users_with_emails(['notinlist@email.com'])
+    expect(users).to eq([])
+  end
 end
 
