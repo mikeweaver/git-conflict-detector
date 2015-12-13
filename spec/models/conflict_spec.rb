@@ -4,19 +4,6 @@ describe 'Conflict' do
 
   DIFFERENT_NAME = 'Different Name'
 
-  def create_test_branches(user_name, count)
-    branches = []
-    (0..count - 1).each do |i|
-      git_data = Git::GitBranch.new(
-          "path/#{user_name}/branch#{i}",
-          DateTime.now,
-          user_name,
-          'author@email.com')
-      branches << Branch.create_from_git_data!(git_data)
-    end
-    branches
-  end
-
   before do
     @branches = create_test_branches('Author Name', 3)
   end

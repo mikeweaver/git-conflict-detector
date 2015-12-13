@@ -18,14 +18,7 @@ describe 'User' do
   end
 
   it 'can have multiple branches related to it' do
-    (0..1).each do |i|
-      git_data = Git::GitBranch.new(
-          "path/branch#{i}",
-          DateTime.now,
-          'Author Name',
-          'author@email.com')
-      Branch.create_from_git_data!(git_data)
-    end
+    create_test_branches('author@email.com', 2)
     user = User.where(email: 'author@email.com').first
     expect(user.branches.size).to eq(2)
   end

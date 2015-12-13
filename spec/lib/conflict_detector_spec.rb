@@ -2,18 +2,6 @@ require 'spec_helper'
 
 describe 'ConflictDetector' do
 
-  def create_test_branches
-    test_branches = []
-    (0..2).each do |i|
-      test_branches << Git::GitBranch.new(
-          "path/branch#{i}",
-          DateTime.now,
-          'Author Name',
-          'author@email.com')
-    end
-    test_branches
-  end
-
   def create_test_settings
     {
       cache_directory: './tmp/cache/git',
