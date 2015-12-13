@@ -42,3 +42,7 @@ def create_test_branches(user_name='author@email.com', count=2)
   end
   branches
 end
+
+def create_test_conflict(branch_a, branch_b, tested_at=Time.now, file_list=['test/file.rb'])
+  Conflict.create!(branch_a, branch_b, file_list, tested_at)
+end

@@ -5,7 +5,7 @@ describe 'ConflictNotificationSuppression' do
   before do
     @branches_a = create_test_branches('Author A', 2)
     @branches_b = create_test_branches('Author B', 2)
-    @conflict = Conflict.create!(@branches_a[0], @branches_b[1], ['test/file.rb'], Time.now)
+    @conflict = create_test_conflict(@branches_a[0], @branches_b[1])
   end
 
   it 'can be created with a suppression date' do
@@ -34,7 +34,7 @@ describe 'ConflictNotificationSuppression' do
   end
 
   it 'can be filtered by suppression date' do
-    conflict_b = Conflict.create!(@branches_a[1], @branches_b[1], ['test/file.rb'], Time.now)
+    conflict_b = create_test_conflict(@branches_a[1], @branches_b[1])
 
     ConflictNotificationSuppression.create!(@branches_a[0].author, @conflict, nil)
     ConflictNotificationSuppression.create!(@branches_a[0].author, conflict_b, 4.days.from_now)
