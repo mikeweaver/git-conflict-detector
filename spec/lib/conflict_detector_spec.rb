@@ -38,7 +38,7 @@ describe 'ConflictDetector' do
     expect(conflict_detector).to receive(:get_conflicts ).exactly(3).times.and_return(
       [Git::GitConflict.new('path/branch0', 'path/branch1', ['dir/file.rb'])], [], [])
     # a single notification email should be sent
-    expect(ConflictsMailer).to receive(:send_conflict_email_to_user).and_call_original
+    expect(ConflictsMailer).to receive(:maybe_send_conflict_email_to_user).and_call_original
 
     # run the test
     conflict_detector.run

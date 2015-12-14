@@ -8,9 +8,15 @@
                 <%= render partial: 'conflict', locals: {branch_a: conflict.branch_b, branch_b: conflict.branch_a, resolved: false} %>
             <% end %>
         </p>
-        <% conflict.conflicting_files.each do |file| %>
+        <% conflict.conflicting_files_excluding(@hidden_file_list).each do |file| %>
             <p style="margin-left:20px;margin-top:0px;margin-bottom:0px">
                 <a href="https://github.com/Invoca/web/blob/<%= conflict.branch_a.name %>/<%= file %>" style="text-decoration: none;"><%= file %></a>
+            </p>
+        <% end %>
+        <% hidden_files = conflict.conflicting_files_including(@hidden_file_list) %>
+        <% unless hidden_files.empty? %>
+            <p style="margin-left:20px;margin-top:0px;margin-bottom:0px">
+              and <%= hidden_files.size %> file(s) on ignore list
             </p>
         <% end %>
     <% end %>

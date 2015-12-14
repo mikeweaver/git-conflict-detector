@@ -191,7 +191,8 @@ class ConflictDetector
         start_time,
         @settings[:email_filter],
         @settings[:email_override],
-        Branch.where(name: @settings[:suppress_conflicts_for_owners_of_branches]))
+        Branch.where(name: @settings[:suppress_conflicts_for_owners_of_branches]),
+        @settings[:ignore_conflicts_in_file_paths])
   end
 end
 

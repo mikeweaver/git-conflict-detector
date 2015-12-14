@@ -92,6 +92,39 @@ describe 'Conflict' do
     expect { conflict.save! }.to raise_exception(ActiveRecord::RecordInvalid)
   end
 
+  context 'with multiple files' do
+    before do
+      @conflict = create_test_conflict(
+          @branches[0],
+          @branches[1],
+          file_list: ['file1.txt', 'file2.txt', 'subfolder/file1.txt'])
+    end
+
+    it 'can return a excluded filtered list of files by exact match' do
+      expect(@conflict.conflicting_files_excluding(['file2.txt'])).to eq(['file1.txt', 'subfolder/file1.txt'])
+    end
+
+    it 'can return a excluded filtered list of files by regex match' do
+      expect(@conflict.conflicting_files_excluding(['.*file1.txt'])).to eq(['file2.txt'])
+    end
+
+    it 'will return all files when exclude filtering by an empty list' do
+      expect(@conflict.conflicting_files_excluding([])).to eq(['file1.txt', 'file2.txt', 'subfolder/file1.txt'])
+    end
+
+    it 'can return a included filtered list of files by exact match' do
+      expect(@conflict.conflicting_files_including(['file1.txt', 'subfolder/file1.txt'])).to eq(['file1.txt', 'subfolder/file1.txt'])
+    end
+
+    it 'can return a included filtered list of files by regex match' do
+      expect(@conflict.conflicting_files_including(['.*file1.txt'])).to eq(['file1.txt', 'subfolder/file1.txt'])
+    end
+
+    it 'will return no files when include filtering by an empty list' do
+      expect(@conflict.conflicting_files_including([])).to eq([])
+    end
+  end
+
   context 'with branches from multiple users' do
     before do
       @other_branches = create_test_branches(author_name: DIFFERENT_NAME, count: 2)
