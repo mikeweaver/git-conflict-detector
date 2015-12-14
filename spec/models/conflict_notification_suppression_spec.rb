@@ -43,5 +43,16 @@ describe 'ConflictNotificationSuppression' do
     suppressions = ConflictNotificationSuppression.not_expired
     expect(suppressions.size).to eq(2)
   end
+
+  it 'can return list of suppressed conflict ids filtered by user' do
+    conflict_b = create_test_conflict(@branches_a[1], @branches_b[1])
+
+    ConflictNotificationSuppression.create!(@branches_a[0].author, @conflict, nil)
+    ConflictNotificationSuppression.create!(@branches_a[0].author, conflict_b, 4.days.from_now)
+    ConflictNotificationSuppression.create!(@branches_b[0].author, @conflict, 4.days.from_now)
+
+    conflict_ids = ConflictNotificationSuppression.suppressed_conflict_ids(@branches_a[0].author)
+    expect(conflict_ids).to eq([@conflict.id, conflict_b.id])
+  end
 end
 

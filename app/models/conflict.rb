@@ -88,6 +88,11 @@ class Conflict < ActiveRecord::Base
          user.id)
   }
 
+  scope :exclude_conflicts_with_ids, lambda { |conflict_ids|
+    (conflict_ids.present? && conflict_ids.size > 0) or return Conflict.all
+    Conflict.where.not(id: conflict_ids)
+  }
+
   def self.create!(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict = new_conflict(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict.save!

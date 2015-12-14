@@ -171,6 +171,17 @@ describe 'Conflict' do
       expect(conflicts).to eq([@conflict_1, @conflict_2])
     end
 
+    it 'can be filtered by conflict ids' do
+      conflicts = Conflict.exclude_conflicts_with_ids([@conflict_1.id])
+      expect(conflicts).to eq([@conflict_2])
+
+      conflicts = Conflict.exclude_conflicts_with_ids([@conflict_1.id, @conflict_2.id])
+      expect(conflicts.size).to eq(0)
+
+      conflicts = Conflict.exclude_conflicts_with_ids([])
+      expect(conflicts).to eq([@conflict_1, @conflict_2])
+    end
+
     it 'can be filtered by non-self conflicting authored branch ids' do
       @conflict_3 = create_test_conflict(@branches[2], @other_branches[1])
       first_user = @branches[0].author

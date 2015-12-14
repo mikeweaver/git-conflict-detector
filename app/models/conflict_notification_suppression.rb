@@ -9,4 +9,10 @@ class ConflictNotificationSuppression < NotificationSuppression
     suppression.save!
     suppression
   end
+
+  def self.suppressed_conflict_ids(user)
+    ConflictNotificationSuppression.not_expired.by_user(user).collect do |supression|
+      supression.conflict.id
+    end
+  end
 end

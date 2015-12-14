@@ -17,18 +17,20 @@ class ConflictsMailer < ActionMailer::Base
 
     suppressed_branch_ids = BranchNotificationSuppression.suppressed_branch_ids(user)
 
+    suppressed_conflict_ids = ConflictNotificationSuppression.suppressed_conflict_ids(user)
+
     suppressed_owned_branch_ids = exclude_branches_if_owned_by_user.collect do |branch|
       branch.id
     end
 
-    new_conflicts = Conflict.unresolved.by_user(user).status_changed_after(conflicts_newer_than).exclude_branches_with_ids(suppressed_branch_ids).exclude_non_self_conflicting_authored_branches_with_ids(user, suppressed_owned_branch_ids).all
-    resolved_conflicts = Conflict.resolved.by_user(user).status_changed_after(conflicts_newer_than).exclude_branches_with_ids(suppressed_branch_ids).exclude_non_self_conflicting_authored_branches_with_ids(user, suppressed_owned_branch_ids).all
+    new_conflicts = Conflict.unresolved.by_user(user).status_changed_after(conflicts_newer_than).exclude_branches_with_ids(suppressed_branch_ids).exclude_non_self_conflicting_authored_branches_with_ids(user, suppressed_owned_branch_ids).exclude_conflicts_with_ids(suppressed_conflict_ids).all
+    resolved_conflicts = Conflict.resolved.by_user(user).status_changed_after(conflicts_newer_than).exclude_branches_with_ids(suppressed_branch_ids).exclude_non_self_conflicting_authored_branches_with_ids(user, suppressed_owned_branch_ids).exclude_conflicts_with_ids(suppressed_conflict_ids).all
     unless new_conflicts.blank? && resolved_conflicts.blank?
       send_conflict_email_to_user(
           user,
           new_conflicts,
           resolved_conflicts,
-          Conflict.unresolved.by_user(user).status_changed_before(conflicts_newer_than).exclude_branches_with_ids(suppressed_branch_ids).all)
+          Conflict.unresolved.by_user(user).status_changed_before(conflicts_newer_than).exclude_branches_with_ids(suppressed_branch_ids).exclude_non_self_conflicting_authored_branches_with_ids(user, suppressed_owned_branch_ids).exclude_conflicts_with_ids(suppressed_conflict_ids).all)
     end
   end
 
