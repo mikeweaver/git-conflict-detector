@@ -6,8 +6,12 @@
 <% else %>
 <%= conflict.branch_b.name %> conflicts with <%= conflict.branch_a.name%>
 <% end %>
-<% conflict.conflicting_files.each do |file| %>
+<% conflict.conflicting_files_excluding(@hidden_file_list).each do |file| %>
     <%= file %>
+<% end %>
+<% hidden_files = conflict.conflicting_files_including(@hidden_file_list) %>
+<% unless hidden_files.empty? %>
+    and <%= hidden_files.size %> file(s) on ignore list
 <% end %>
 <% end %>
 <% end %>

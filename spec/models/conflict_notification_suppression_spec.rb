@@ -2,23 +2,10 @@ require 'spec_helper'
 
 describe 'ConflictNotificationSuppression' do
 
-  def create_test_branches(user_name, count)
-    branches = []
-    (0..count - 1).each do |i|
-      git_data = Git::GitBranch.new(
-          "path/#{user_name}/branch#{i}",
-          DateTime.now,
-          user_name,
-          'author@email.com')
-      branches << Branch.create_from_git_data!(git_data)
-    end
-    branches
-  end
-
   before do
-    @branches_a = create_test_branches('Author A', 2)
-    @branches_b = create_test_branches('Author B', 2)
-    @conflict = Conflict.create!(@branches_a[0], @branches_b[1], ['test/file.rb'], Time.now)
+    @branches_a = create_test_branches(author_name: 'Author A', count: 2)
+    @branches_b = create_test_branches(author_name: 'Author B', count: 2)
+    @conflict = create_test_conflict(@branches_a[0], @branches_b[1])
   end
 
   it 'can be created with a suppression date' do
@@ -47,7 +34,7 @@ describe 'ConflictNotificationSuppression' do
   end
 
   it 'can be filtered by suppression date' do
-    conflict_b = Conflict.create!(@branches_a[1], @branches_b[1], ['test/file.rb'], Time.now)
+    conflict_b = create_test_conflict(@branches_a[1], @branches_b[1])
 
     ConflictNotificationSuppression.create!(@branches_a[0].author, @conflict, nil)
     ConflictNotificationSuppression.create!(@branches_a[0].author, conflict_b, 4.days.from_now)
@@ -55,6 +42,17 @@ describe 'ConflictNotificationSuppression' do
 
     suppressions = ConflictNotificationSuppression.not_expired
     expect(suppressions.size).to eq(2)
+  end
+
+  it 'can return list of suppressed conflict ids filtered by user' do
+    conflict_b = create_test_conflict(@branches_a[1], @branches_b[1])
+
+    ConflictNotificationSuppression.create!(@branches_a[0].author, @conflict, nil)
+    ConflictNotificationSuppression.create!(@branches_a[0].author, conflict_b, 4.days.from_now)
+    ConflictNotificationSuppression.create!(@branches_b[0].author, @conflict, 4.days.from_now)
+
+    conflict_ids = ConflictNotificationSuppression.suppressed_conflict_ids(@branches_a[0].author)
+    expect(conflict_ids).to eq([@conflict.id, conflict_b.id])
   end
 end
 

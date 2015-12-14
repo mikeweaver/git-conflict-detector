@@ -27,6 +27,22 @@ class Conflict < ActiveRecord::Base
     end
   end
 
+  def conflicting_files_excluding(files_to_exclude)
+    self.conflicting_files.reject do |file|
+      files_to_exclude.any? do |file_to_exclude|
+        file =~ Regexp.new(file_to_exclude)
+      end
+    end
+  end
+
+  def conflicting_files_including(files_to_include)
+    self.conflicting_files.select do |file|
+      files_to_include.any? do |file_to_include|
+        file =~ Regexp.new(file_to_include)
+      end
+    end
+  end
+
   scope :by_branches, lambda { |branch_a, branch_b|
     (branch_a.present? and branch_b.present?) or return nil
     branch_ids = [branch_a.id, branch_b.id]
@@ -60,19 +76,42 @@ class Conflict < ActiveRecord::Base
     Conflict.where('(branch_a_id NOT IN (?) AND branch_b_id NOT IN (?))', branch_ids, branch_ids)
   }
 
+  scope :exclude_non_self_conflicting_authored_branches_with_ids, lambda { |user, branch_ids|
+     # exclude branches that were authored by the user but do NOT conflict with another
+     # branch from the same user
+     (branch_ids.present? && branch_ids.size > 0) or return Conflict.all
+     Conflict.joins(:branch_a).joins(:branch_b).where(
+         'NOT (((branch_a_id IN (?) AND branches.author_id = ?) OR (branch_b_id IN (?) AND branch_bs_conflicts.author_id = ?)) AND branches.author_id <> branch_bs_conflicts.author_id)',
+         branch_ids,
+         user.id,
+         branch_ids,
+         user.id)
+  }
+
+  scope :exclude_conflicts_with_ids, lambda { |conflict_ids|
+    (conflict_ids.present? && conflict_ids.size > 0) or return Conflict.all
+    Conflict.where.not(id: conflict_ids)
+  }
+
   def self.create!(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict = new_conflict(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict.save!
     conflict
   end
 
-  def self.clear!(branch_a, branch_b, checked_at_date)
+  def self.resolve!(branch_a, branch_b, checked_at_date)
     conflict = by_branches(branch_a, branch_b).first
-    if conflict && !conflict.resolved
-      conflict.status_last_changed_date = checked_at_date
-      conflict.conflicting_files = []
-      conflict.resolved = true
-      conflict.save!
+    if conflict
+      conflict.resolve!(checked_at_date)
+    end
+  end
+
+  def resolve!(checked_at_date)
+    unless self.resolved
+      self.status_last_changed_date = checked_at_date
+      self.conflicting_files = []
+      self.resolved = true
+      save!
     end
   end
 
