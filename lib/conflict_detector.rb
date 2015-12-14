@@ -174,7 +174,7 @@ class ConflictDetector
         unless matching_conflicts.empty?
           Conflict.create!(branch, tested_branch, conflict.conflicting_files, start_time)
         else
-          Conflict.clear!(branch, tested_branch, start_time)
+          Conflict.resolve!(branch, tested_branch, start_time)
         end
 
         # record the fact that we tested these branches

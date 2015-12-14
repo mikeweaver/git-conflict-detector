@@ -41,14 +41,14 @@ describe 'Conflict' do
     create_test_conflict(@branches[0], @branches[1])
     expect(Conflict.all.size).to eq(1)
     expect(Conflict.first.resolved).to be_falsey
-    Conflict.clear!(@branches[0], @branches[1], Time.now())
+    Conflict.resolve!(@branches[0], @branches[1], Time.now())
     expect(Conflict.all.size).to eq(1)
     expect(Conflict.first.resolved).to be_truthy
     expect(Conflict.first.conflicting_files).to eq([])
   end
 
   it 'does not raise an error when clearing a non-existent conflict' do
-    Conflict.clear!(@branches[0], @branches[1], Time.now())
+    Conflict.resolve!(@branches[0], @branches[1], Time.now())
   end
 
   it 'does not care about branch order' do

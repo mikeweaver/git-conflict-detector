@@ -94,13 +94,19 @@ class Conflict < ActiveRecord::Base
     conflict
   end
 
-  def self.clear!(branch_a, branch_b, checked_at_date)
+  def self.resolve!(branch_a, branch_b, checked_at_date)
     conflict = by_branches(branch_a, branch_b).first
-    if conflict && !conflict.resolved
-      conflict.status_last_changed_date = checked_at_date
-      conflict.conflicting_files = []
-      conflict.resolved = true
-      conflict.save!
+    if conflict
+      conflict.resolve!(checked_at_date)
+    end
+  end
+
+  def resolve!(checked_at_date)
+    unless self.resolved
+      self.status_last_changed_date = checked_at_date
+      self.conflicting_files = []
+      self.resolved = true
+      save!
     end
   end
 
