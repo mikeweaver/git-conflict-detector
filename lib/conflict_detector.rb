@@ -186,7 +186,13 @@ class ConflictDetector
     end
 
     # send notifications out
-    ConflictsMailer.send_conflict_emails(repo_name, start_time, @settings[:email_filter], @settings[:email_override])
+    ConflictsMailer.send_conflict_emails(
+        repo_name,
+        start_time,
+        @settings[:email_filter],
+        @settings[:email_override],
+        Branch.where(name: @settings[:suppress_conflicts_for_owners_of_branches]),
+        @settings[:ignore_conflicts_in_file_paths])
   end
 end
 

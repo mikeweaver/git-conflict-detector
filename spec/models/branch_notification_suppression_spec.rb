@@ -2,22 +2,9 @@ require 'spec_helper'
 
 describe 'BranchNotificationSuppression' do
 
-  def create_test_branches(user_name, count)
-    branches = []
-    (0..count - 1).each do |i|
-      git_data = Git::GitBranch.new(
-          "path/#{user_name}/branch#{i}",
-          DateTime.now,
-          user_name,
-          'author@email.com')
-      branches << Branch.create_from_git_data!(git_data)
-    end
-    branches
-  end
-
   before do
-    @branches_a = create_test_branches('Author A', 2)
-    @branches_b = create_test_branches('Author B', 2)
+    @branches_a = create_test_branches(author_name: 'Author A', count: 2)
+    @branches_b = create_test_branches(author_name: 'Author B', count: 2)
   end
 
   it 'can be created with a suppression date' do
@@ -52,6 +39,15 @@ describe 'BranchNotificationSuppression' do
 
     suppressions = BranchNotificationSuppression.not_expired
     expect(suppressions.size).to eq(2)
+  end
+
+  it 'can return list of suppressed branch ids filtered by user' do
+    BranchNotificationSuppression.create!(@branches_a[0].author, @branches_b[0], nil)
+    BranchNotificationSuppression.create!(@branches_a[0].author, @branches_b[1], 4.days.from_now)
+    BranchNotificationSuppression.create!(@branches_b[0].author, @branches_a[1], 4.days.ago)
+
+    branch_ids = BranchNotificationSuppression.suppressed_branch_ids(@branches_a[0].author)
+    expect(branch_ids).to eq([@branches_b[0].id, @branches_b[1].id])
   end
 end
 

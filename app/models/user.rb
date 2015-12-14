@@ -17,4 +17,9 @@ class User < ActiveRecord::Base
     user.save!
     user
   end
+
+  def self.users_with_emails(email_filter_list)
+    # if filter is empty, return all users, otherwise only return users whose emails are in the list
+    User.all.select { |user| email_filter_list.empty? || email_filter_list.include?(user.email.downcase) }
+  end
 end

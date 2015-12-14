@@ -4,35 +4,20 @@ describe 'Conflict' do
 
   DIFFERENT_NAME = 'Different Name'
 
-  def create_test_branches(user_name, count)
-    branches = []
-    (0..count - 1).each do |i|
-      git_data = Git::GitBranch.new(
-          "path/#{user_name}/branch#{i}",
-          DateTime.now,
-          user_name,
-          'author@email.com')
-      branches << Branch.create_from_git_data!(git_data)
-    end
-    branches
-  end
-
   before do
-    @branches = create_test_branches('Author Name', 3)
+    @branches = create_test_branches(author_name: 'Author Name', count: 3)
   end
 
   it 'can be created' do
-    tested_at = Time.now()
-    Conflict.create!(@branches[0], @branches[1], ['test/file.rb'], tested_at)
-
+    create_test_conflict(@branches[0], @branches[1])
     expect(Conflict.all.size).to eq(1)
   end
 
   it 're-creating does not update the status_last_changed_date' do
     tested_at1 = Time.now()
-    Conflict.create!(@branches[0], @branches[1], ['test/file.rb'], tested_at1)
+    create_test_conflict(@branches[0], @branches[1], tested_at: tested_at1)
     tested_at2 = Time.now()
-    Conflict.create!(@branches[0], @branches[1], ['test/file.rb'], tested_at2)
+    create_test_conflict(@branches[0], @branches[1], tested_at: tested_at2)
 
     expect(tested_at1).not_to eq(tested_at2)
     expect(Conflict.all.size).to eq(1)
@@ -42,9 +27,9 @@ describe 'Conflict' do
 
   it 're-creating with a different file list does update the status_last_changed_date and file list' do
     tested_at1 = Time.now()
-    Conflict.create!(@branches[0], @branches[1], ['test/file.rb'], tested_at1)
+    create_test_conflict(@branches[0], @branches[1], tested_at: tested_at1)
     tested_at2 = Time.now()
-    Conflict.create!(@branches[0], @branches[1], ['test/file2.rb'], tested_at2)
+    create_test_conflict(@branches[0], @branches[1], tested_at: tested_at2, file_list: ['test/file2.rb'])
 
     expect(tested_at1).not_to eq(tested_at2)
     expect(Conflict.all.size).to eq(1)
@@ -53,7 +38,7 @@ describe 'Conflict' do
   end
 
   it 'can be cleared' do
-    Conflict.create!(@branches[0], @branches[1], ['test/file.rb'], Time.now())
+    create_test_conflict(@branches[0], @branches[1])
     expect(Conflict.all.size).to eq(1)
     expect(Conflict.first.resolved).to be_falsey
     Conflict.clear!(@branches[0], @branches[1], Time.now())
@@ -67,38 +52,38 @@ describe 'Conflict' do
   end
 
   it 'does not care about branch order' do
-    Conflict.create!(@branches[0], @branches[1], ['test/file.rb'], Time.now())
-    Conflict.create!(@branches[1], @branches[0], ['test/file.rb'], Time.now())
+    create_test_conflict(@branches[0], @branches[1])
+    create_test_conflict(@branches[1], @branches[0])
     expect(Conflict.all.size).to eq(1)
   end
 
   it 'treats different branch combinations as unique' do
-    Conflict.create!(@branches[0], @branches[1], ['test/file.rb'], Time.now())
-    Conflict.create!(@branches[1], @branches[2], ['test/file.rb'], Time.now())
-    Conflict.create!(@branches[0], @branches[2], ['test/file.rb'], Time.now())
+    create_test_conflict(@branches[0], @branches[1])
+    create_test_conflict(@branches[1], @branches[2])
+    create_test_conflict(@branches[0], @branches[2])
     expect(Conflict.all.size).to eq(3)
   end
 
   it 'cannot conflict with itself' do
-    expect { Conflict.create!(@branches[0], @branches[0], ['test/file.rb'], Time.now()) }.to raise_exception(ActiveRecord::RecordInvalid)
+    expect { create_test_conflict(@branches[0], @branches[0]) }.to raise_exception(ActiveRecord::RecordInvalid)
   end
 
   it 'requires two branches' do
-    expect { Conflict.create!(@branches[0], nil, ['test/file.rb'], Time.now()) }.to raise_exception(ActiveRecord::RecordInvalid)
-    expect { Conflict.create!(nil, @branches[0], ['test/file.rb'], Time.now()) }.to raise_exception(ActiveRecord::RecordInvalid)
-    expect { Conflict.create!(nil, nil, ['test/file.rb'], Time.now()) }.to raise_exception(ActiveRecord::RecordInvalid)
+    expect { create_test_conflict(@branches[0], nil) }.to raise_exception(ActiveRecord::RecordInvalid)
+    expect { create_test_conflict(nil, @branches[0]) }.to raise_exception(ActiveRecord::RecordInvalid)
+    expect { create_test_conflict(nil, nil, file_list: ['test/file.rb']) }.to raise_exception(ActiveRecord::RecordInvalid)
   end
 
   it 'requires a file list array' do
-    expect { Conflict.create!(@branches[0], @branches[1], nil, Time.now()) }.to raise_exception(ActiveRecord::RecordInvalid)
-    expect { Conflict.create!(@branches[0], @branches[1], '', Time.now()) }.to raise_exception(ActiveRecord::RecordInvalid)
+    expect { create_test_conflict(@branches[0], @branches[1], file_list: nil) }.to raise_exception(ActiveRecord::RecordInvalid)
+    expect { create_test_conflict(@branches[0], @branches[1], file_list: '') }.to raise_exception(ActiveRecord::RecordInvalid)
 
     # should not raise
-    Conflict.create!(@branches[0], @branches[1], [], Time.now())
+    create_test_conflict(@branches[0], @branches[1], file_list: [])
   end
 
   it 'does not allow duplicate conflicts' do
-    Conflict.create!(@branches[0], @branches[1], ['test/file.rb'], Time.now())
+    create_test_conflict(@branches[0], @branches[1])
     conflict = Conflict.new(
         branch_a: @branches[0],
         branch_b: @branches[1],
@@ -107,11 +92,44 @@ describe 'Conflict' do
     expect { conflict.save! }.to raise_exception(ActiveRecord::RecordInvalid)
   end
 
+  context 'with multiple files' do
+    before do
+      @conflict = create_test_conflict(
+          @branches[0],
+          @branches[1],
+          file_list: ['file1.txt', 'file2.txt', 'subfolder/file1.txt'])
+    end
+
+    it 'can return a excluded filtered list of files by exact match' do
+      expect(@conflict.conflicting_files_excluding(['file2.txt'])).to eq(['file1.txt', 'subfolder/file1.txt'])
+    end
+
+    it 'can return a excluded filtered list of files by regex match' do
+      expect(@conflict.conflicting_files_excluding(['.*file1.txt'])).to eq(['file2.txt'])
+    end
+
+    it 'will return all files when exclude filtering by an empty list' do
+      expect(@conflict.conflicting_files_excluding([])).to eq(['file1.txt', 'file2.txt', 'subfolder/file1.txt'])
+    end
+
+    it 'can return a included filtered list of files by exact match' do
+      expect(@conflict.conflicting_files_including(['file1.txt', 'subfolder/file1.txt'])).to eq(['file1.txt', 'subfolder/file1.txt'])
+    end
+
+    it 'can return a included filtered list of files by regex match' do
+      expect(@conflict.conflicting_files_including(['.*file1.txt'])).to eq(['file1.txt', 'subfolder/file1.txt'])
+    end
+
+    it 'will return no files when include filtering by an empty list' do
+      expect(@conflict.conflicting_files_including([])).to eq([])
+    end
+  end
+
   context 'with branches from multiple users' do
     before do
-      @other_branches = create_test_branches(DIFFERENT_NAME, 2)
-      Conflict.create!(@branches[0], @branches[1], ['test/file.rb'], Time.now)
-      Conflict.create!(@other_branches[0], @other_branches[1], ['test/file.rb'], Time.now)
+      @other_branches = create_test_branches(author_name: DIFFERENT_NAME, count: 2)
+      @conflict_1 = create_test_conflict(@branches[0], @branches[1])
+      @conflict_2 = create_test_conflict(@other_branches[0], @other_branches[1])
     end
 
     it 'can be looked up by user' do
@@ -144,13 +162,39 @@ describe 'Conflict' do
 
     it 'can be filtered by branch ids' do
       conflicts = Conflict.exclude_branches_with_ids([@branches[0].id, @branches[1].id])
-      expect(conflicts.size).to eq(1)
+      expect(conflicts).to eq([@conflict_2])
 
       conflicts = Conflict.exclude_branches_with_ids([@branches[0].id, @branches[1].id, @other_branches[0], @other_branches[1]])
       expect(conflicts.size).to eq(0)
 
       conflicts = Conflict.exclude_branches_with_ids([])
-      expect(conflicts.size).to eq(2)
+      expect(conflicts).to eq([@conflict_1, @conflict_2])
+    end
+
+    it 'can be filtered by non-self conflicting authored branch ids' do
+      @conflict_3 = create_test_conflict(@branches[2], @other_branches[1])
+      first_user = @branches[0].author
+      second_user = @other_branches[0].author
+
+      # we won't exclude our own branches because they are self conflicting
+      conflicts = Conflict.exclude_non_self_conflicting_authored_branches_with_ids(first_user, [@branches[0].id, @branches[1].id])
+      expect(conflicts).to eq([@conflict_1, @conflict_2, @conflict_3])
+
+      # we won't exclude other branches because they don't belong to us
+      conflicts = Conflict.exclude_non_self_conflicting_authored_branches_with_ids(first_user, [@other_branches[0], @other_branches[1]])
+      expect(conflicts).to eq([@conflict_1, @conflict_2, @conflict_3])
+
+      # we will exclude this branch because it is in conflict with another user
+      conflicts = Conflict.exclude_non_self_conflicting_authored_branches_with_ids(first_user, [@branches[2].id])
+      expect(conflicts).to eq([@conflict_1, @conflict_2])
+
+      # we will exclude this branch because it is in conflict with another user
+      conflicts = Conflict.exclude_non_self_conflicting_authored_branches_with_ids(second_user, [@other_branches[1]])
+      expect(conflicts).to eq([@conflict_1, @conflict_2])
+
+      # we don't have to exclude any branches
+      conflicts = Conflict.exclude_non_self_conflicting_authored_branches_with_ids(first_user, [])
+      expect(conflicts.size).to eq(3)
     end
   end
 end

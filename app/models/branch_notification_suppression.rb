@@ -9,4 +9,10 @@ class BranchNotificationSuppression < NotificationSuppression
     suppression.save!
     suppression
   end
+
+  def self.suppressed_branch_ids(user)
+    BranchNotificationSuppression.not_expired.by_user(user).collect do |supression|
+      supression.branch.id
+    end
+  end
 end

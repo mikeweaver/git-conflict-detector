@@ -10,3 +10,4 @@ repos_to_check:
     only_branches: ['^folder/.*$', 'master'] #regex
     ignore_conflicts_in_file_paths: ['^test/fixtures/.*$', '^lib/data/generated/.*$'] #regex
     master_branch_name: 'master'
+    suppress_conflicts_for_owners_of_branches: ['master', 'production']

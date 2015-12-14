@@ -27,6 +27,22 @@ class Conflict < ActiveRecord::Base
     end
   end
 
+  def conflicting_files_excluding(files_to_exclude)
+    conflicting_files.reject do |file|
+      files_to_exclude.any? do |file_to_exclude|
+        file =~ Regexp.new(file_to_exclude)
+      end
+    end
+  end
+
+  def conflicting_files_including(files_to_include)
+    conflicting_files.select do |file|
+      files_to_include.any? do |file_to_include|
+        file =~ Regexp.new(file_to_include)
+      end
+    end
+  end
+
   scope :by_branches, lambda { |branch_a, branch_b|
     (branch_a.present? and branch_b.present?) or return nil
     branch_ids = [branch_a.id, branch_b.id]
@@ -58,6 +74,18 @@ class Conflict < ActiveRecord::Base
   scope :exclude_branches_with_ids, lambda { |branch_ids|
     (branch_ids.present? && branch_ids.size > 0) or return Conflict.all
     Conflict.where('(branch_a_id NOT IN (?) AND branch_b_id NOT IN (?))', branch_ids, branch_ids)
+  }
+
+  scope :exclude_non_self_conflicting_authored_branches_with_ids, lambda { |user, branch_ids|
+     # exclude branches that were authored by the user but do NOT conflict with another
+     # branch from the same user
+     (branch_ids.present? && branch_ids.size > 0) or return Conflict.all
+     Conflict.joins(:branch_a).joins(:branch_b).where(
+         'NOT (((branch_a_id IN (?) AND branches.author_id = ?) OR (branch_b_id IN (?) AND branch_bs_conflicts.author_id = ?)) AND branches.author_id <> branch_bs_conflicts.author_id)',
+         branch_ids,
+         user.id,
+         branch_ids,
+         user.id)
   }
 
   def self.create!(branch_a, branch_b, conflicting_files, checked_at_date)
