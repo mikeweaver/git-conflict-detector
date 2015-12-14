@@ -55,15 +55,21 @@ describe 'User' do
     end
 
     it 'can be unsubscribed by id' do
-      User.unsubscribe_by_id(@user_1.id)
+      User.unsubscribe_by_id!(@user_1.id)
       expect(@user_1.reload.unsubscribed).to be_truthy
       expect(@user_2.reload.unsubscribed).to be_falsey
     end
 
     it 'can be unsubscribed' do
-      @user_1.unsubscribe
+      @user_1.unsubscribe!
       expect(@user_1.reload.unsubscribed).to be_truthy
       expect(@user_2.reload.unsubscribed).to be_falsey
+    end
+
+    it 'can be filtered by unsubscribe status' do
+      expect(User.subscribed_users.size).to eq(2)
+      @user_1.unsubscribe!
+      expect(User.subscribed_users).to eq([@user_2])
     end
   end
 

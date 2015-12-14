@@ -24,12 +24,16 @@ class User < ActiveRecord::Base
     User.all.select { |user| email_filter_list.empty? || email_filter_list.include?(user.email.downcase) }
   end
 
-  def self.unsubscribe_by_id(user_id)
-    User.where(id: user_id).first.unsubscribe
+  def self.unsubscribe_by_id!(user_id)
+    User.where(id: user_id).first.unsubscribe!
   end
 
-  def unsubscribe
+  def unsubscribe!
     self.unsubscribed = true
     save!
   end
+
+  scope :subscribed_users, lambda {
+    User.where(unsubscribed: false)
+  }
 end
