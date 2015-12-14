@@ -67,6 +67,30 @@ RSpec.describe ConflictsMailer do
       expect(ActionMailer::Base.deliveries[0].to).to eq(['author1@email.com'])
     end
 
+    it 'only sends email to subscribed' do
+      expect { ConflictsMailer.send_conflict_emails(
+          'repo_name',
+          1.hour.ago,
+          [],
+          nil,
+          [],
+          []) }.to change { ActionMailer::Base.deliveries.count }.by(2)
+
+      ActionMailer::Base.deliveries = []
+
+      @branches_a[0].author.unsubscribe!
+      
+      expect { ConflictsMailer.send_conflict_emails(
+          'repo_name',
+          1.hour.ago,
+          [],
+          nil,
+          [],
+          []) }.to change { ActionMailer::Base.deliveries.count }.by(1)
+
+      expect(ActionMailer::Base.deliveries[0].to).to eq(['author2@email.com'])
+    end
+
     it 'only sends email to users with new or resolved conflicts' do
       conflict_2 = create_test_conflict(
           @branches_a[1],

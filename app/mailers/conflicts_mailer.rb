@@ -3,7 +3,7 @@ class ConflictsMailer < ActionMailer::Base
   default content_type: 'text/plain'
 
   def self.send_conflict_emails(repo_name, conflicts_newer_than, email_filter_list, email_override, exclude_branches_if_owned_by_user, hidden_file_list)
-    User.users_with_emails(email_filter_list).each do |user|
+    User.subscribed_users.users_with_emails(email_filter_list).each do |user|
       if email_override.present?
         user.email = email_override
       end
