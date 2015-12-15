@@ -2,10 +2,10 @@ class ConflictsMailer < ActionMailer::Base
   default from: "gitconflictdetector@noreply.com"
   default content_type: 'text/plain'
 
-  def self.send_conflict_emails(repo_name, conflicts_newer_than, email_filter_list, email_override, exclude_branches_if_owned_by_user, hidden_file_list)
-    User.subscribed_users.users_with_emails(email_filter_list).each do |user|
-      if email_override.present?
-        user.email = email_override
+  def self.send_conflict_emails(repo_name, conflicts_newer_than, exclude_branches_if_owned_by_user, hidden_file_list)
+    User.subscribed_users.users_with_emails(GlobalSettings.email_filter).each do |user|
+      if GlobalSettings.email_override.present?
+        user.email = GlobalSettings.email_override
       end
       maybe_send_conflict_email_to_user(user, repo_name, conflicts_newer_than, exclude_branches_if_owned_by_user, hidden_file_list).deliver_now
     end

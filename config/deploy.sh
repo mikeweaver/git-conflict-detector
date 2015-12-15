@@ -44,7 +44,7 @@ cd "$DEPLOY_PATH"
 
 echo "Restoring current DB and settings"
 cp "$BACKUP_PATH/db/production.sqlite3" "$DEPLOY_PATH/db/"
-cp "$BACKUP_PATH/config/settings.yml" "$DEPLOY_PATH/config/"
+cp "$BACKUP_PATH/config/settings.production.yml" "$DEPLOY_PATH/config/"
 cp "$BACKUP_PATH/config/database.yml" "$DEPLOY_PATH/config/"
 
 echo "Bundling"

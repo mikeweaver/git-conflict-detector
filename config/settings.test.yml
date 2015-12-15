@@ -1,6 +1,6 @@
 cache_directory: './tmp/cache/git'
-maximum_branches_to_check: 100
-email_override: 'test@email.com' #redirect all emails to this address
+maximum_branches_to_check: 0
+email_override: '' #redirect all emails to this address
 email_filter: [] #only email users in this list. Empty to disable filter.
 repos_to_check:
   MyRepo:
