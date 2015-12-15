@@ -2,6 +2,7 @@ cache_directory: './tmp/cache/git'
 maximum_branches_to_check: 0
 email_override: '' #redirect all emails to this address
 email_filter: [] #only email users in this list. Empty to disable filter.
+web_server_url: 'http://localhost:3000'
 repos_to_check:
   MyRepo:
     repo_name: 'Organization/repo'

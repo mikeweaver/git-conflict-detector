@@ -3,3 +3,6 @@
 <%= render partial: 'conflict_list', locals: {conflicts: @resolved_conflicts, heading: 'Conflicts that have been resolved:'} %>
 
 <%= render partial: 'conflict_list', locals: {conflicts: @existing_conflicts, heading: 'Existing conflicts on untouched branches:'} %>
+
+You are receiving this email because you made a commit to the <%= @repo_name %> repo.
+To unsubscribe, click here: <%= url_for controller: :users, action: :unsubscribe, id: @user.id %>
