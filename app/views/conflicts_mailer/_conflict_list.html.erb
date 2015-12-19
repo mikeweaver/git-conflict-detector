@@ -10,7 +10,7 @@
         </p>
         <% conflict.conflicting_files_excluding(@hidden_file_list).each do |file| %>
             <p style="margin-left:20px;margin-top:0px;margin-bottom:0px">
-                <a href="https://github.com/Invoca/web/blob/<%= conflict.branch_a.name %>/<%= file %>" style="text-decoration: none;"><%= file %></a>
+                <a href="https://github.com/<%= @repo_name %>/blob/<%= conflict.branch_a.name %>/<%= file %>" style="text-decoration: none;"><%= file %></a>
             </p>
         <% end %>
         <% hidden_files = conflict.conflicting_files_including(@hidden_file_list) %>
