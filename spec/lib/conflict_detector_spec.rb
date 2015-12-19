@@ -14,25 +14,9 @@ describe 'ConflictDetector' do
     test_branches
   end
 
-  def create_test_settings
-    {
-      cache_directory: './tmp/cache/git',
-      log_file: './log/git.log',
-      maximum_branches_to_check: 100,
-      email_override: '',
-      email_filter: [],
-      repo_name: 'Organization/repo',
-      ignore_branches: [],
-      ignore_branches_modified_days_ago: 28,
-      only_branches: ['path/*', 'master'],
-      ignore_conflicts_in_file_paths: ['notfound/myfile.rb'],
-      master_branch_name: 'master'
-    }
-  end
-
   it 'works' do
     start_time = Time.now
-    conflict_detector = ConflictDetector.new(create_test_settings)
+    conflict_detector = ConflictDetector.new(GlobalSettings.repos_to_check['MyRepo'])
     expect(conflict_detector).to receive(:setup_repo)
     expect(conflict_detector).to receive(:get_branch_list) { create_test_git_branches }
     expect(conflict_detector).to receive(:get_conflicts ).exactly(3).times.and_return(

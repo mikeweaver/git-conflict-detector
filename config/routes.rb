@@ -1,5 +1,8 @@
-Rails.application.routes.draw do
+Rails.application.routes.default_url_options[:host] = GlobalSettings.web_server_url
 
+Rails.application.routes.draw do
+  get 'users/:id/unsubscribe' => 'users#unsubscribe'
+  
   resources :suppressions, except: [:show, :edit, :update, :destroy]
 
   # The priority is based upon order of creation: first created -> highest priority.

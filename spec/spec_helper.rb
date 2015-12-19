@@ -9,6 +9,8 @@ require_relative '../lib/git/git_conflict.rb'
 require_relative '../lib/git/git_error.rb'
 require 'database_cleaner'
 require 'rake'
+require 'rspec/rails'
+require_relative '../config/initializers/global_settings.rb'
 
 GitConflictDetector::Application.load_tasks
 

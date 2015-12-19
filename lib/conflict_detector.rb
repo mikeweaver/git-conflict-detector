@@ -8,7 +8,7 @@ class ConflictDetector
   end
 
   def run
-    process_repo(@settings[:repo_name])
+    process_repo(@settings.repo_name)
   end
 
   private
@@ -19,26 +19,26 @@ class ConflictDetector
   end
 
   def should_ignore_branch_by_list?(branch)
-    @settings[:ignore_branches].any? do |regex|
+    @settings.ignore_branches.any? do |regex|
       branch =~ Regexp.new(regex)
     end
   end
 
   def should_ignore_branch_by_date?(branch)
-    branch.last_modified_date < (Date.today - @settings[:ignore_branches_modified_days_ago])
+    branch.last_modified_date < (Date.today - @settings.ignore_branches_modified_days_ago)
   end
 
   def should_include_branch?(branch)
-    @settings[:only_branches] or return true
+    @settings.only_branches or return true
 
-    @settings[:only_branches].any? do |regex|
+    @settings.only_branches.any? do |regex|
       branch =~ Regexp.new(regex)
     end
   end
 
   def should_ignore_conflicts?(conflicts)
     conflicts.all? do |conflict|
-      @settings[:ignore_conflicts_in_file_paths].any? do |regex|
+      @settings.ignore_conflicts_in_file_paths.any? do |regex|
         conflict =~ Regexp.new(regex)
       end
     end
@@ -51,7 +51,7 @@ class ConflictDetector
       call_git(git, 'clean -f -d')
 
       # move to the master branch
-      call_git(git, "checkout #{@settings[:master_branch_name]}")
+      call_git(git, "checkout #{@settings.master_branch_name}")
 
       # remove branches that no longer exist on origin and update all branches that do
       call_git(git, 'fetch --prune --all')
@@ -74,7 +74,7 @@ class ConflictDetector
         Rails.logger.info("Skipping branch #{branch.name}, it is not on the include list")
         true
       elsif should_ignore_branch_by_date?(branch)
-        Rails.logger.info("Skipping branch #{branch.name}, it has not been modified in over #{@settings[:ignore_branches_modified_days_ago]} days")
+        Rails.logger.info("Skipping branch #{branch.name}, it has not been modified in over #{@settings.ignore_branches_modified_days_ago} days")
         true
       else
         false
@@ -92,8 +92,8 @@ class ConflictDetector
     source_branches.each do |source_branch|
       # break if we have tested enough branches already
       branches_checked += 1
-      if @settings[:maximum_branches_to_check] && (branches_checked > @settings[:maximum_branches_to_check])
-        Rails.logger.warn("WARNING: Checked the maximum number of branches allowed, #{@settings[:maximum_branches_to_check]}, exiting early")
+      if GlobalSettings.maximum_branches_to_check && (branches_checked > GlobalSettings.maximum_branches_to_check)
+        Rails.logger.warn("WARNING: Checked the maximum number of branches allowed, #{GlobalSettings.maximum_branches_to_check}, exiting early")
         break
       end
 
@@ -118,7 +118,7 @@ class ConflictDetector
   end
 
   def process_repo(repo_name)
-    git = Git::Git.new("git@github.com:#{repo_name}.git", "#{File.join(@settings[:cache_directory], repo_name)}")
+    git = Git::Git.new("git@github.com:#{repo_name}.git", "#{File.join(GlobalSettings.cache_directory, repo_name)}")
 
     start_time = DateTime.now
 
@@ -189,10 +189,8 @@ class ConflictDetector
     ConflictsMailer.send_conflict_emails(
         repo_name,
         start_time,
-        @settings[:email_filter],
-        @settings[:email_override],
-        Branch.where(name: @settings[:suppress_conflicts_for_owners_of_branches]),
-        @settings[:ignore_conflicts_in_file_paths])
+        Branch.where(name: @settings.suppress_conflicts_for_owners_of_branches),
+        @settings.ignore_conflicts_in_file_paths)
   end
 end
 

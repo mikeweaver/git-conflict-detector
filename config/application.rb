@@ -26,7 +26,7 @@ module GitConflictDetector
     # SMTP settings
     config.action_mailer.delivery_method = :smtp
     config.action_mailer.smtp_settings = {
-        :address              => 'smtp.gmail.com',
+        :address              => Rails.application.secrets.smtp_address,
         :port                 => 587,
         :user_name            => Rails.application.secrets.smtp_user_name,
         :password             => Rails.application.secrets.smtp_password,
