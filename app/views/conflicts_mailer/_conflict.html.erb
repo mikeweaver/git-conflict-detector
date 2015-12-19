@@ -1,10 +1,10 @@
 <% if resolved %>
-    <a href="https://github.com/<%= @repo_name %>/tree/<%= branch_a.name %>" style="text-decoration: none;"><%= branch_a.name %></a>
+    <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: branch_a} %>
     no longer conflicts with
-    <a href="https://github.com/<%= @repo_name %>/tree/<%= branch_b.name %>" style="text-decoration: none;"><%= branch_b.name%></a>
+    <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: branch_b} %>
 <% else %>
-    <a href="https://github.com/<%= @repo_name %>/tree/<%= branch_a.name %>" style="text-decoration: none;"><%= branch_a.name %></a>
+    <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: branch_a} %>
     conflicts with
-    <a href="https://github.com/<%= @repo_name %>/tree/<%= branch_b.name %>" style="text-decoration: none;"><%= branch_b.name%></a>
-    <a href="https://github.com/Invoca/web/compare/<%= branch_a.name %>...<%= branch_b.name %>" style="text-decoration: none;">(diff)</a>
+    <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: branch_b} %>
+    <a href="https://github.com/<%= @repo_name %>/compare/<%= branch_a.name %>...<%= branch_b.name %>" style="text-decoration: none;">(diff)</a>
 <% end %>
