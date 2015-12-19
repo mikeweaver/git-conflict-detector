@@ -2,11 +2,7 @@
     <h3><%= heading %></h3>
     <% conflicts.each do |conflict| %>
         <p>
-            <% if @user.id == conflict.branch_a.author.id %>
-                <%= render partial: 'conflict', locals: {branch_a: conflict.branch_a, branch_b: conflict.branch_b, resolved: false} %>
-            <% else %>
-                <%= render partial: 'conflict', locals: {branch_a: conflict.branch_b, branch_b: conflict.branch_a, resolved: false} %>
-            <% end %>
+            <%= render partial: 'conflict', locals: {conflict: conflict, show_branch_a_first: @user.id == conflict.branch_a.author.id} %>
         </p>
         <% conflict.conflicting_files_excluding(@hidden_file_list).each do |file| %>
             <p style="margin-left:20px;margin-top:0px;margin-bottom:0px">

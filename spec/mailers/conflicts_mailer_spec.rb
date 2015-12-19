@@ -191,6 +191,7 @@ RSpec.describe ConflictsMailer do
           expect(mail.html_part.to_s).to match(/.*file2\.txt.*/)
           expect(mail.html_part.to_s).to match(/.*file3\.txt.*/)
           expect(mail.html_part.to_s).not_to match(/ignore list/)
+          expect(mail.html_part.to_s).to match(/.*(suppress).*/)
         end
       end
 

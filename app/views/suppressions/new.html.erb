@@ -1,21 +1,28 @@
 <%= form_for :suppression, url: suppressions_path do |f| %>
     <div>
-      <%= f.check_box :suppress_conflict, checked: @suppress_conflict%> Suppress the conflict between branch A and B
+      <%= f.check_box :suppress_conflict, checked: @suppress_conflict%> Suppress the conflict between branch <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: @conflict.branch_a} %> and <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: @conflict.branch_b} %>
     </div>
     <div>
-      For <%= f.select :suppression_range_conflict, options_for_select(SuppressionsController::SUPPRESSION_RANGES) %><br>
+      For <%= f.select :suppression_duration_conflict, options_for_select(SuppressionsController::SUPPRESSION_DURATIONS, selected: SuppressionsController::SUPPRESSION_DURATION_ONE_WEEK) %><br>
       <%= f.check_box :suppress_conflict_until_files_change %> unless the conflicting file set changes
     </div>
 
     <div>
-      <%= f.check_box :suppress_branch_a %> Suppress ALL existing and future conflcits with branch A:
-      For <%= f.select :suppression_range_branch_a, options_for_select(SuppressionsController::SUPPRESSION_RANGES) %><br>
+      <%= f.check_box :suppress_branch_a %> Suppress ALL existing and future conflcits with branch <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: @conflict.branch_a} %>:
+    </div>
+    <div>
+      For <%= f.select :suppression_duration_branch_a, options_for_select(SuppressionsController::SUPPRESSION_DURATIONS, selected: SuppressionsController::SUPPRESSION_DURATION_ONE_WEEK) %><br>
     </div>
 
     <div>
-      <%= f.check_box :suppress_branch_b %> Suppress ALL existing and future conflcits with branch B:
-      For <%= f.select :suppression_range_branch_b, options_for_select(SuppressionsController::SUPPRESSION_RANGES) %><br>
+      <%= f.check_box :suppress_branch_b %> Suppress ALL existing and future conflcits with branch <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: @conflict.branch_b} %>:
     </div>
+    <div>
+      For <%= f.select :suppression_duration_branch_b, options_for_select(SuppressionsController::SUPPRESSION_DURATIONS, selected: SuppressionsController::SUPPRESSION_DURATION_ONE_WEEK) %><br>
+    </div>
+
+    <%= hidden_field_tag 'conflict_id', @conflict.id %>
+    <%= hidden_field_tag 'user_id', @user.id %>
 
     <%= f.submit %>
 <% end %>

@@ -1,2 +1,17 @@
-<h1>Suppressions#create</h1>
-<p>Find me in app/views/suppressions/create.html.erb</p>
+<% if @conflict_notification_suppression %>
+    <div>
+    Suppressed the conflict between branch <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: @conflict_notification_suppression.conflict.branch_a} %> and <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: @conflict_notification_suppression.conflict.branch_b} %> <%= render partial: 'suppression_date', locals: {suppress_until: @conflict_notification_suppression.suppress_until} %>
+    </div>
+<% end %>
+
+<% if @branch_a_notification_suppression %>
+    <div>
+    Suppressed ALL existing and future conflcits with branch <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: @branch_a_notification_suppression.branch} %> <%= render partial: 'suppression_date', locals: {suppress_until: @branch_a_notification_suppression.suppress_until} %>
+    </div>
+<% end %>
+
+<% if @branch_b_notification_suppression %>
+    <div>
+    Suppressed ALL existing and future conflcits with branch <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: @branch_b_notification_suppression.branch} %> <%= render partial: 'suppression_date', locals: {suppress_until: @branch_b_notification_suppression.suppress_until} %>
+    </div>
+<% end %>

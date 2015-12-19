@@ -1,4 +1,13 @@
-<% if resolved %>
+<%
+if show_branch_a_first
+    branch_a = conflict.branch_a
+    branch_b = conflict.branch_b
+else
+    branch_a = conflict.branch_b
+    branch_b = conflict.branch_a
+end %>
+
+<% if conflict.resolved %>
     <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: branch_a} %>
     no longer conflicts with
     <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: branch_b} %>
@@ -7,4 +16,6 @@
     conflicts with
     <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: branch_b} %>
     <a href="https://github.com/<%= @repo_name %>/compare/<%= branch_a.name %>...<%= branch_b.name %>" style="text-decoration: none;">(diff)</a>
+    <a href="https://github.com/<%= @repo_name %>/compare/<%= branch_a.name %>...<%= branch_b.name %>" style="text-decoration: none;">(diff)</a>
+    <%= link_to 'suppress', { controller: :suppressions, action: :new, conflict_id: conflict.id, user_id: @user.id }, { style: 'text-decoration: none;' } %>
 <% end %>
