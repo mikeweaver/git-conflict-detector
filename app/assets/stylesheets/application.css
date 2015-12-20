@@ -13,3 +13,7 @@
  *= require_tree .
  *= require_self
  */
+div.suppression_duration {
+    padding: 5px;
+    margin-left: 20px;
+}
