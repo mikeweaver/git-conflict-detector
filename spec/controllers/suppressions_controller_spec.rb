@@ -37,7 +37,7 @@ describe SuppressionsController, :type => :controller do
 
           suppressions = ConflictNotificationSuppression.all
           expect(suppressions.size).to eq(1)
-          expect(suppressions[0].suppress_until).to eq(1.week.from_now)
+          expect(suppressions[0].suppress_until.to_i).to eq(1.week.from_now.to_i)
           expect(suppressions[0].conflict.id).to eq(@conflict.id)
         end
       end
@@ -55,7 +55,7 @@ describe SuppressionsController, :type => :controller do
 
           suppressions = BranchNotificationSuppression.all
           expect(suppressions.size).to eq(1)
-          expect(suppressions[0].suppress_until).to eq(1.week.from_now)
+          expect(suppressions[0].suppress_until.to_i).to eq(1.week.from_now.to_i)
           expect(suppressions[0].branch.id).to eq(@conflict.branch_a.id)
         end
       end
@@ -73,7 +73,7 @@ describe SuppressionsController, :type => :controller do
 
           suppressions = BranchNotificationSuppression.all
           expect(suppressions.size).to eq(1)
-          expect(suppressions[0].suppress_until).to eq(1.week.from_now)
+          expect(suppressions[0].suppress_until.to_i).to eq(1.week.from_now.to_i)
           expect(suppressions[0].branch.id).to eq(@conflict.branch_b.id)
         end
       end
