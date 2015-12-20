@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 show_usage () {
     echo "USAGE: deploy [-s] -p DEPLOY TO PATH" >&2
     exit 1
