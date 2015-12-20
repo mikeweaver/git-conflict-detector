@@ -8,7 +8,7 @@ class ConflictDetector
   end
 
   def run
-    process_repo(@settings.repo_name)
+    process_repo(@settings.repository_name)
   end
 
   private

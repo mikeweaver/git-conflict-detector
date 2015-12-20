@@ -8,14 +8,14 @@ else
 end %>
 
 <% if conflict.resolved %>
-    <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: branch_a} %>
+    <%= render partial: 'shared/branch_link', locals: {repository_name: @repository_name, branch: branch_a} %>
     no longer conflicts with
-    <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: branch_b} %>
+    <%= render partial: 'shared/branch_link', locals: {repository_name: @repository_name, branch: branch_b} %>
 <% else %>
-    <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: branch_a} %>
+    <%= render partial: 'shared/branch_link', locals: {repository_name: @repository_name, branch: branch_a} %>
     conflicts with
-    <%= render partial: 'shared/branch_link', locals: {repo_name: @repo_name, branch: branch_b} %>
-    <a href="https://github.com/<%= @repo_name %>/compare/<%= branch_a.name %>...<%= branch_b.name %>" style="text-decoration: none;">(diff)</a>
-    <a href="https://github.com/<%= @repo_name %>/compare/<%= branch_a.name %>...<%= branch_b.name %>" style="text-decoration: none;">(diff)</a>
+    <%= render partial: 'shared/branch_link', locals: {repository_name: @repository_name, branch: branch_b} %>
+    <a href="https://github.com/<%= @repository_name %>/compare/<%= branch_a.name %>...<%= branch_b.name %>" style="text-decoration: none;">(diff)</a>
+    <a href="https://github.com/<%= @repository_name %>/compare/<%= branch_a.name %>...<%= branch_b.name %>" style="text-decoration: none;">(diff)</a>
     <%= link_to 'suppress', { controller: :suppressions, action: :new, conflict_id: conflict.id, user_id: @user.id }, { style: 'text-decoration: none;' } %>
 <% end %>

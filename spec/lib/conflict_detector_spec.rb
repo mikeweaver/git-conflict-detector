@@ -16,7 +16,7 @@ describe 'ConflictDetector' do
 
   it 'works' do
     start_time = Time.now
-    conflict_detector = ConflictDetector.new(GlobalSettings.repos_to_check['MyRepo'])
+    conflict_detector = ConflictDetector.new(GlobalSettings.repositories_to_check['MyRepo'])
     expect(conflict_detector).to receive(:setup_repo)
     expect(conflict_detector).to receive(:get_branch_list) { create_test_git_branches }
     expect(conflict_detector).to receive(:get_conflicts ).exactly(3).times.and_return(

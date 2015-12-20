@@ -3,9 +3,9 @@ maximum_branches_to_check: 0
 email_override: '' #redirect all emails to this address
 email_filter: [] #only email users in this list. Empty to disable filter.
 web_server_url: 'http://localhost:3000'
-repos_to_check:
+repositories_to_check:
   MyRepo:
-    repo_name: 'Organization/repo'
+    repository_name: 'Organization/repo'
     ignore_branches: [] #regex
     ignore_branches_modified_days_ago: 28
     only_branches: ['^folder/.*$', 'master'] #regex

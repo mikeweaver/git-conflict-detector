@@ -7,8 +7,8 @@ def load_global_settings
 
   # convert to open struct
   settings_object = OpenStruct.new(settings_hash)
-  settings_object.repos_to_check.each do |repo_name, repo_settings|
-    settings_object.repos_to_check[repo_name] = OpenStruct.new(repo_settings)
+  settings_object.repositories_to_check.each do |repository_name, repo_settings|
+    settings_object.repositories_to_check[repository_name] = OpenStruct.new(repo_settings)
   end
 
   # cleanup data

@@ -2,18 +2,18 @@ class ConflictsMailer < ActionMailer::Base
   default from: "gitconflictdetector@noreply.com"
   default content_type: 'text/plain'
 
-  def self.send_conflict_emails(repo_name, conflicts_newer_than, exclude_branches_if_owned_by_user, hidden_file_list)
+  def self.send_conflict_emails(repository_name, conflicts_newer_than, exclude_branches_if_owned_by_user, hidden_file_list)
     User.subscribed_users.users_with_emails(GlobalSettings.email_filter).each do |user|
       if GlobalSettings.email_override.present?
         user.email = GlobalSettings.email_override
       end
-      maybe_send_conflict_email_to_user(user, repo_name, conflicts_newer_than, exclude_branches_if_owned_by_user, hidden_file_list).deliver_now
+      maybe_send_conflict_email_to_user(user, repository_name, conflicts_newer_than, exclude_branches_if_owned_by_user, hidden_file_list).deliver_now
     end
   end
 
-  def maybe_send_conflict_email_to_user(user, repo_name, conflicts_newer_than, exclude_branches_if_owned_by_user, hidden_file_list)
+  def maybe_send_conflict_email_to_user(user, repository_name, conflicts_newer_than, exclude_branches_if_owned_by_user, hidden_file_list)
     Rails.logger.info("Determining if email should be sent to #{user.email}")
-    @repo_name = repo_name
+    @repository_name = repository_name
     @hidden_file_list = hidden_file_list
 
     suppressed_branch_ids = BranchNotificationSuppression.suppressed_branch_ids(user)
