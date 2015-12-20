@@ -5,19 +5,19 @@ module Git
 
     GIT_PATH = '/usr/bin/git'.freeze
 
-    attr_reader :repo_url, :repo_path
+    attr_reader :repository_url, :repository_path
 
     def initialize(repository_name)
       @repository_name = repository_name
-      @repo_url = "git@github.com:#{repository_name}.git"
-      @repo_path = "#{File.join(GlobalSettings.cache_directory, repository_name)}"
+      @repository_url = "git@github.com:#{repository_name}.git"
+      @repository_path = "#{File.join(GlobalSettings.cache_directory, repository_name)}"
     end
 
-    def execute(command, run_in_repo_path=true)
+    def execute(command, run_in_repository_path=true)
       command = "#{GIT_PATH} #{command}"
 
-      options = if run_in_repo_path
-        {chdir: @repo_path}
+      options = if run_in_repository_path
+        {chdir: @repository_path}
       else
         {}
       end

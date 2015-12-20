@@ -17,11 +17,11 @@ describe 'Git' do
   it 'can be created' do
     git = Git::Git.new('repository_name')
 
-    expect(git.repo_url).to eq('git@github.com:repository_name.git')
-    expect(git.repo_path).to eq('./tmp/cache/git/repository_name')
+    expect(git.repository_url).to eq('git@github.com:repository_name.git')
+    expect(git.repository_path).to eq('./tmp/cache/git/repository_name')
   end
 
-  context 'with a git repo' do
+  context 'with a git respository' do
 
     before do
       @git = Git::Git.new('repository_name')

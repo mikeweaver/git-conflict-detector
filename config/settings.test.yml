@@ -5,7 +5,7 @@ email_filter: [] #only email users in this list. Empty to disable filter.
 web_server_url: 'http://localhost:3000'
 repositories_to_check:
   MyRepo:
-    repository_name: 'Organization/repo'
+    repository_name: 'Organization/respository'
     ignore_branches: [] #regex
     ignore_branches_modified_days_ago: 28
     only_branches: ['^folder/.*$', 'master'] #regex

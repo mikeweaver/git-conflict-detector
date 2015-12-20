@@ -4,5 +4,5 @@
 
 <%= render partial: 'conflict_list', locals: {conflicts: @existing_conflicts, heading: 'Existing conflicts on untouched branches:'} %>
 
-You are receiving this email because you made a commit to the <%= @repository_name %> repo.
+You are receiving this email because you made a commit to the <%= @repository_name %> respository.
 To unsubscribe, click here: <%= url_for controller: :users, action: :unsubscribe, id: @user.id %>

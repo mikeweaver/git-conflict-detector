@@ -13,9 +13,9 @@ class ConflictDetector
 
   private
 
-  def call_git(git, command, run_in_repo_path=true)
+  def call_git(git, command, run_in_repository_path=true)
     Rails.logger.debug("Cmd: git #{command}")
-    git.execute(command, run_in_repo_path)
+    git.execute(command, run_in_repository_path)
   end
 
   def should_ignore_branch_by_list?(branch)
@@ -45,7 +45,7 @@ class ConflictDetector
   end
 
   def setup_repo(git)
-    if Dir.exists?("#{git.repo_path}")
+    if Dir.exists?("#{git.repository_path}")
       # cleanup any changes that might have been left over if we crashed while running
       call_git(git, 'reset --hard origin')
       call_git(git, 'clean -f -d')
@@ -59,7 +59,7 @@ class ConflictDetector
       # pull all of the branches
       call_git(git, 'pull --all')
     else
-      call_git(git, "clone #{git.repo_url} #{git.repo_path}", false)
+      call_git(git, "clone #{git.repository_url} #{git.repository_path}", false)
     end
   end
 
