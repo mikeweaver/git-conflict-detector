@@ -82,6 +82,11 @@ describe 'Conflict' do
     create_test_conflict(@branches[0], @branches[1], file_list: [])
   end
 
+  it 'does not allow conflicts between repositories' do
+    branch_in_different_repository = create_test_branch(repository_name: 'other_repository_name')
+    expect { create_test_conflict(@branches[0], branch_in_different_repository) }.to raise_exception(ActiveRecord::RecordInvalid)
+  end
+
   it 'does not allow duplicate conflicts' do
     create_test_conflict(@branches[0], @branches[1])
     conflict = Conflict.new(

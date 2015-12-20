@@ -6,14 +6,16 @@ class Branch < ActiveRecord::Base
     timestamps
   end
 
-  validates :name, uniqueness: true
+  validates :name, uniqueness: { scope: :repository, message: "Branch names must be unique within each repository" }
 
   belongs_to :author, class_name: User, inverse_of: :branches, required: true
+  belongs_to :repository, inverse_of: :branches, required: true
   has_many :conflicts, foreign_key: :branch_a_id, dependent: :destroy
   has_many :branch_notification_suppressions, dependent: :destroy
 
   def self.create_from_git_data!(branch_data)
-    branch = Branch.where(name: branch_data.name).first_or_initialize
+    repository = Repository.create!(branch_data.repository_name)
+    branch = Branch.where(repository: repository, name: branch_data.name).first_or_initialize
     branch.git_updated_at = branch_data.last_modified_date
     branch.updated_at = Time.now # force updated time
     branch.author = User.create_from_git_data!(branch_data)
@@ -28,6 +30,8 @@ class Branch < ActiveRecord::Base
   scope :untested_branches, lambda { where("git_tested_at IS ? OR git_updated_at > git_tested_at", nil) }
 
   scope :branches_not_updated_since, lambda { |checked_at_date| where("updated_at < ?", checked_at_date) }
+
+  scope :from_repository, lambda { |repository_name| joins(:repository).where("repositories.name = ?", repository_name) }
 
   def to_s
     name

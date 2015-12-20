@@ -29,15 +29,16 @@ RSpec.configure do |config|
 
 end
 
-def create_test_branch(name: 'path/branch', last_modified_date: Time.now, author_name: 'Author Name', author_email: 'author@email.com')
-  git_data = Git::GitBranch.new(name, last_modified_date, author_name, author_email)
+def create_test_branch(repository_name: 'repository_name', name: 'path/branch', last_modified_date: Time.now, author_name: 'Author Name', author_email: 'author@email.com')
+  git_data = Git::GitBranch.new(repository_name, name, last_modified_date, author_name, author_email)
   Branch.create_from_git_data!(git_data)
 end
 
-def create_test_branches(author_name: 'Author Name', author_email: 'author@email.com', count: 2)
+def create_test_branches(repository_name: 'repository_name', author_name: 'Author Name', author_email: 'author@email.com', count: 2)
   branches = []
   (0..count - 1).each do |i|
     branches << create_test_branch(
+        repository_name: repository_name,
         name: "path/#{author_name}/branch#{i}",
         last_modified_date: DateTime.now,
         author_name: author_name,

@@ -11,6 +11,25 @@ describe 'Branch' do
     expect(branch.updated_at).not_to be_nil
   end
 
+  it 'does not create duplicate database records' do
+    git_data = Git::GitBranch.new('repository_name', 'name', Time.now, 'author_name', 'author@email.com')
+    Branch.create_from_git_data!(git_data)
+    expect(Branch.all.count).to eq(1)
+
+    Branch.create_from_git_data!(git_data)
+    expect(Branch.all.count).to eq(1)
+  end
+
+  it 'distinguishes between branches in different repositories' do
+    git_data_a = Git::GitBranch.new('repository_name', 'name', Time.now, 'author_name', 'author@email.com')
+    Branch.create_from_git_data!(git_data_a)
+    expect(Branch.all.count).to eq(1)
+
+    git_data_b = Git::GitBranch.new('other_repository_name', 'name', Time.now, 'author_name', 'author@email.com')
+    Branch.create_from_git_data!(git_data_b)
+    expect(Branch.all.count).to eq(2)
+  end
+
   it 'can be sorted alphabetically by name' do
     names = ['b', 'd', 'a', 'c']
     (0..3).each do |i|
@@ -40,6 +59,15 @@ describe 'Branch' do
     it 'returns untested_branches' do
       expect(Branch.untested_branches.size).to eq(2)
     end
+  end
+
+  it 'returns branches from a repository' do
+    create_test_branch(repository_name: 'repository_a', name: 'name_a')
+    create_test_branch(repository_name: 'repository_b', name: 'name_b')
+
+    branches_a = Branch.from_repository('repository_a').all
+    expect(branches_a.size).to eq(1)
+    expect(branches_a[0].name).to eq('name_a')
   end
 
   context 'with an existing branch' do

@@ -117,8 +117,8 @@ class ConflictDetector
     conflicts
   end
 
-  def process_repo(repo_name)
-    git = Git::Git.new("git@github.com:#{repo_name}.git", "#{File.join(GlobalSettings.cache_directory, repo_name)}")
+  def process_repo(repository_name)
+    git = Git::Git.new(repository_name)
 
     start_time = DateTime.now
 
@@ -187,7 +187,7 @@ class ConflictDetector
 
     # send notifications out
     ConflictsMailer.send_conflict_emails(
-        repo_name,
+        repository_name,
         start_time,
         Branch.where(name: @settings.suppress_conflicts_for_owners_of_branches),
         @settings.ignore_conflicts_in_file_paths)

@@ -18,7 +18,7 @@ RSpec.describe ConflictsMailer do
 
     it 'sends an email to users with conflicts' do
       expect { ConflictsMailer.send_conflict_emails(
-          'repo_name',
+          'repository_name',
           1.hour.ago,
           [],
           []) }.to change { ActionMailer::Base.deliveries.count }.by(2)
@@ -29,7 +29,7 @@ RSpec.describe ConflictsMailer do
     it 'sends an email to users with resolved conflicts' do
       @conflict_1.resolve!(Time.now)
       expect { ConflictsMailer.send_conflict_emails(
-          'repo_name',
+          'repository_name',
           1.hour.ago,
           [],
           []) }.to change { ActionMailer::Base.deliveries.count }.by(2)
@@ -41,7 +41,7 @@ RSpec.describe ConflictsMailer do
       allow(GlobalSettings).to receive(:email_override).and_return('override@email.com')
 
       expect { ConflictsMailer.send_conflict_emails(
-          'repo_name',
+          'repository_name',
           1.hour.ago,
           [],
           []) }.to change { ActionMailer::Base.deliveries.count }.by(2)
@@ -55,7 +55,7 @@ RSpec.describe ConflictsMailer do
       allow(GlobalSettings).to receive(:email_filter).and_return(['author1@email.com', 'author3@email.com'])
 
       expect { ConflictsMailer.send_conflict_emails(
-          'repo_name',
+          'repository_name',
           1.hour.ago,
           [],
           []) }.to change { ActionMailer::Base.deliveries.count }.by(1)
@@ -65,7 +65,7 @@ RSpec.describe ConflictsMailer do
 
     it 'only sends email to subscribed' do
       expect { ConflictsMailer.send_conflict_emails(
-          'repo_name',
+          'repository_name',
           1.hour.ago,
           [],
           []) }.to change { ActionMailer::Base.deliveries.count }.by(2)
@@ -75,7 +75,7 @@ RSpec.describe ConflictsMailer do
       @branches_a[0].author.unsubscribe!
       
       expect { ConflictsMailer.send_conflict_emails(
-          'repo_name',
+          'repository_name',
           1.hour.ago,
           [],
           []) }.to change { ActionMailer::Base.deliveries.count }.by(1)
@@ -90,7 +90,7 @@ RSpec.describe ConflictsMailer do
       conflict_2.resolve!(Time.now)
 
       expect { ConflictsMailer.send_conflict_emails(
-          'repo_name',
+          'repository_name',
           1.hour.from_now,
           [],
           []) }.to change { ActionMailer::Base.deliveries.count }.by(0)
@@ -98,7 +98,7 @@ RSpec.describe ConflictsMailer do
 
     it 'excludes conflicts for users who own branches on exclusion list' do
       expect { ConflictsMailer.send_conflict_emails(
-          'repo_name',
+          'repository_name',
           1.hour.ago,
           [@branches_a[0]],
           []) }.to change { ActionMailer::Base.deliveries.count }.by(1)
@@ -109,7 +109,7 @@ RSpec.describe ConflictsMailer do
     it 'excludes resolved conflicts for users who own branches on exclusion list' do
       @conflict_1.resolve!(Time.now)
       expect { ConflictsMailer.send_conflict_emails(
-          'repo_name',
+          'repository_name',
           1.hour.ago,
           [@branches_a[0]],
           []) }.to change { ActionMailer::Base.deliveries.count }.by(1)
@@ -124,7 +124,7 @@ RSpec.describe ConflictsMailer do
 
       it 'excludes conflicts for user who has the suppression' do
         expect { ConflictsMailer.send_conflict_emails(
-            'repo_name',
+            'repository_name',
             1.hour.ago,
             [],
             []) }.to change { ActionMailer::Base.deliveries.count }.by(1)
@@ -135,7 +135,7 @@ RSpec.describe ConflictsMailer do
       it 'excludes resolved conflicts for user who has the suppression' do
         @conflict_1.resolve!(Time.now)
         expect { ConflictsMailer.send_conflict_emails(
-            'repo_name',
+            'repository_name',
             1.hour.ago,
             [],
             []) }.to change { ActionMailer::Base.deliveries.count }.by(1)
@@ -151,7 +151,7 @@ RSpec.describe ConflictsMailer do
 
       it 'excludes conflicts for user who has the conflict suppression' do
         expect { ConflictsMailer.send_conflict_emails(
-            'repo_name',
+            'repository_name',
             1.hour.ago,
             [],
             []) }.to change { ActionMailer::Base.deliveries.count }.by(1)
@@ -163,7 +163,7 @@ RSpec.describe ConflictsMailer do
         @conflict_1.resolve!(Time.now)
 
         expect { ConflictsMailer.send_conflict_emails(
-            'repo_name',
+            'repository_name',
             1.hour.ago,
             [],
             []) }.to change { ActionMailer::Base.deliveries.count }.by(1)
@@ -175,7 +175,7 @@ RSpec.describe ConflictsMailer do
     context 'sends an email that' do
       it 'contains the file list from the conflict' do
         expect { ConflictsMailer.send_conflict_emails(
-            'repo_name',
+            'repository_name',
             1.hour.ago,
             [],
             []) }.to change { ActionMailer::Base.deliveries.count }.by(2)
@@ -197,7 +197,7 @@ RSpec.describe ConflictsMailer do
 
       it 'excludes the files on the ignore list from the conflict' do
         expect { ConflictsMailer.send_conflict_emails(
-            'repo_name',
+            'repository_name',
             1.hour.ago,
             [],
             ['file1.txt']) }.to change { ActionMailer::Base.deliveries.count }.by(2)
@@ -220,7 +220,7 @@ RSpec.describe ConflictsMailer do
         @conflict_1.resolve!(Time.now)
 
         expect { ConflictsMailer.send_conflict_emails(
-            'repo_name',
+            'repository_name',
             1.hour.ago,
             [],
             ['file1.txt']) }.to change { ActionMailer::Base.deliveries.count }.by(2)
@@ -236,7 +236,7 @@ RSpec.describe ConflictsMailer do
   context 'without conflict present' do
     it 'does not send an email' do
       expect { ConflictsMailer.send_conflict_emails(
-          'repo_name',
+          'repository_name',
           1.hour.ago,
           [],
           []) }.to change { ActionMailer::Base.deliveries.count }.by(0)

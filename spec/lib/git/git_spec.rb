@@ -15,16 +15,16 @@ describe 'Git' do
   end
 
   it 'can be created' do
-    git = Git::Git.new('repo_url', 'repo_path')
+    git = Git::Git.new('repository_name')
 
-    expect(git.repo_url).to eq('repo_url')
-    expect(git.repo_path).to eq('repo_path')
+    expect(git.repo_url).to eq('git@github.com:repository_name.git')
+    expect(git.repo_path).to eq('./tmp/cache/git/repository_name')
   end
 
   context 'with a git repo' do
 
     before do
-      @git = Git::Git.new('repo_url', 'repo_path')
+      @git = Git::Git.new('repository_name')
     end
 
     it 'can execute a command' do
@@ -44,16 +44,19 @@ describe 'Git' do
 
       branch_list = []
       branch_list << Git::GitBranch.new(
+          'repository_name',
           'test_1',
           DateTime::parse('2015-10-19 17:58:24 -0700'),
           'Nicholas Ellis',
           'nellis@invoca.com')
       branch_list << Git::GitBranch.new(
+          'repository_name',
           'test_build',
           DateTime::parse('2015-10-19 15:03:22 -0700'),
           'Bob Smith',
           'bob@invoca.com')
       branch_list << Git::GitBranch.new(
+          'repository_name',
           'test_build_b',
           DateTime::parse('2015-10-19 16:52:40 -0700'),
           'Nicholas Ellis',
@@ -76,6 +79,7 @@ describe 'Git' do
          ['ingored output', create_mock_open_status(1)])
 
       conflict = Git::GitConflict.new(
+          'repository_name',
           '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
           '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
           ['test/workers/adwords_detail_worker_test.rb', 'pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js'])

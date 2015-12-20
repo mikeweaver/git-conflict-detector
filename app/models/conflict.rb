@@ -17,8 +17,13 @@ class Conflict < ActiveRecord::Base
   validates :branch_a, uniqueness: { scope: :branch_b, message: "Conficts must be unique" }
   validates_each :branch_a do |record, attr, value|
     # specifically ignore nil branches, those will be caught by a different validator
-    if (value.present? && record.branch_b.present?) && value.id == record.branch_b.id
-      record.errors.add(attr, 'Branch cannot conflict with itself')
+    if (value.present? && record.branch_b.present?)
+      if value.id == record.branch_b.id
+        record.errors.add(attr, 'Branch cannot conflict with itself')
+      end
+      if value.repository.id != record.branch_b.repository.id
+        record.errors.add(attr, 'Branches from different repositories cannot conflict')
+      end
     end
   end
   validates_each :conflicting_files do |record, attr, value|

@@ -10,7 +10,6 @@ class SuppressionsController < ApplicationController
       SUPPRESSION_DURATION_FOREVER]
 
   def new
-    @repo_name = 'test' # TODO: store repo in DB rather than config so it can be related to branches
   end
 
   def create
@@ -69,8 +68,9 @@ class SuppressionsController < ApplicationController
     @conflict = Conflict.find(params['conflict_id'])
     @user = User.find(params['user_id'])
     unless @conflict.branch_a.author.id == @user.id || @conflict.branch_b.author.id == @user.id
-      raise "User id #{@user.id} does own conflict id #{@conflict.id}"
+      raise "User id #{@user.id} doesn't own conflict id #{@conflict.id}"
     end
+    @repository_name = @conflict.branch_a.repository.name
     nil
   end
 end

@@ -5,6 +5,7 @@ describe 'User' do
   it 'can create be constructed from git data' do
     updated_at = DateTime.now
     git_data = Git::GitBranch.new(
+        'repository_name',
         'mypath/mybranch',
         updated_at,
         'Author Name',

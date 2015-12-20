@@ -7,9 +7,10 @@ module Git
 
     attr_reader :repo_url, :repo_path
 
-    def initialize(repo_url, repo_path)
-      @repo_url = repo_url
-      @repo_path = repo_path
+    def initialize(repository_name)
+      @repository_name = repository_name
+      @repo_url = "git@github.com:#{repository_name}.git"
+      @repo_path = "#{File.join(GlobalSettings.cache_directory, repository_name)}"
     end
 
     def execute(command, run_in_repo_path=true)
@@ -34,6 +35,7 @@ module Git
       raw_output.split("\n").collect! do |raw_branch_data|
         branch_data = raw_branch_data.split('~')
         GitBranch.new(
+            @repository_name,
             branch_data[0].sub!('origin/', ''),
             DateTime::parse(branch_data[1]),
             branch_data[2],
@@ -51,6 +53,7 @@ module Git
         conflicting_files = Git::get_conflict_list_from_failed_merge_output(ex.error_message)
         unless conflicting_files.empty?
           GitConflict.new(
+              @repository_name,
               target_branch_name,
               source_branch_name,
               conflicting_files)
