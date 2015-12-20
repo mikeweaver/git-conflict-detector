@@ -13,7 +13,7 @@ class SuppressionsController < ApplicationController
   end
 
   def create
-    suppression_params = params['suppression']
+    suppression_params = params['suppression'] || {}
 
     if suppression_params['suppress_conflict'] == '1'
       #"suppress_conflict_until_files_change"=>"0" TODO: Add support for this

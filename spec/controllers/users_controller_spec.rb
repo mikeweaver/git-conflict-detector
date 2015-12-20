@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe UsersController, :type => :controller do
+  render_views
+
   describe "GET unsubscribe" do
     before do
       @user = User.create!(name: 'User', email: 'email@email.com')
