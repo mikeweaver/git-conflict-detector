@@ -9,6 +9,12 @@ class SuppressionsController < ApplicationController
       SUPPRESSION_DURATION_ONE_WEEK,
       SUPPRESSION_DURATION_FOREVER]
 
+  class InvalidSuppressionDuration < StandardError
+    def initialize(duration_string)
+      super("Unknown suppression duration: #{duration_string}")
+    end
+  end
+
   def new
   end
 
@@ -60,7 +66,7 @@ class SuppressionsController < ApplicationController
       when SUPPRESSION_DURATION_FOREVER
         nil
       else
-        raise "Unknown suppression duration: #{duration_string}"
+        raise InvalidSuppressionDuration.new(duration_string)
     end
   end
 
@@ -72,5 +78,8 @@ class SuppressionsController < ApplicationController
     end
     @repository_name = @conflict.branch_a.repository.name
     nil
+  rescue ActiveRecord::RecordNotFound => e
+    flash[:alert] = 'The conflict or user no longers exists'
+    redirect_to controller: 'errors', action: 'bad_request'
   end
 end
