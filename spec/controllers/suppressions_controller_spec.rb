@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SuppressionsController, :type => :controller do
+describe SuppressionsController, type: :controller do
   render_views
 
   context "with a conflict" do

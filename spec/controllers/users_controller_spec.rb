@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe UsersController, :type => :controller do
+describe UsersController, type: :controller do
   render_views
 
   describe "GET unsubscribe" do
