@@ -21,6 +21,18 @@ describe SuppressionsController, type: :controller do
         other_user = User.create!(name: 'Another Author', email: 'another@email.com')
         expect { get :new, conflict_id: @conflict.id, user_id: other_user.id }.to raise_exception
       end
+
+      it 'redirects to error page when the user is not found' do
+        get :new, conflict_id: @conflict.id, user_id: 1000
+        expect(response).to redirect_to(controller: 'errors', action: 'bad_request')
+        expect(flash['alert']).not_to be_nil
+      end
+
+      it 'redirects to error page when the conflict is not found' do
+        get :new, conflict_id: 1000, user_id: @conflict.branch_a.author.id
+        expect(response).to redirect_to(controller: 'errors', action: 'bad_request')
+        expect(flash['alert']).not_to be_nil
+      end
     end
 
     describe "POST create" do
