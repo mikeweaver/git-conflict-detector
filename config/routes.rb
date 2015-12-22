@@ -7,7 +7,8 @@ Rails.application.routes.draw do
 
   get "/500" => "errors#internal_server_error"
 
-  get 'users/:id/unsubscribe' => 'users#unsubscribe'
+  get 'users/:id/unsubscribe/new' => 'users#new_unsubscribe'
+  post 'users/:id/unsubscribe/create' => 'users#create_unsubscribe'
   
   resources :suppressions, except: [:show, :edit, :update, :destroy]
 end

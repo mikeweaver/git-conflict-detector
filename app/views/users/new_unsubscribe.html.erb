@@ -1,0 +1,10 @@
+<%= form_for :user, url: { controller: 'users', action: 'create_unsubscribe' } do |f| %>
+    <p>Are you sure you want to unsubscribe email address <%= @user.email %>?</p>
+
+    <%= hidden_field_tag 'id', @user.id %>
+
+    <%= f.submit 'Unsubscribe' %>
+<% end %>
+
+
+
