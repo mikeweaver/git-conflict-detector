@@ -5,7 +5,7 @@ module Git
 
     GIT_PATH = '/usr/bin/git'.freeze
 
-    attr_reader :repository_url, :repository_path
+    attr_reader :repository_name, :repository_url, :repository_path
 
     def initialize(repository_name)
       @repository_name = repository_name
@@ -14,6 +14,7 @@ module Git
     end
 
     def execute(command, run_in_repository_path=true)
+      Rails.logger.debug("@git #{command}")
       command = "#{GIT_PATH} #{command}"
 
       options = if run_in_repository_path
@@ -63,6 +64,25 @@ module Git
       ensure
         # cleanup our "mess"
         execute("reset --hard origin/#{target_branch_name}")
+      end
+    end
+
+    def clone_repository(default_branch)
+      if Dir.exists?("#{@repository_path}")
+        # cleanup any changes that might have been left over if we crashed while running
+        execute('reset --hard origin')
+        execute('clean -f -d')
+
+        # move to the master branch
+        execute("checkout #{default_branch}")
+
+        # remove branches that no longer exist on origin and update all branches that do
+        execute('fetch --prune --all')
+
+        # pull all of the branches
+        execute('pull --all')
+      else
+        execute("clone #{@repository_url} #{@repository_path}", false)
       end
     end
 

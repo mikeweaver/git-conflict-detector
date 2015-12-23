@@ -40,6 +40,7 @@ group :development, :test do
   gem 'database_cleaner'
   gem 'timecop'
   gem 'coveralls', require: false
+  gem 'fakefs', require: 'fakefs/safe'
 end
 
 group :development do

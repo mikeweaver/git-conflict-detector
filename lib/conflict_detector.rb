@@ -13,11 +13,6 @@ class ConflictDetector
 
   private
 
-  def call_git(command, run_in_repository_path=true)
-    Rails.logger.debug("Cmd: @git #{command}")
-    @git.execute(command, run_in_repository_path)
-  end
-
   def should_ignore_branch_by_list?(branch)
     @settings.ignore_branches.any? do |regex|
       branch =~ Regexp.new(regex)
@@ -41,26 +36,6 @@ class ConflictDetector
       @settings.ignore_conflicts_in_file_paths.any? do |regex|
         conflict =~ Regexp.new(regex)
       end
-    end
-  end
-
-
-  def setup_repo()
-    if Dir.exists?("#{@git.repository_path}")
-      # cleanup any changes that might have been left over if we crashed while running
-      call_git(@git, 'reset --hard origin')
-      call_git(@git, 'clean -f -d')
-
-      # move to the master branch
-      call_git(@git, "checkout #{@settings.master_branch_name}")
-
-      # remove branches that no longer exist on origin and update all branches that do
-      call_git(@git, 'fetch --prune --all')
-
-      # pull all of the branches
-      call_git(@git, 'pull --all')
-    else
-      call_git(@git, "clone #{@git.repository_url} #{@git.repository_path}", false)
     end
   end
 
@@ -123,7 +98,7 @@ class ConflictDetector
 
     start_time = DateTime.now
 
-    setup_repo
+    @git.clone_repository(@settings.master_branch_name)
 
     # get a list of branches and add them to the DB
     get_branch_list.each do |branch|

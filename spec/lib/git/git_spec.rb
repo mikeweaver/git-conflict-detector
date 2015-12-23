@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe 'Git' do
+  include FakeFS::SpecHelpers
 
   def create_mock_open_status(status)
     status_object = double()
@@ -9,9 +10,9 @@ describe 'Git' do
     return status_object
   end
 
-  def mock_execute(stdout_andstderr_str, status)
+  def mock_execute(stdout_andstderr_str, status, execution_count=1)
     # mock the call and repsonse to execute the git command
-    expect(Open3).to receive(:capture2e).exactly(1).times.and_return([stdout_andstderr_str, create_mock_open_status(status)])
+    expect(Open3).to receive(:capture2e).exactly(execution_count).times.and_return([stdout_andstderr_str, create_mock_open_status(status)])
   end
 
   it 'can be created' do
@@ -35,6 +36,25 @@ describe 'Git' do
     it 'raises GitError when a command fails' do
       mock_execute('sample output', 0)
       expect{@git.execute('sample command')}.to raise_exception(Git::GitError)
+    end
+
+    it 'can clone into a new directory' do
+      response =
+          "Cloning into '#{@git.repository_name}'..." +
+          "remote: Counting objects: 1080, done." +
+          "remote: Compressing objects: 100% (83/83), done." +
+          "remote: Total 1080 (delta 34), reused 0 (delta 0), pack-reused 994" +
+          "Receiving objects: 100% (1080/1080), 146.75 KiB | 0 bytes/s, done." +
+          "Resolving deltas: 100% (641/641), done." +
+          "Checking connectivity... done."
+      mock_execute(response, 1)
+      @git.clone_repository('default_branch')
+    end
+
+    it 'can update a previously cloned respository' do
+      mock_execute('Success', 1, 5)
+      FileUtils.mkpath(@git.repository_path)
+      @git.clone_repository('default_branch')
     end
 
     it 'can parse a branch list' do

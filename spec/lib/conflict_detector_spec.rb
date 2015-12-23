@@ -17,8 +17,8 @@ describe 'ConflictDetector' do
 
   it 'works' do
     start_time = Time.now
+    expect_any_instance_of(Git::Git).to receive(:clone_repository)
     conflict_detector = ConflictDetector.new(GlobalSettings.repositories_to_check['MyRepo'])
-    expect(conflict_detector).to receive(:setup_repo)
     expect(conflict_detector).to receive(:get_branch_list) { create_test_git_branches }
     expect(conflict_detector).to receive(:get_conflicts ).exactly(3).times.and_return(
       [Git::GitConflict.new('repository_name', 'path/branch0', 'path/branch1', ['dir/file.rb'])], [], [])

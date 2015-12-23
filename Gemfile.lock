@@ -64,6 +64,7 @@ GEM
       unf (>= 0.0.5, < 1.0.0)
     erubis (2.7.0)
     execjs (2.6.0)
+    fakefs (0.6.7)
     globalid (0.3.6)
       activesupport (>= 4.1.0)
     hobo_fields (2.2.4)
@@ -208,6 +209,7 @@ DEPENDENCIES
   coffee-rails (~> 4.1.0)
   coveralls
   database_cleaner
+  fakefs
   hobo_fields
   jbuilder (~> 2.0)
   jquery-rails
