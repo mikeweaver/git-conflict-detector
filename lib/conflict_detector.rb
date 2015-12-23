@@ -13,9 +13,9 @@ class ConflictDetector
 
   private
 
-  def call_git(git, command, run_in_repository_path=true)
-    Rails.logger.debug("Cmd: git #{command}")
-    git.execute(command, run_in_repository_path)
+  def call_git(command, run_in_repository_path=true)
+    Rails.logger.debug("Cmd: @git #{command}")
+    @git.execute(command, run_in_repository_path)
   end
 
   def should_ignore_branch_by_list?(branch)
@@ -44,27 +44,28 @@ class ConflictDetector
     end
   end
 
-  def setup_repo(git)
-    if Dir.exists?("#{git.repository_path}")
+
+  def setup_repo()
+    if Dir.exists?("#{@git.repository_path}")
       # cleanup any changes that might have been left over if we crashed while running
-      call_git(git, 'reset --hard origin')
-      call_git(git, 'clean -f -d')
+      call_git(@git, 'reset --hard origin')
+      call_git(@git, 'clean -f -d')
 
       # move to the master branch
-      call_git(git, "checkout #{@settings.master_branch_name}")
+      call_git(@git, "checkout #{@settings.master_branch_name}")
 
       # remove branches that no longer exist on origin and update all branches that do
-      call_git(git, 'fetch --prune --all')
+      call_git(@git, 'fetch --prune --all')
 
       # pull all of the branches
-      call_git(git, 'pull --all')
+      call_git(@git, 'pull --all')
     else
-      call_git(git, "clone #{git.repository_url} #{git.repository_path}", false)
+      call_git(@git, "clone #{@git.repository_url} #{@git.repository_path}", false)
     end
   end
 
-  def get_branch_list(git)
-    branches = git.get_branch_list
+  def get_branch_list()
+    branches = @git.get_branch_list
 
     branches.delete_if do |branch|
       if should_ignore_branch_by_list?(branch)
@@ -82,10 +83,10 @@ class ConflictDetector
     end
   end
 
-  def get_conflicts(git, target_branch, source_branches)
+  def get_conflicts(target_branch, source_branches)
     # get onto the target branch
-    git.execute("checkout #{target_branch.name}")
-    git.execute("reset --hard origin/#{target_branch.name}")
+    @git.execute("checkout #{target_branch.name}")
+    @git.execute("reset --hard origin/#{target_branch.name}")
 
     conflicts = []
     branches_checked = 0
@@ -101,7 +102,7 @@ class ConflictDetector
       next if target_branch.name == source_branch.name
 
       Rails.logger.debug("Attempt to merge #{source_branch.name}")
-      conflict = git.detect_conflicts(target_branch.name, source_branch.name)
+      conflict = @git.detect_conflicts(target_branch.name, source_branch.name)
       unless conflict.present?
         Rails.logger.info("MERGED: #{source_branch.name} can be merged into #{target_branch.name} without conflicts")
       else
@@ -118,14 +119,14 @@ class ConflictDetector
   end
 
   def process_repo(repository_name)
-    git = Git::Git.new(repository_name)
+    @git = Git::Git.new(repository_name)
 
     start_time = DateTime.now
 
-    setup_repo(git)
+    setup_repo
 
     # get a list of branches and add them to the DB
-    get_branch_list(git).each do |branch|
+    get_branch_list.each do |branch|
       Branch.create_from_git_data!(branch)
     end
 
@@ -160,7 +161,7 @@ class ConflictDetector
       end
 
       # check this branch with the others to see if they conflict
-      conflicts = get_conflicts(git, branch, branches_to_test)
+      conflicts = get_conflicts(branch, branches_to_test)
 
       branches_to_test.each do |tested_branch|
         # see if we got a conflict for this branch
