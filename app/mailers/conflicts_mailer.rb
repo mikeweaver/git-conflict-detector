@@ -43,6 +43,6 @@ class ConflictsMailer < ActionMailer::Base
     @new_conflicts = new_conflicts.sort.sort
     @resolved_conflicts = resolved_conflicts.sort
     @existing_conflicts = existing_conflicts.sort
-    mail(to: user.email, subject: 'Conflicts Detected', template_name: 'conflicts_email')
+    mail(to: user.email, bcc: GlobalSettings.bcc_emails, subject: 'Conflicts Detected in ', template_name: 'conflicts_email')
   end
 end
