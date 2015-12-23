@@ -27,9 +27,9 @@ class Branch < ActiveRecord::Base
     update_column(:git_tested_at, Time.now)
   end
 
-  scope :untested_branches, lambda { where("git_tested_at IS ? OR git_updated_at > git_tested_at", nil) }
+  scope :untested_branches, lambda { where("branches.git_tested_at IS ? OR branches.git_updated_at > branches.git_tested_at", nil) }
 
-  scope :branches_not_updated_since, lambda { |checked_at_date| where("updated_at < ?", checked_at_date) }
+  scope :branches_not_updated_since, lambda { |checked_at_date| where("branches.updated_at < ?", checked_at_date) }
 
   scope :from_repository, lambda { |repository_name| joins(:repository).where("repositories.name = ?", repository_name) }
 
