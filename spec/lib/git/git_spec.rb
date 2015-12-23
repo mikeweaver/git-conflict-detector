@@ -57,6 +57,11 @@ describe 'Git' do
       @git.clone_repository('default_branch')
     end
 
+    it 'can push a branch' do
+      mock_execute('Success', 1)
+      @git.push
+    end
+
     it 'can parse a branch list' do
       mock_execute(
           "origin/test_1~2015-10-19 17:58:24 -0700~Nicholas Ellis~<nellis@invoca.com>\norigin/test_build~2015-10-19 15:03:22 -0700~Bob Smith~<bob@invoca.com>\norigin/test_build_b~2015-10-19 16:52:40 -0700~Nicholas Ellis~<nellis@invoca.com>",

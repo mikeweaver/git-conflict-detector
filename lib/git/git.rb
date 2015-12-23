@@ -86,6 +86,10 @@ module Git
       end
     end
 
+    def push
+      execute('push origin')
+    end
+
     private
 
     def self.get_conflict_list_from_failed_merge_output(failed_merged_output)
