@@ -31,18 +31,19 @@ class ConflictsMailer < ActionMailer::Base
     unless new_conflicts.blank? && resolved_conflicts.blank?
       send_conflict_email_to_user(
           user,
+          repository_name,
           new_conflicts,
           resolved_conflicts,
           scope.unresolved.status_changed_before(conflicts_newer_than).all)
     end
   end
 
-  def send_conflict_email_to_user(user, new_conflicts, resolved_conflicts, existing_conflicts)
+  def send_conflict_email_to_user(user, repository_name, new_conflicts, resolved_conflicts, existing_conflicts)
     Rails.logger.info("Sending email to #{user.email}")
     @user = user
     @new_conflicts = new_conflicts.sort.sort
     @resolved_conflicts = resolved_conflicts.sort
     @existing_conflicts = existing_conflicts.sort
-    mail(to: user.email, bcc: GlobalSettings.bcc_emails, subject: 'Conflicts Detected in ', template_name: 'conflicts_email')
+    mail(to: user.email, bcc: GlobalSettings.bcc_emails, subject: 'Conflicts Detected in #{repository_name}', template_name: 'conflicts_email')
   end
 end
