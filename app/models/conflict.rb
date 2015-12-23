@@ -10,6 +10,7 @@ class Conflict < ActiveRecord::Base
 
   belongs_to :branch_a, class_name: Branch, inverse_of: :conflicts, required: true
   belongs_to :branch_b, class_name: Branch, inverse_of: :conflicts, required: true
+  has_one :repository, through: :branch_a
 
   has_many :conflict_notification_suppressions, dependent: :destroy
 
@@ -97,6 +98,8 @@ class Conflict < ActiveRecord::Base
     (conflict_ids.present? && conflict_ids.size > 0) or return Conflict.all
     Conflict.where.not(id: conflict_ids)
   }
+
+  scope :from_repository, lambda { |repository_name| joins(:repository).where("repositories.name = ?", repository_name) }
 
   def self.create!(branch_a, branch_b, conflicting_files, checked_at_date)
     conflict = new_conflict(branch_a, branch_b, conflicting_files, checked_at_date)

@@ -24,14 +24,16 @@ class ConflictsMailer < ActionMailer::Base
       branch.id
     end
 
-    new_conflicts = Conflict.unresolved.by_user(user).status_changed_after(conflicts_newer_than).exclude_branches_with_ids(suppressed_branch_ids).exclude_non_self_conflicting_authored_branches_with_ids(user, suppressed_owned_branch_ids).exclude_conflicts_with_ids(suppressed_conflict_ids).all
-    resolved_conflicts = Conflict.resolved.by_user(user).status_changed_after(conflicts_newer_than).exclude_branches_with_ids(suppressed_branch_ids).exclude_non_self_conflicting_authored_branches_with_ids(user, suppressed_owned_branch_ids).exclude_conflicts_with_ids(suppressed_conflict_ids).all
+    scope = Conflict.from_repository(repository_name).by_user(user).exclude_branches_with_ids(suppressed_branch_ids).exclude_non_self_conflicting_authored_branches_with_ids(user, suppressed_owned_branch_ids).exclude_conflicts_with_ids(suppressed_conflict_ids)
+
+    new_conflicts = scope.unresolved.status_changed_after(conflicts_newer_than).all
+    resolved_conflicts = scope.resolved.status_changed_after(conflicts_newer_than).all
     unless new_conflicts.blank? && resolved_conflicts.blank?
       send_conflict_email_to_user(
           user,
           new_conflicts,
           resolved_conflicts,
-          Conflict.unresolved.by_user(user).status_changed_before(conflicts_newer_than).exclude_branches_with_ids(suppressed_branch_ids).exclude_non_self_conflicting_authored_branches_with_ids(user, suppressed_owned_branch_ids).exclude_conflicts_with_ids(suppressed_conflict_ids).all)
+          scope.unresolved.status_changed_before(conflicts_newer_than).all)
     end
   end
 

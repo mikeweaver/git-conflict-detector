@@ -131,7 +131,7 @@ class ConflictDetector
 
     # delete branches that were not updated by the git data
     # i.e. they have been deleted from git
-    Branch.branches_not_updated_since(start_time).destroy_all
+    Branch.from_repository(repository_name).branches_not_updated_since(start_time).destroy_all
 
     # get the list of branches that are new or have been updated since they were last tested
     untested_branches = Branch.untested_branches

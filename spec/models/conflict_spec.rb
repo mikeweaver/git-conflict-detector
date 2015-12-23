@@ -213,5 +213,18 @@ describe 'Conflict' do
       expect(conflicts.size).to eq(3)
     end
   end
+
+  context 'with branches from multiple repositories' do
+    it 'returns branches from a repository' do
+      @conflict_1 = create_test_conflict(@branches[0], @branches[1])
+      @conflict_2 = create_test_conflict(
+          create_test_branch(repository_name: 'repository_b', name: 'name_a'),
+          create_test_branch(repository_name: 'repository_b', name: 'name_b'))
+
+      conflicts = Conflict.from_repository('repository_b').all
+      expect(conflicts.size).to eq(1)
+      expect(conflicts[0].id).to eq(@conflict_2.id)
+    end
+  end
 end
 
