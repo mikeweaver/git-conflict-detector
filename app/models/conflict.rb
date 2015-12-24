@@ -34,19 +34,11 @@ class Conflict < ActiveRecord::Base
   end
 
   def conflicting_files_excluding(files_to_exclude)
-    self.conflicting_files.reject do |file|
-      files_to_exclude.any? do |file_to_exclude|
-        file =~ Regexp.new(file_to_exclude)
-      end
-    end
+    self.conflicting_files.reject_regex(files_to_exclude)
   end
 
   def conflicting_files_including(files_to_include)
-    self.conflicting_files.select do |file|
-      files_to_include.any? do |file_to_include|
-        file =~ Regexp.new(file_to_include)
-      end
-    end
+    self.conflicting_files.select_regex(files_to_exclude)
   end
 
   scope :by_branches, lambda { |branch_a, branch_b|
