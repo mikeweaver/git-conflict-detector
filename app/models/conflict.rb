@@ -38,7 +38,7 @@ class Conflict < ActiveRecord::Base
   end
 
   def conflicting_files_including(files_to_include)
-    self.conflicting_files.select_regex(files_to_exclude)
+    self.conflicting_files.select_regex(files_to_include)
   end
 
   scope :by_branches, lambda { |branch_a, branch_b|
