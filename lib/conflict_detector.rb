@@ -14,9 +14,7 @@ class ConflictDetector
   private
 
   def should_ignore_branch_by_list?(branch)
-    @settings.ignore_branches.any? do |regex|
-      branch =~ Regexp.new(regex)
-    end
+    @settings.ignore_branches.include_regex?(branch)
   end
 
   def should_ignore_branch_by_date?(branch)
@@ -25,18 +23,12 @@ class ConflictDetector
 
   def should_include_branch?(branch)
     @settings.only_branches or return true
-
-    @settings.only_branches.any? do |regex|
-      branch =~ Regexp.new(regex)
-    end
+    @settings.only_branches.include_regex?(branch)
   end
 
   def should_ignore_conflicts?(conflicts)
-    conflicts.all? do |conflict|
-      @settings.ignore_conflicts_in_file_paths.any? do |regex|
-        conflict =~ Regexp.new(regex)
-      end
-    end
+    @settings.ignore_conflicts_in_file_paths or return false
+    conflicts.reject_regex(@settings.ignore_conflicts_in_file_paths).empty?
   end
 
   def should_push_merged_branch?(target_branch, source_branch)
