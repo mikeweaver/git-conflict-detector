@@ -14,7 +14,7 @@ module Git
     end
 
     def execute(command, run_in_repository_path=true)
-      Rails.logger.debug("@git #{command}")
+      Rails.logger.debug("git #{command}")
       command = "#{GIT_PATH} #{command}"
 
       options = if run_in_repository_path
