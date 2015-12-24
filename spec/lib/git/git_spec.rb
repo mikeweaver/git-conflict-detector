@@ -58,7 +58,15 @@ describe 'Git' do
     end
 
     it 'can push a branch' do
-      mock_execute('Success', 1)
+      response =
+          "Counting objects: 20, done." +
+          "Delta compression using up to 8 threads." +
+          "Compressing objects: 100% (18/18), done." +
+          "Writing objects: 100% (20/20), 2.47 KiB | 0 bytes/s, done." +
+          "Total 20 (delta 11), reused 0 (delta 0)" +
+          "To #{@git.repository_url}" +
+          "19087ab..9cdd9db  master -> master"
+      mock_execute(response, 1)
       @git.push
     end
 
