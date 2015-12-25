@@ -22,7 +22,7 @@ describe 'Git' do
     expect(git.repository_path).to eq('./tmp/cache/git/repository_name')
   end
 
-  context 'with a git respository' do
+  context 'with a git repository' do
 
     before do
       @git = Git::Git.new('repository_name')
@@ -51,7 +51,7 @@ describe 'Git' do
       @git.clone_repository('default_branch')
     end
 
-    it 'can update a previously cloned respository' do
+    it 'can update a previously cloned repository' do
       mock_execute('Success', 1, 5)
       FileUtils.mkpath(@git.repository_path)
       @git.clone_repository('default_branch')

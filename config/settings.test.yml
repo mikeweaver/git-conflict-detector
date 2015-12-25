@@ -6,7 +6,7 @@ bcc_emails: [] # BCC these addresses on every email sent
 web_server_url: 'http://localhost:3000'
 repositories_to_check:
   MyRepo:
-    repository_name: 'Organization/respository'
+    repository_name: 'Organization/repository'
     ignore_branches: [] #regex
     ignore_branches_modified_days_ago: 28
     only_branches: ['^folder/.*$', 'master'] #regex
