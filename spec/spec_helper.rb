@@ -35,7 +35,12 @@ def create_test_git_branch(repository_name: 'repository_name', name: 'path/branc
 end
 
 def create_test_branch(repository_name: 'repository_name', name: 'path/branch', last_modified_date: Time.now, author_name: 'Author Name', author_email: 'author@email.com')
-  git_data = create_test_git_branch(repository_name, name, last_modified_date, author_name, author_email)
+  git_data = create_test_git_branch(
+      repository_name: repository_name,
+      name: name,
+      last_modified_date: last_modified_date,
+      author_name: author_name,
+      author_email: author_email)
   Branch.create_from_git_data!(git_data)
 end
 
