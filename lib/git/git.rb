@@ -90,6 +90,11 @@ module Git
       execute('push origin')
     end
 
+    def checkout_branch(branch_name)
+      execute("checkout #{branch_name}")
+      execute("reset --hard origin/#{branch_name}")
+    end
+
     private
 
     def self.get_conflict_list_from_failed_merge_output(failed_merged_output)

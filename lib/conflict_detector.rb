@@ -61,8 +61,7 @@ class ConflictDetector
 
   def get_conflicts(target_branch, source_branches)
     # get onto the target branch
-    @git.execute("checkout #{target_branch.name}")
-    @git.execute("reset --hard origin/#{target_branch.name}")
+    @git.checkout_branch(target_branch.name)
 
     conflicts = []
     branches_checked = 0
