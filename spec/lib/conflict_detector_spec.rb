@@ -54,7 +54,7 @@ describe 'ConflictDetector' do
       expect(conflict_detector.send(:get_branch_list)).to match_array(expected_branch_list)
     end
 
-    it 'should include all branches when the "ignore branch" list empty' do
+    it 'should include all branches when the "ignore branch" list is empty' do
       @settings.ignore_branches = []
       branch_list = [create_test_git_branch(name:'straight_match')]
       expect_get_branch_list_equals(branch_list, branch_list)
@@ -70,7 +70,7 @@ describe 'ConflictDetector' do
       expect_get_branch_list_equals(unfiltered_branch_list, expected_branch_list)
     end
 
-    it 'should include all branches when the "only branch" list empty' do
+    it 'should include all branches when the "only branch" list is empty' do
       @settings.only_branches = []
       branch_list = [create_test_git_branch(name:'straight_match')]
       expect_get_branch_list_equals(branch_list, branch_list)
