@@ -5,10 +5,11 @@ class ConflictDetector
 
   def initialize(settings)
     @settings = settings
+    @git = Git::Git.new(@settings.repository_name)
   end
 
   def run
-    process_repo(@settings.repository_name)
+    process_repo
   end
 
   private
@@ -18,11 +19,12 @@ class ConflictDetector
   end
 
   def should_ignore_branch_by_date?(branch)
+    @settings.ignore_branches_modified_days_ago > 0 or return
     branch.last_modified_date < (Date.today - @settings.ignore_branches_modified_days_ago)
   end
 
   def should_include_branch?(branch)
-    @settings.only_branches or return true
+    !@settings.only_branches.empty? or return true
     @settings.only_branches.include_regex?(branch)
   end
 
@@ -96,9 +98,7 @@ class ConflictDetector
     conflicts
   end
 
-  def process_repo(repository_name)
-    @git = Git::Git.new(repository_name)
-
+  def process_repo()
     start_time = DateTime.now
 
     @git.clone_repository(@settings.master_branch_name)
@@ -110,7 +110,7 @@ class ConflictDetector
 
     # delete branches that were not updated by the git data
     # i.e. they have been deleted from git
-    Branch.from_repository(repository_name).branches_not_updated_since(start_time).destroy_all
+    Branch.from_repository(@settings.repository_name).branches_not_updated_since(start_time).destroy_all
 
     # get the list of branches that are new or have been updated since they were last tested
     untested_branches = Branch.untested_branches
@@ -166,7 +166,7 @@ class ConflictDetector
 
     # send notifications out
     ConflictsMailer.send_conflict_emails(
-        repository_name,
+        @settings.repository_name,
         start_time,
         Branch.where(name: @settings.suppress_conflicts_for_owners_of_branches),
         @settings.ignore_conflicts_in_file_paths)
