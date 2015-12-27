@@ -20,9 +20,7 @@ DEFAULT_REPOSITORY_SETTINGS = {
   ignore_conflicts_in_file_paths: [],
   master_branch_name: '',
   suppress_conflicts_for_owners_of_branches: [],
-  push_successful_merges_of: {
-    production: [],
-    master: [] }
+  push_successful_merges_of: {}
 }
 
 class InvalidSettings < StandardError; end
