@@ -20,7 +20,7 @@ class ConflictDetector
 
   def should_ignore_branch_by_date?(branch)
     @settings.ignore_branches_modified_days_ago > 0 or return
-    branch.last_modified_date < (Date.today - @settings.ignore_branches_modified_days_ago)
+    branch.last_modified_date < (Time.now - @settings.ignore_branches_modified_days_ago.days)
   end
 
   def should_include_branch?(branch)
