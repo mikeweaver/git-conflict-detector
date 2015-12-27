@@ -34,6 +34,10 @@ def create_test_git_branch(repository_name: 'repository_name', name: 'path/branc
   Git::GitBranch.new(repository_name, name, last_modified_date, author_name, author_email)
 end
 
+def create_test_git_conflict(repository_name: 'repository_name', branch_a_name: 'branch_a', branch_b_name: 'branch_b', file_list: ['file1', 'file2'])
+  Git::GitConflict.new(repository_name, branch_a_name, branch_b_name, file_list)
+end
+
 def create_test_branch(repository_name: 'repository_name', name: 'path/branch', last_modified_date: Time.now, author_name: 'Author Name', author_email: 'author@email.com')
   git_data = create_test_git_branch(
       repository_name: repository_name,

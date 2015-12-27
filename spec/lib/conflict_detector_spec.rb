@@ -102,4 +102,66 @@ describe 'ConflictDetector' do
     end
   end
 
+  context 'get_conflicts' do
+    before do
+      @settings = OpenStruct.new(DEFAULT_REPOSITORY_SETTINGS)
+      @settings.repository_name = 'MyRepo'
+      @settings.master_branch_name = 'master'
+    end
+
+    def expect_get_conflicts_equals(
+        unfiltered_conflict_list,
+        expected_conflict_list,
+        expected_push_count: 0,
+        target_branch_name: 'branch_a',
+        source_branch_names: ['branch_b', 'branch_c'])
+      target_branch = create_test_branch(name: target_branch_name)
+      source_branches = source_branch_names.collect { |branch_name| create_test_branch(name: branch_name) }
+      conflict_detector = ConflictDetector.new(@settings)
+      expect_any_instance_of(Git::Git).to receive(:checkout_branch)
+      if unfiltered_conflict_list.size > 0
+        allow_any_instance_of(Git::Git).to receive(:detect_conflicts).and_return(*unfiltered_conflict_list)
+      else
+        allow_any_instance_of(Git::Git).to receive(:detect_conflicts).and_return(nil)
+      end
+      if expected_push_count > 0
+        expect_any_instance_of(Git::Git).to receive(:push).exactly(expected_push_count).times
+      else
+        expect_any_instance_of(Git::Git).not_to receive(:push)
+      end
+      expect(conflict_detector.send(:get_conflicts, target_branch, source_branches)).to match_array(expected_conflict_list)
+    end
+
+    it 'should include all conflicts when the "ignore files" list is empty' do
+      @settings.ignore_conflicts_in_file_paths = []
+      conflict_list = [create_test_git_conflict, nil]
+      expected_conflict_list = [conflict_list[0]]
+      expect_get_conflicts_equals(conflict_list, expected_conflict_list)
+    end
+
+    it 'should ignore conflicts when all the conflicting files are on the ignore list' do
+      @settings.ignore_conflicts_in_file_paths = ['ignore_me', 'regex/.*']
+      conflict_list = [
+          create_test_git_conflict(file_list: ['ignore_me', 'regex/match']),
+          create_test_git_conflict(file_list: ['nomatch'])]
+      expected_conflict_list = [conflict_list[1]]
+      expect_get_conflicts_equals(conflict_list, expected_conflict_list)
+    end
+
+    it 'should ignore all conflicts when too many branches have been checked' do
+      allow(GlobalSettings).to receive(:maximum_branches_to_check).and_return(1)
+      conflict_list = [create_test_git_conflict, create_test_git_conflict]
+      expected_conflict_list = [create_test_git_conflict]
+      expect_get_conflicts_equals(conflict_list, expected_conflict_list)
+    end
+
+    it 'should ignore branches with the same name' do
+      expect_get_conflicts_equals([], [], source_branch_names: ['branch_a'])
+    end
+
+    it 'should push the merged branch when requested' do
+      @settings.push_successful_merges_of['branch_b'] = ['branch_a']
+      expect_get_conflicts_equals([], [], target_branch_name: 'branch_a', source_branch_names: ['branch_b'], expected_push_count: 1)
+    end
+  end
 end
