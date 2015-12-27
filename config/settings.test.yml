@@ -4,15 +4,12 @@ email_override: '' #redirect all emails to this address
 email_filter: [] #only email users in this list. Empty to disable filter.
 bcc_emails: [] # BCC these addresses on every email sent
 web_server_url: 'http://localhost:3000'
-repositories_to_check:
+repositories_to_check_for_conflicts:
   MyRepo:
     repository_name: 'Organization/repository'
     ignore_branches: [] #regex
     ignore_branches_modified_days_ago: 28
     only_branches: ['^folder/.*$', 'master'] #regex
     ignore_conflicts_in_file_paths: ['^test/fixtures/.*$', '^lib/data/generated/.*$'] #regex
-    master_branch_name: 'master'
+    default_branch_name: 'master'
     suppress_conflicts_for_owners_of_branches: ['master', 'production']
-    push_successful_merges_of:
-      production: ['master']
-      master: ['^folder/.*$']

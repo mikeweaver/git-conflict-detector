@@ -13,7 +13,7 @@ class BranchManager
     start_time = Time.now
 
     # make sure we have the latest copy of the repository
-    @git.clone_repository(@settings.master_branch_name)
+    @git.clone_repository(@settings.default_branch_name)
 
     # get a list of branches and add them to the DB
     get_branch_list.each do |branch|

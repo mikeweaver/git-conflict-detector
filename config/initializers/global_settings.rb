@@ -9,19 +9,25 @@ DEFAULT_SETTINGS = {
   email_filter: [],
   bcc_emails: [],
   web_server_url: '',
-  repositories_to_check: {}
+  repositories_to_check_for_conflicts: {},
+  branches_to_merge: {}
+}
+
+DEFAULT_BRANCH_FILTERS = {
+  ignore_branches: [],
+  ignore_branches_modified_days_ago: 0,
+  only_branches: []
 }
 
 DEFAULT_REPOSITORY_SETTINGS = {
   repository_name: '',
-  ignore_branches: [],
-  ignore_branches_modified_days_ago: 0,
-  only_branches: [],
-  ignore_conflicts_in_file_paths: [],
-  master_branch_name: '',
-  suppress_conflicts_for_owners_of_branches: [],
-  push_successful_merges_of: {}
+  default_branch_name: ''
 }
+
+DEFAULT_CONFLICT_DETECTION_SETTINGS = {
+  ignore_conflicts_in_file_paths: [],
+  suppress_conflicts_for_owners_of_branches: []
+}.merge(DEFAULT_BRANCH_FILTERS).merge(DEFAULT_REPOSITORY_SETTINGS)
 
 class InvalidSettings < StandardError; end
 
@@ -40,19 +46,21 @@ def load_global_settings
 
   # convert to open struct
   settings_object = OpenStruct.new(DEFAULT_SETTINGS.merge(settings_hash))
-  settings_object.repositories_to_check.each do |repository_name, repository_settings|
-    settings_object.repositories_to_check[repository_name] = OpenStruct.new(DEFAULT_REPOSITORY_SETTINGS.merge(repository_settings))
-    if settings_object.repositories_to_check[repository_name].repository_name.blank?
-      raise InvalidSettings.new("Must specify repository name for repository #{repository_name}")
-    end
-    if settings_object.repositories_to_check[repository_name].master_branch_name.blank?
-      raise InvalidSettings.new("Must specify master branch name for repository #{repository_name}")
-    end
-  end
 
   # validate required args are present
-  if settings_object.repositories_to_check.empty?
+  if settings_object.repositories_to_check_for_conflicts.empty?
     raise InvalidSettings.new('Must specify at least one repository to check')
+  end
+
+  # convert nested conflict hashs to open struct
+  settings_object.repositories_to_check_for_conflicts.each do |repository_name, repository_settings|
+    settings_object.repositories_to_check_for_conflicts[repository_name] = OpenStruct.new(DEFAULT_CONFLICT_DETECTION_SETTINGS.merge(repository_settings))
+    if settings_object.repositories_to_check_for_conflicts[repository_name].repository_name.blank?
+      raise InvalidSettings.new("Must specify repository name for repository #{repository_name}")
+    end
+    if settings_object.repositories_to_check_for_conflicts[repository_name].default_branch_name.blank?
+      raise InvalidSettings.new("Must specify default branch name for repository #{repository_name}")
+    end
   end
 
   # cleanup data

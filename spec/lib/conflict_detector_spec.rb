@@ -18,7 +18,7 @@ describe 'ConflictDetector' do
   it 'works' do
     start_time = Time.now
     expect_any_instance_of(Git::Git).to receive(:clone_repository)
-    conflict_detector = ConflictDetector.new(GlobalSettings.repositories_to_check['MyRepo'])
+    conflict_detector = ConflictDetector.new(GlobalSettings.repositories_to_check_for_conflicts['MyRepo'])
     expect(conflict_detector).to receive(:get_branch_list) { create_test_git_branches }
     expect(conflict_detector).to receive(:get_conflicts ).exactly(3).times.and_return(
       [Git::GitConflict.new('repository_name', 'path/branch0', 'path/branch1', ['dir/file.rb'])], [], [])
@@ -43,9 +43,9 @@ describe 'ConflictDetector' do
 
   context 'get_conflicts' do
     before do
-      @settings = OpenStruct.new(DEFAULT_REPOSITORY_SETTINGS)
+      @settings = OpenStruct.new(DEFAULT_CONFLICT_DETECTION_SETTINGS)
       @settings.repository_name = 'repository_name'
-      @settings.master_branch_name = 'master'
+      @settings.default_branch_name = 'master'
     end
 
     def expect_get_conflicts_equals(

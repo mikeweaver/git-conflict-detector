@@ -6,7 +6,7 @@ namespace :run do
   task :conflict_detector => :environment do |task, args|
     FileUtils.mkdir_p(GlobalSettings.cache_directory)
 
-    GlobalSettings.repositories_to_check.each do |repository_name, settings|
+    GlobalSettings.repositories_to_check_for_conflicts.each do |repository_name, settings|
       ConflictDetector.new(settings).run
     end
   end

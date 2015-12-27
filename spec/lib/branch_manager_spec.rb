@@ -5,9 +5,9 @@ describe 'BranchManager' do
   context 'with settings' do
 
     before do
-      @settings = OpenStruct.new(DEFAULT_REPOSITORY_SETTINGS)
+      @settings = OpenStruct.new(DEFAULT_CONFLICT_DETECTION_SETTINGS)
       @settings.repository_name = 'repository_name'
-      @settings.master_branch_name = 'master'
+      @settings.default_branch_name = 'master'
     end
 
     context 'get_branch_list' do
