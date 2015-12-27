@@ -28,11 +28,6 @@ class ConflictDetector < BranchManager
 
   private
 
-  def should_push_merged_branch?(target_branch, source_branch)
-    branches = @settings.push_successful_merges_of[source_branch.name]
-    branches.present? && branches.include_regex?(target_branch.name)
-  end
-
   def exceeded_maximum_branches_to_check(branches_checked)
     GlobalSettings.maximum_branches_to_check.present? &&
         GlobalSettings.maximum_branches_to_check > 0 &&
@@ -60,12 +55,6 @@ class ConflictDetector < BranchManager
       conflict = @git.detect_conflicts(target_branch.name, source_branch.name)
       unless conflict.present?
         Rails.logger.info("MERGED: #{source_branch.name} can be merged into #{target_branch.name} without conflicts")
-        if should_push_merged_branch?(target_branch, source_branch)
-          Rails.logger.info("PUSHING: #{target_branch.name} to origin")
-          if @git.push
-            Merge.create!(source_branch: source_branch, target_branch: target_branch)
-          end
-        end
       else
         if should_ignore_conflicts?(conflict.conflicting_files)
           Rails.logger.info("MERGED: #{target_branch.name} conflicts with #{source_branch.name}, but all conflicting files are on the ignore list.")
@@ -101,8 +90,6 @@ class ConflictDetector < BranchManager
   end
 
   def test_branches(untested_branches, start_time)
-    # destroy record of previous merges
-    Merge.destroy_all
 
     tested_pairs = []
     all_branches = Branch.all

@@ -102,10 +102,5 @@ describe 'ConflictDetector' do
     it 'should ignore branches with the same name' do
       expect_get_conflicts_equals([], [], source_branch_names: ['branch_a'])
     end
-
-    it 'should push the merged branch when requested' do
-      @settings.push_successful_merges_of['branch_b'] = ['branch_a']
-      expect_get_conflicts_equals([], [], target_branch_name: 'branch_a', source_branch_names: ['branch_b'], expected_push_count: 1)
-    end
   end
 end
