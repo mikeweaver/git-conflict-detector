@@ -7,6 +7,9 @@ class ConflictDetector < BranchManager
     # that were committed while we were running
     start_time = DateTime.now
 
+    # make sure we have the latest list of branches from the origin in our database
+    update_branch_list!
+
     # get the list of branches that are new or have been updated since they were last tested
     untested_branches = get_branches_not_tested_since
     if untested_branches.empty?
@@ -15,8 +18,8 @@ class ConflictDetector < BranchManager
     end
     Rails.logger.info("\nNew/updated branches to process: #{untested_branches.join(', ')}")
 
-    # test the branches for conflicts
-    test_branches(untested_branches, start_time)
+    # test the untested branches for conflicts with all the branches
+    test_branches(untested_branches, get_all_branches, start_time)
 
     # send notifications out
     ConflictsMailer.send_conflict_emails(
@@ -69,11 +72,13 @@ class ConflictDetector < BranchManager
   end
 
   def get_branches_not_tested_since
-    # make sure we have the latest list of branches from the origin
-    update_branch_list!
+    # get the list of branches that passed the filter AND are new or have been updated since they were last tested
+    filter_branch_list(Branch.from_repository(@settings.repository_name).untested_branches)
+  end
 
-    # get the list of branches that are new or have been updated since they were last tested
-    Branch.untested_branches
+  def get_all_branches
+    # get the list of branches that passed the filter
+    filter_branch_list(Branch.from_repository(@settings.repository_name))
   end
 
   def exclude_tested_branches(branch_to_test, branches_to_test, tested_pairs)
@@ -89,10 +94,8 @@ class ConflictDetector < BranchManager
     end
   end
 
-  def test_branches(untested_branches, start_time)
-
+  def test_branches(untested_branches, all_branches, start_time)
     tested_pairs = []
-    all_branches = Branch.all
     untested_branches.each do |branch|
       Rails.logger.info("\nProcessing target branch: #{branch.name}")
 

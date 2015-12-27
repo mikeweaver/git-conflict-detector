@@ -6,7 +6,7 @@ describe 'ConflictDetector' do
     test_branches = []
     (0..2).each do |i|
       test_branches << Git::GitBranch.new(
-          'Organization/repository',
+          'repository_name',
           "path/branch#{i}",
           DateTime.now,
           'Author Name',
@@ -15,11 +15,17 @@ describe 'ConflictDetector' do
     test_branches
   end
 
+  before do
+    @settings = OpenStruct.new(DEFAULT_CONFLICT_DETECTION_SETTINGS)
+    @settings.repository_name = 'repository_name'
+    @settings.default_branch_name = 'master'
+  end
+
   it 'works' do
     start_time = Time.now
     expect_any_instance_of(Git::Git).to receive(:clone_repository)
-    conflict_detector = ConflictDetector.new(GlobalSettings.repositories_to_check_for_conflicts['MyRepo'])
-    expect(conflict_detector).to receive(:get_branch_list) { create_test_git_branches }
+    expect_any_instance_of(Git::Git).to receive(:get_branch_list) { create_test_git_branches }
+    conflict_detector = ConflictDetector.new(@settings)
     expect(conflict_detector).to receive(:get_conflicts ).exactly(3).times.and_return(
       [Git::GitConflict.new('repository_name', 'path/branch0', 'path/branch1', ['dir/file.rb'])], [], [])
     # a single notification email should be sent
@@ -42,12 +48,6 @@ describe 'ConflictDetector' do
   end
 
   context 'get_conflicts' do
-    before do
-      @settings = OpenStruct.new(DEFAULT_CONFLICT_DETECTION_SETTINGS)
-      @settings.repository_name = 'repository_name'
-      @settings.default_branch_name = 'master'
-    end
-
     def expect_get_conflicts_equals(
         unfiltered_conflict_list,
         expected_conflict_list,

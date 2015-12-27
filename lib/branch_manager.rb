@@ -16,8 +16,8 @@ class BranchManager
     @git.clone_repository(@settings.default_branch_name)
 
     # get a list of branches and add them to the DB
-    get_branch_list.each do |branch|
-      raise "Branch repository name #{branch.repository_name} does not match settings repository name #{@settings.repository_name}" if @settings.repository_name != branch.repository_name
+    @git.get_branch_list.each do |branch|
+      raise "Branch repository name #{branch.respository_name} does not match settings repository name #{@settings.repository_name}" if @settings.repository_name != branch.repository_name
       Branch.create_from_git_data!(branch)
     end
 
@@ -26,31 +26,8 @@ class BranchManager
     Branch.from_repository(@settings.repository_name).branches_not_updated_since(start_time).destroy_all
   end
 
-  private
-
-  def should_ignore_branch_by_list?(branch)
-    @settings.ignore_branches.include_regex?(branch)
-  end
-
-  def should_ignore_branch_by_date?(branch)
-    @settings.ignore_branches_modified_days_ago > 0 or return
-    branch.last_modified_date < (Time.now - @settings.ignore_branches_modified_days_ago.days)
-  end
-
-  def should_include_branch?(branch)
-    !@settings.only_branches.empty? or return true
-    @settings.only_branches.include_regex?(branch)
-  end
-
-  def should_ignore_conflicts?(conflicts)
-    @settings.ignore_conflicts_in_file_paths or return false
-    conflicts.reject_regex(@settings.ignore_conflicts_in_file_paths).empty?
-  end
-
-  def get_branch_list
-    branches = @git.get_branch_list
-
-    branches.delete_if do |branch|
+  def filter_branch_list(branches)
+    branches.to_a.delete_if do |branch|
       if should_ignore_branch_by_list?(branch)
         Rails.logger.info("Skipping branch #{branch.name}, it is on the ignore list")
         true
@@ -66,5 +43,25 @@ class BranchManager
     end
   end
 
+  private
+
+  def should_ignore_branch_by_list?(branch)
+    @settings.ignore_branches.include_regex?(branch)
+  end
+
+  def should_ignore_branch_by_date?(branch)
+    @settings.ignore_branches_modified_days_ago > 0 or return
+    branch.git_updated_at < (Time.now - @settings.ignore_branches_modified_days_ago.days)
+  end
+
+  def should_include_branch?(branch)
+    !@settings.only_branches.empty? or return true
+    @settings.only_branches.include_regex?(branch)
+  end
+
+  def should_ignore_conflicts?(conflicts)
+    @settings.ignore_conflicts_in_file_paths or return false
+    conflicts.reject_regex(@settings.ignore_conflicts_in_file_paths).empty?
+  end
 end
 
