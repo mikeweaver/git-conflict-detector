@@ -67,7 +67,12 @@ describe 'Git' do
           "To #{@git.repository_url}" +
           "19087ab..9cdd9db  master -> master"
       mock_execute(response, 1)
-      @git.push
+      expect(@git.push).to eq(true)
+    end
+
+    it 'can detect if a push results in a no-op' do
+      mock_execute('Everything up-to-date', 0)
+      expect(@git.push).to eq(false)
     end
 
     it 'can checkout a branch' do
@@ -135,6 +140,18 @@ describe 'Git' do
                             create_mock_open_status(0)],
                            ['ingored output', create_mock_open_status(1)])
 
+      expect(@git.detect_conflicts(
+                 '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+                 '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size')).to eq(nil)
+    end
+
+    it 'can return nil if nothing is merged' do
+      expect(Open3).to receive(:capture2e).and_return(
+                           ['From github.com:mikeweaver/git-conflict-detector\n' +
+                            ' * branch            master     -> FETCH_HEAD\n' +
+                            'Already up-to-date.',
+                            create_mock_open_status(0)],
+                           ['ingored output', create_mock_open_status(1)])
       expect(@git.detect_conflicts(
                  '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
                  '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size')).to eq(nil)

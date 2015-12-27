@@ -88,6 +88,10 @@ module Git
 
     def push
       execute('push origin')
+      true
+    rescue GitError => ex
+      ex.error_message == 'Everything up-to-date' and return false
+      raise
     end
 
     def checkout_branch(branch_name)
