@@ -34,10 +34,8 @@ class ConflictDetector
   end
 
   def should_push_merged_branch?(target_branch, source_branch)
-    branches = GlobalSettings.push_successful_merges_of[source_branch]
-    branches.present? && branches.any? do |regex|
-      conflict =~ Regexp.new(regex)
-    end
+    branches = @settings.push_successful_merges_of[source_branch.name]
+    branches.present? && branches.include_regex?(target_branch.name)
   end
 
   def exceeded_maximum_branches_to_check(branches_checked)
