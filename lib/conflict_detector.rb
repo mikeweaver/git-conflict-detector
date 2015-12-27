@@ -9,7 +9,26 @@ class ConflictDetector
   end
 
   def run
-    process_repo
+    @git.clone_repository(@settings.master_branch_name)
+
+    # get the list of branches that are new or have been updated since they were last tested
+    start_time = DateTime.now
+    untested_branches = get_branches_not_tested_since(start_time)
+    if untested_branches.empty?
+      Rails.logger.info("\nNo updated branches to process, exiting")
+      return
+    end
+    Rails.logger.info("\nUpdated branches to process: #{untested_branches.join(', ')}")
+
+    # test the branches for conflicts
+    test_branches(untested_branches, start_time)
+
+    # send notifications out
+    ConflictsMailer.send_conflict_emails(
+        @settings.repository_name,
+        start_time,
+        Branch.where(name: @settings.suppress_conflicts_for_owners_of_branches),
+        @settings.ignore_conflicts_in_file_paths)
   end
 
   private
@@ -101,11 +120,7 @@ class ConflictDetector
     conflicts
   end
 
-  def process_repo()
-    start_time = DateTime.now
-
-    @git.clone_repository(@settings.master_branch_name)
-
+  def get_branches_not_tested_since(start_time)
     # get a list of branches and add them to the DB
     get_branch_list.each do |branch|
       Branch.create_from_git_data!(branch)
@@ -116,30 +131,30 @@ class ConflictDetector
     Branch.from_repository(@settings.repository_name).branches_not_updated_since(start_time).destroy_all
 
     # get the list of branches that are new or have been updated since they were last tested
-    untested_branches = Branch.untested_branches
-    if untested_branches.empty?
-      Rails.logger.info("\nNo branches to process, exiting")
-      return
-    end
-    Rails.logger.info("\nBranches to process: #{untested_branches.join(', ')}")
+    Branch.untested_branches
+  end
 
+  def exclude_tested_branches(branch_to_test, branches_to_test, tested_pairs)
+    branches_to_test.select do |tested_branch|
+      if tested_pairs.include?("#{branch_to_test.name}:#{tested_branch.name}")
+        Rails.logger.debug("Skipping #{tested_branch.name}, already tested this combination")
+        false
+      elsif branch_to_test.name == tested_branch.name
+        false
+      else
+        true
+      end
+    end
+  end
+
+  def test_branches(untested_branches, start_time)
     tested_pairs = []
     all_branches = Branch.all
     untested_branches.each do |branch|
       Rails.logger.info("\nProcessing target branch: #{branch.name}")
 
       # exclude combinations we have already tested from the list
-      # TODO: Extract into function
-      branches_to_test = all_branches.select do |tested_branch|
-        if tested_pairs.include?("#{branch.name}:#{tested_branch.name}")
-          Rails.logger.debug("Skipping #{tested_branch.name}, already tested this combination")
-          false
-        elsif branch.name == tested_branch.name
-          false
-        else
-          true
-        end
-      end
+      branches_to_test = exclude_tested_branches(branch, all_branches, tested_pairs)
 
       # check this branch with the others to see if they conflict
       conflicts = get_conflicts(branch, branches_to_test)
@@ -166,13 +181,6 @@ class ConflictDetector
 
       branch.mark_as_tested!
     end
-
-    # send notifications out
-    ConflictsMailer.send_conflict_emails(
-        @settings.repository_name,
-        start_time,
-        Branch.where(name: @settings.suppress_conflicts_for_owners_of_branches),
-        @settings.ignore_conflicts_in_file_paths)
   end
 end
 
