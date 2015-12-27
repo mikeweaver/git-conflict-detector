@@ -40,6 +40,12 @@ class ConflictDetector
     end
   end
 
+  def exceeded_maximum_branches_to_check(branches_checked)
+    GlobalSettings.maximum_branches_to_check.present? &&
+        GlobalSettings.maximum_branches_to_check > 0 &&
+        branches_checked > GlobalSettings.maximum_branches_to_check
+  end
+
   def get_branch_list()
     branches = @git.get_branch_list
 
@@ -68,7 +74,7 @@ class ConflictDetector
     source_branches.each do |source_branch|
       # break if we have tested enough branches already
       branches_checked += 1
-      if GlobalSettings.maximum_branches_to_check && (branches_checked > GlobalSettings.maximum_branches_to_check)
+      if exceeded_maximum_branches_to_check(branches_checked)
         Rails.logger.warn("WARNING: Checked the maximum number of branches allowed, #{GlobalSettings.maximum_branches_to_check}, exiting early")
         break
       end
