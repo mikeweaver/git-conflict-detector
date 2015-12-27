@@ -17,7 +17,7 @@ class BranchManager
 
     # get a list of branches and add them to the DB
     get_branch_list.each do |branch|
-      raise "Branch repository name #{branch.repository_name} does not match settings respository name #{@settings.repository_name}" if @settings.repository_name != branch.repository_name
+      raise "Branch repository name #{branch.repository_name} does not match settings repository name #{@settings.repository_name}" if @settings.repository_name != branch.repository_name
       Branch.create_from_git_data!(branch)
     end
 
