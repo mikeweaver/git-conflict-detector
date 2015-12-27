@@ -1,24 +1,19 @@
-require 'yaml'
-require 'fileutils'
-
-class ConflictDetector
-
-  def initialize(settings)
-    @settings = settings
-    @git = Git::Git.new(@settings.repository_name)
-  end
+class ConflictDetector < BranchManager
 
   def run
-    @git.clone_repository(@settings.master_branch_name)
+    # note the time at which we queried the git origin for the branch list
+    # the branches may be updated while we are running, so we use this time
+    # to indicate when we tested them. Otherwise, we would "lose" the changes
+    # that were committed while we were running
+    start_time = DateTime.now
 
     # get the list of branches that are new or have been updated since they were last tested
-    start_time = DateTime.now
-    untested_branches = get_branches_not_tested_since(start_time)
+    untested_branches = get_branches_not_tested_since
     if untested_branches.empty?
-      Rails.logger.info("\nNo updated branches to process, exiting")
+      Rails.logger.info("\nNo new/updated branches to process, exiting")
       return
     end
-    Rails.logger.info("\nUpdated branches to process: #{untested_branches.join(', ')}")
+    Rails.logger.info("\nNew/updated branches to process: #{untested_branches.join(', ')}")
 
     # test the branches for conflicts
     test_branches(untested_branches, start_time)
@@ -33,25 +28,6 @@ class ConflictDetector
 
   private
 
-  def should_ignore_branch_by_list?(branch)
-    @settings.ignore_branches.include_regex?(branch)
-  end
-
-  def should_ignore_branch_by_date?(branch)
-    @settings.ignore_branches_modified_days_ago > 0 or return
-    branch.last_modified_date < (Time.now - @settings.ignore_branches_modified_days_ago.days)
-  end
-
-  def should_include_branch?(branch)
-    !@settings.only_branches.empty? or return true
-    @settings.only_branches.include_regex?(branch)
-  end
-
-  def should_ignore_conflicts?(conflicts)
-    @settings.ignore_conflicts_in_file_paths or return false
-    conflicts.reject_regex(@settings.ignore_conflicts_in_file_paths).empty?
-  end
-
   def should_push_merged_branch?(target_branch, source_branch)
     branches = @settings.push_successful_merges_of[source_branch.name]
     branches.present? && branches.include_regex?(target_branch.name)
@@ -61,25 +37,6 @@ class ConflictDetector
     GlobalSettings.maximum_branches_to_check.present? &&
         GlobalSettings.maximum_branches_to_check > 0 &&
         branches_checked > GlobalSettings.maximum_branches_to_check
-  end
-
-  def get_branch_list()
-    branches = @git.get_branch_list
-
-    branches.delete_if do |branch|
-      if should_ignore_branch_by_list?(branch)
-        Rails.logger.info("Skipping branch #{branch.name}, it is on the ignore list")
-        true
-      elsif !should_include_branch?(branch)
-        Rails.logger.info("Skipping branch #{branch.name}, it is not on the include list")
-        true
-      elsif should_ignore_branch_by_date?(branch)
-        Rails.logger.info("Skipping branch #{branch.name}, it has not been modified in over #{@settings.ignore_branches_modified_days_ago} days")
-        true
-      else
-        false
-      end
-    end
   end
 
   def get_conflicts(target_branch, source_branches)
@@ -122,15 +79,9 @@ class ConflictDetector
     conflicts
   end
 
-  def get_branches_not_tested_since(start_time)
-    # get a list of branches and add them to the DB
-    get_branch_list.each do |branch|
-      Branch.create_from_git_data!(branch)
-    end
-
-    # delete branches that were not updated by the git data
-    # i.e. they have been deleted from git
-    Branch.from_repository(@settings.repository_name).branches_not_updated_since(start_time).destroy_all
+  def get_branches_not_tested_since
+    # make sure we have the latest list of branches from the origin
+    update_branch_list!
 
     # get the list of branches that are new or have been updated since they were last tested
     Branch.untested_branches
