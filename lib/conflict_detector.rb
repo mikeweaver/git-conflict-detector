@@ -105,7 +105,9 @@ class ConflictDetector
         Rails.logger.info("MERGED: #{source_branch.name} can be merged into #{target_branch.name} without conflicts")
         if should_push_merged_branch?(target_branch, source_branch)
           Rails.logger.info("PUSHING: #{target_branch.name} to origin")
-          @git.push
+          if @git.push
+            Merge.create!(source_branch: source_branch, target_branch: target_branch)
+          end
         end
       else
         if should_ignore_conflicts?(conflict.conflicting_files)
@@ -148,6 +150,9 @@ class ConflictDetector
   end
 
   def test_branches(untested_branches, start_time)
+    # destroy record of previous merges
+    Merge.destroy_all
+
     tested_pairs = []
     all_branches = Branch.all
     untested_branches.each do |branch|

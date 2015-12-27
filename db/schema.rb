@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151220025330) do
+ActiveRecord::Schema.define(version: 20151227045135) do
 
   create_table "branches", force: :cascade do |t|
     t.datetime "git_tested_at"
@@ -38,6 +38,16 @@ ActiveRecord::Schema.define(version: 20151220025330) do
 
   add_index "conflicts", ["branch_a_id"], name: "index_conflicts_on_branch_a_id"
   add_index "conflicts", ["branch_b_id"], name: "index_conflicts_on_branch_b_id"
+
+  create_table "merges", force: :cascade do |t|
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "source_branch_id"
+    t.integer  "target_branch_id"
+  end
+
+  add_index "merges", ["source_branch_id"], name: "index_merges_on_source_branch_id"
+  add_index "merges", ["target_branch_id"], name: "index_merges_on_target_branch_id"
 
   create_table "notification_suppressions", force: :cascade do |t|
     t.datetime "suppress_until"

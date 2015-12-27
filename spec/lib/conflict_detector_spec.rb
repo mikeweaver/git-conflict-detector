@@ -125,11 +125,16 @@ describe 'ConflictDetector' do
         allow_any_instance_of(Git::Git).to receive(:detect_conflicts).and_return(nil)
       end
       if expected_push_count > 0
-        expect_any_instance_of(Git::Git).to receive(:push).exactly(expected_push_count).times
+        expect_any_instance_of(Git::Git).to receive(:push).exactly(expected_push_count).times.and_return(true)
       else
         expect_any_instance_of(Git::Git).not_to receive(:push)
       end
       expect(conflict_detector.send(:get_conflicts, target_branch, source_branches)).to match_array(expected_conflict_list)
+      if expected_push_count > 0
+        expect(Merge.count).to eq(expected_push_count)
+      else
+        expect(Merge.count).to eq(0)
+      end
     end
 
     it 'should include all conflicts when the "ignore files" list is empty' do
