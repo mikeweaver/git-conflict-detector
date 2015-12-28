@@ -5,12 +5,7 @@ describe 'ConflictDetector' do
   def create_test_git_branches
     test_branches = []
     (0..2).each do |i|
-      test_branches << Git::GitBranch.new(
-          'repository_name',
-          "path/branch#{i}",
-          DateTime.now,
-          'Author Name',
-          'author@email.com')
+      test_branches << create_test_git_branch(name: "path/branch#{i}")
     end
     test_branches
   end
@@ -27,7 +22,7 @@ describe 'ConflictDetector' do
     expect_any_instance_of(Git::Git).to receive(:get_branch_list) { create_test_git_branches }
     conflict_detector = ConflictDetector.new(@settings)
     expect(conflict_detector).to receive(:get_conflicts ).exactly(3).times.and_return(
-      [Git::GitConflict.new('repository_name', 'path/branch0', 'path/branch1', ['dir/file.rb'])], [], [])
+      [create_test_git_conflict(branch_a_name: 'path/branch0', branch_b_name: 'path/branch1')], [], [])
     # a single notification email should be sent
     expect(ConflictsMailer).to receive(:maybe_send_conflict_email_to_user).and_call_original
 
