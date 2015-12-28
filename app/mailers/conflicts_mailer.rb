@@ -12,7 +12,7 @@ class ConflictsMailer < ActionMailer::Base
   end
 
   def maybe_send_conflict_email_to_user(user, repository_name, conflicts_newer_than, exclude_branches_if_owned_by_user, hidden_file_list)
-    Rails.logger.info("Determining if email should be sent to #{user.email}")
+    Rails.logger.info("Determining if conflict email should be sent to #{user.email}")
     @repository_name = repository_name
     @hidden_file_list = hidden_file_list
 
@@ -39,7 +39,7 @@ class ConflictsMailer < ActionMailer::Base
   end
 
   def send_conflict_email_to_user(user, repository_name, new_conflicts, resolved_conflicts, existing_conflicts)
-    Rails.logger.info("Sending email to #{user.email}")
+    Rails.logger.info("Sending conflict email to #{user.email}")
     @user = user
     @new_conflicts = new_conflicts.sort.sort
     @resolved_conflicts = resolved_conflicts.sort
