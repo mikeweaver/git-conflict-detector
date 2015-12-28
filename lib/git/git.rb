@@ -86,8 +86,12 @@ module Git
       end
     end
 
-    def push
-      execute('push origin')
+    def push()
+      dry_run_argument = ''
+      if GlobalSettings.dry_run
+        dry_run_argument = '--dry-run'
+      end
+      execute("push #{dry_run_argument} origin")
       true
     rescue GitError => ex
       ex.error_message == 'Everything up-to-date' and return false

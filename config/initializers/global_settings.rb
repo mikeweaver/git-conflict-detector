@@ -10,7 +10,8 @@ DEFAULT_SETTINGS = {
   bcc_emails: [],
   web_server_url: '',
   repositories_to_check_for_conflicts: {},
-  branches_to_merge: {}
+  branches_to_merge: {},
+  dry_run: false
 }
 
 DEFAULT_BRANCH_FILTERS = {
