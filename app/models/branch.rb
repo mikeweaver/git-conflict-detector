@@ -33,6 +33,8 @@ class Branch < ActiveRecord::Base
 
   scope :from_repository, lambda { |repository_name| joins(:repository).where("repositories.name = ?", repository_name) }
 
+  scope :with_name, lambda { |name| where(name: name) }
+
   def to_s
     name
   end
