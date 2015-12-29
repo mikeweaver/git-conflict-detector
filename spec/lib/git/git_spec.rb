@@ -131,13 +131,51 @@ describe 'Git' do
                  '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size')).to eq(conflict)
     end
 
+    it 'does not keep the merged branch if conflicts are found' do
+      expect(Open3).to receive(:capture2e).exactly(2).times.and_return(
+                           ["From github.com:/Invoca/web\n" +
+                                " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
+                                "warning: Cannot merge binary files: test/fixtures/whitepages.sql (HEAD vs. fedc8e0cfa136d5e1f84005ab6d82235122b0006)\n" +
+                                "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
+                                "CONFLICT (content): Merge conflict in test/workers/adwords_detail_worker_test.rb\n" +
+                                "CONFLICT (modify/delete): pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js deleted in fedc8e0cfa136d5e1f84005ab6d82235122b0006 and modified in HEAD. Version HEAD of pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js left in tree.\n" +
+                                "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n" +
+                                "Automatic merge failed; fix conflicts and then commit the result.",
+                            create_mock_open_status(0)],
+                           ['ingored output', create_mock_open_status(1)])
+
+      conflict = Git::GitConflict.new(
+          'repository_name',
+          '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+          '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
+          ['test/workers/adwords_detail_worker_test.rb', 'pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js'])
+      expect(@git.detect_conflicts(
+                 '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+                 '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
+                 keep_changes: true)).to eq(conflict)
+    end
+
+    it 'can keep the merged branch if no conflicts are found' do
+      expect(Open3).to receive(:capture2e).and_return(
+                           ["From github.com:/Invoca/web\n" +
+                                " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
+                                "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
+                                "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
+                            create_mock_open_status(1)])
+
+      expect(@git.detect_conflicts(
+                 '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+                 '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
+                 keep_changes: true)).to eq(nil)
+    end
+
     it 'can return nil if no conflicts between branches are found' do
       expect(Open3).to receive(:capture2e).and_return(
                            ["From github.com:/Invoca/web\n" +
                                 " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
                                 "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
                                 "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
-                            create_mock_open_status(0)],
+                            create_mock_open_status(1)],
                            ['ingored output', create_mock_open_status(1)])
 
       expect(@git.detect_conflicts(
@@ -150,7 +188,7 @@ describe 'Git' do
                            ['From github.com:mikeweaver/git-conflict-detector\n' +
                             ' * branch            master     -> FETCH_HEAD\n' +
                             'Already up-to-date.',
-                            create_mock_open_status(0)],
+                            create_mock_open_status(1)],
                            ['ingored output', create_mock_open_status(1)])
       expect(@git.detect_conflicts(
                  '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',

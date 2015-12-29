@@ -58,7 +58,7 @@ class AutoMerger < BranchManager
     @git.checkout_branch(target_branch.name)
 
     Rails.logger.debug("Attempt to merge #{source_branch.name} into #{target_branch.name}")
-    conflict = @git.detect_conflicts(target_branch.name, source_branch.name)
+    conflict = @git.detect_conflicts(target_branch.name, source_branch.name, keep_changes: true)
     unless conflict.present?
       Rails.logger.info("MERGED: #{source_branch.name} has been merged into #{target_branch.name} without conflicts")
       if @git.push

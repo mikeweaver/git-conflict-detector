@@ -44,13 +44,14 @@ module Git
       end
     end
 
-    def detect_conflicts(target_branch_name, source_branch_name)
+    def detect_conflicts(target_branch_name, source_branch_name, keep_changes: false)
       # attempt the merge and gather conflicts, if found
       begin
         # TODO: Assert we are actually on the target branch and have a clean working dir
         execute("pull --no-commit origin #{source_branch_name}")
         nil
       rescue GitError => ex
+        keep_changes = false
         conflicting_files = Git::get_conflict_list_from_failed_merge_output(ex.error_message)
         unless conflicting_files.empty?
           GitConflict.new(
@@ -63,7 +64,7 @@ module Git
         end
       ensure
         # cleanup our "mess"
-        execute("reset --hard origin/#{target_branch_name}")
+        keep_changes or execute("reset --hard origin/#{target_branch_name}")
       end
     end
 
