@@ -79,7 +79,7 @@ module Git
 
         # move to the master branch
         execute("checkout #{default_branch}")
-        execute('reset --hard origin')
+        reset
 
         # remove branches that no longer exist on origin and update all branches that do
         execute('fetch --prune --all')
@@ -107,7 +107,9 @@ module Git
     end
 
     def reset
-      execute("reset --hard origin")
+      branch_name = execute('rev-parse --abbrev-ref HEAD')
+      execute("reset --hard origin/#{branch_name}")
+    end
     end
 
     private

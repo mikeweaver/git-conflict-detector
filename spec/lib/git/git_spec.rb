@@ -53,7 +53,8 @@ describe 'Git' do
       end
 
       it 'can update a previously cloned repository' do
-        mock_execute('Success', 1, 6)
+        expect(@git).to receive(:reset).exactly(2).times
+        mock_execute('Success', 1, 4)
         FileUtils.mkpath(@git.repository_path)
         @git.clone_repository('default_branch')
       end
@@ -81,13 +82,15 @@ describe 'Git' do
 
     describe 'checkout_branch' do
       it 'can checkout a branch' do
-        mock_execute('Success', 1, 3)
+        expect(@git).to receive(:reset).exactly(2).times
+        mock_execute('Success', 1)
         @git.checkout_branch('branch_name')
       end
     end
 
     describe 'reset' do
       it 'can reset a branch to HEAD of origin' do
+        mock_execute('master', 1)
         mock_execute("HEAD is now at beb5e09 Merge branch 'master'", 1)
         @git.reset
       end
@@ -148,7 +151,7 @@ describe 'Git' do
       end
 
       it 'aborts unsuccessful merge if requested' do
-        expect(Open3).to receive(:capture2e).exactly(2).times.and_return(
+        expect(Open3).to receive(:capture2e).and_return(
                              ["From github.com:/Invoca/web\n" +
                                   " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
                                   "warning: Cannot merge binary files: test/fixtures/whitepages.sql (HEAD vs. fedc8e0cfa136d5e1f84005ab6d82235122b0006)\n" +
@@ -157,8 +160,8 @@ describe 'Git' do
                                   "CONFLICT (modify/delete): pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js deleted in fedc8e0cfa136d5e1f84005ab6d82235122b0006 and modified in HEAD. Version HEAD of pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js left in tree.\n" +
                                   "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n" +
                                   "Automatic merge failed; fix conflicts and then commit the result.",
-                              create_mock_open_status(0)],
-                             ['ingored output', create_mock_open_status(1)])
+                              create_mock_open_status(0)])
+        expect(@git).to receive(:reset)
 
         conflict = Git::GitConflict.new(
             'repository_name',
@@ -177,8 +180,8 @@ describe 'Git' do
                                   " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
                                   "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
                                   "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
-                              create_mock_open_status(1)],
-                             ['ingored output', create_mock_open_status(1)])
+                              create_mock_open_status(1)])
+        expect(@git).to receive(:reset)
 
         expect(@git.merge_branches(
                    '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
