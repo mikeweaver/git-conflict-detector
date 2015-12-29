@@ -12,27 +12,27 @@ DEFAULT_SETTINGS = {
   repositories_to_check_for_conflicts: {},
   branches_to_merge: {},
   dry_run: false
-}
+}.freeze
 
 DEFAULT_BRANCH_FILTERS = {
   ignore_branches: [],
   ignore_branches_modified_days_ago: 0,
   only_branches: []
-}
+}.freeze
 
 DEFAULT_REPOSITORY_SETTINGS = {
   repository_name: '',
   default_branch_name: ''
-}
+}.freeze
 
 DEFAULT_CONFLICT_DETECTION_SETTINGS = {
   ignore_conflicts_in_file_paths: [],
   suppress_conflicts_for_owners_of_branches: []
-}.merge(DEFAULT_BRANCH_FILTERS).merge(DEFAULT_REPOSITORY_SETTINGS)
+}.merge(DEFAULT_BRANCH_FILTERS).merge(DEFAULT_REPOSITORY_SETTINGS).freeze
 
 DEFAULT_AUTO_MERGE_SETTINGS = {
     source_branch_name: []
-}.merge(DEFAULT_BRANCH_FILTERS).merge(DEFAULT_REPOSITORY_SETTINGS)
+}.merge(DEFAULT_BRANCH_FILTERS).merge(DEFAULT_REPOSITORY_SETTINGS).freeze
 
 class InvalidSettings < StandardError; end
 
