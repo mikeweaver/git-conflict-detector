@@ -52,7 +52,7 @@ describe 'Git' do
     end
 
     it 'can update a previously cloned repository' do
-      mock_execute('Success', 1, 5)
+      mock_execute('Success', 1, 6)
       FileUtils.mkpath(@git.repository_path)
       @git.clone_repository('default_branch')
     end

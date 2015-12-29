@@ -76,6 +76,7 @@ module Git
 
         # move to the master branch
         execute("checkout #{default_branch}")
+        execute('reset --hard origin')
 
         # remove branches that no longer exist on origin and update all branches that do
         execute('fetch --prune --all')
