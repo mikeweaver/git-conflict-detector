@@ -87,7 +87,7 @@ module Git
       end
     end
 
-    def push()
+    def push
       dry_run_argument = ''
       if GlobalSettings.dry_run
         dry_run_argument = '--dry-run'
