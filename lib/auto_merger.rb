@@ -58,18 +58,25 @@ class AutoMerger < BranchManager
     @git.checkout_branch(target_branch.name)
 
     Rails.logger.debug("Attempt to merge #{source_branch.name} into #{target_branch.name}")
-    conflict = @git.detect_conflicts(target_branch.name, source_branch.name, keep_changes: true)
-    unless conflict.present?
+    success, conflict = @git.merge_branches(
+        target_branch.name,
+        source_branch.name,
+        keep_changes: true,
+        commit_message: "Auto merge branch #{source_branch.name} into #{target_branch.name}")
+    if success
       Rails.logger.info("MERGED: #{source_branch.name} has been merged into #{target_branch.name} without conflicts")
       if @git.push
         Rails.logger.info("PUSHED: #{target_branch.name} to origin")
         Merge.create!(source_branch: source_branch, target_branch: target_branch, successful: true)
       else
-        Rails.logger.info("NO-OP: #{target_branch.name} is already up to date with origin")
+        raise "Failed to push #{target_branch.name} to origin, it was already up to date!"
       end
-    else
+    elsif conflict.present?
       Rails.logger.info("CONFLICT: #{target_branch.name} conflicts with #{source_branch.name}\nConflicting files:\n#{conflict.conflicting_files}")
+      @git.reset
       Merge.create!(source_branch: source_branch, target_branch: target_branch, successful: false)
+    else
+      Rails.logger.info("NO-OP: #{target_branch.name} is already up to date with origin")
     end
   end
 

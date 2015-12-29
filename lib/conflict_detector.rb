@@ -55,16 +55,18 @@ class ConflictDetector < BranchManager
       next if target_branch.name == source_branch.name
 
       Rails.logger.debug("Attempt to merge #{source_branch.name}")
-      conflict = @git.detect_conflicts(target_branch.name, source_branch.name)
-      unless conflict.present?
+      success, conflict = @git.merge_branches(target_branch.name, source_branch.name, keep_changes: false)
+      if success
         Rails.logger.info("MERGED: #{source_branch.name} can be merged into #{target_branch.name} without conflicts")
-      else
+      elsif conflict.present?
         if should_ignore_conflicts?(conflict.conflicting_files)
           Rails.logger.info("MERGED: #{target_branch.name} conflicts with #{source_branch.name}, but all conflicting files are on the ignore list.")
         else
           Rails.logger.info("CONFLICT: #{target_branch.name} conflicts with #{source_branch.name}\nConflicting files:\n#{conflict.conflicting_files}")
           conflicts << conflict
         end
+      else
+        Rails.logger.info("MERGED: #{source_branch.name} was already up to date with #{target_branch.name}")
       end
     end
 

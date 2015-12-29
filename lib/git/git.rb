@@ -44,34 +44,37 @@ module Git
       end
     end
 
-    def detect_conflicts(target_branch_name, source_branch_name, keep_changes: false)
-      # attempt the merge and gather conflicts, if found
-      begin
-        # TODO: Assert we are actually on the target branch and have a clean working dir
-        execute("pull --no-commit origin #{source_branch_name}")
-        nil
-      rescue GitError => ex
-        keep_changes = false
-        conflicting_files = Git::get_conflict_list_from_failed_merge_output(ex.error_message)
-        unless conflicting_files.empty?
-          GitConflict.new(
-              @repository_name,
-              target_branch_name,
-              source_branch_name,
-              conflicting_files)
-        else
-          nil
-        end
-      ensure
-        # cleanup our "mess"
-        keep_changes or execute("reset --hard origin/#{target_branch_name}")
+    def merge_branches(target_branch_name, source_branch_name, keep_changes: true, commit_message: nil)
+      commit_message_argument = "-m \"#{commit_message}\"" if commit_message
+
+      raw_output = execute("merge --no-ff --no-edit #{commit_message_argument} origin/#{source_branch_name}")
+
+      if raw_output =~ /.*Already up-to-date.\n/
+        [false, nil]
+      else
+        [true, nil]
       end
+    rescue GitError => ex
+      conflicting_files = Git::get_conflict_list_from_failed_merge_output(ex.error_message)
+      unless conflicting_files.empty?
+        [false,
+         GitConflict.new(
+            @repository_name,
+            target_branch_name,
+            source_branch_name,
+            conflicting_files)]
+      else
+        raise
+      end
+    ensure
+      # cleanup our "mess"
+      keep_changes or reset
     end
 
     def clone_repository(default_branch)
       if Dir.exists?("#{@repository_path}")
         # cleanup any changes that might have been left over if we crashed while running
-        execute('reset --hard origin')
+        reset
         execute('clean -f -d')
 
         # move to the master branch
@@ -98,9 +101,13 @@ module Git
     end
 
     def checkout_branch(branch_name)
-      execute("reset --hard origin/#{branch_name}")
+      reset
       execute("checkout #{branch_name}")
-      execute("reset --hard origin/#{branch_name}")
+      reset
+    end
+
+    def reset
+      execute("reset --hard origin")
     end
 
     private

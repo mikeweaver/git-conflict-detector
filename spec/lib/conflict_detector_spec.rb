@@ -46,29 +46,20 @@ describe 'ConflictDetector' do
     def expect_get_conflicts_equals(
         unfiltered_conflict_list,
         expected_conflict_list,
-        expected_push_count: 0,
         target_branch_name: 'branch_a',
-        source_branch_names: ['branch_b', 'branch_c'])
+        source_branch_names: ['branch_b', 'branch_c'],
+        alreadyUpToDate: false)
       target_branch = create_test_branch(name: target_branch_name)
       source_branches = source_branch_names.collect { |branch_name| create_test_branch(name: branch_name) }
       conflict_detector = ConflictDetector.new(@settings)
       expect_any_instance_of(Git::Git).to receive(:checkout_branch)
       if unfiltered_conflict_list.size > 0
-        allow_any_instance_of(Git::Git).to receive(:detect_conflicts).and_return(*unfiltered_conflict_list)
+        return_values = unfiltered_conflict_list.collect { |conflict| [false, conflict] }
+        allow_any_instance_of(Git::Git).to receive(:merge_branches).and_return(*return_values)
       else
-        allow_any_instance_of(Git::Git).to receive(:detect_conflicts).and_return(nil)
-      end
-      if expected_push_count > 0
-        expect_any_instance_of(Git::Git).to receive(:push).exactly(expected_push_count).times.and_return(true)
-      else
-        expect_any_instance_of(Git::Git).not_to receive(:push)
+        allow_any_instance_of(Git::Git).to receive(:merge_branches).and_return([!alreadyUpToDate, nil])
       end
       expect(conflict_detector.send(:get_conflicts, target_branch, source_branches)).to match_array(expected_conflict_list)
-      if expected_push_count > 0
-        expect(Merge.count).to eq(expected_push_count)
-      else
-        expect(Merge.count).to eq(0)
-      end
     end
 
     it 'should include all conflicts when the "ignore files" list is empty' do
