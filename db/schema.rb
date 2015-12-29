@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(version: 20151227045135) do
     t.datetime "updated_at"
     t.integer  "source_branch_id"
     t.integer  "target_branch_id"
+    t.boolean  "successful",       null: false
   end
 
   add_index "merges", ["source_branch_id"], name: "index_merges_on_source_branch_id"

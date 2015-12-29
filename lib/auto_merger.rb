@@ -21,14 +21,15 @@ class AutoMerger < BranchManager
       return
     end
 
+    # note the time at which we started creating merge records, so we only send out emails for the new ones
+    start_time = DateTime.now
+
     merge_and_push_branches(source_branch, target_branches)
 
     # send notifications out
-    #MergeMailer.send_conflict_emails(
-    #    @settings.repository_name,
-    #    start_time,
-    #    Branch.where(name: @settings.suppress_conflicts_for_owners_of_branches),
-    #    @settings.ignore_conflicts_in_file_paths)
+    MergeMailer.send_merge_emails(
+        @settings.repository_name,
+        start_time)
   end
 
   private
@@ -62,12 +63,13 @@ class AutoMerger < BranchManager
       Rails.logger.info("MERGED: #{source_branch.name} has been merged into #{target_branch.name} without conflicts")
       if @git.push
         Rails.logger.info("PUSHED: #{target_branch.name} to origin")
-        Merge.create!(source_branch: source_branch, target_branch: target_branch)
+        Merge.create!(source_branch: source_branch, target_branch: target_branch, successful: true)
       else
         Rails.logger.info("NO-OP: #{target_branch.name} is already up to date with origin")
       end
     else
       Rails.logger.info("CONFLICT: #{target_branch.name} conflicts with #{source_branch.name}\nConflicting files:\n#{conflict.conflicting_files}")
+      Merge.create!(source_branch: source_branch, target_branch: target_branch, successful: false)
     end
   end
 

@@ -1,0 +1,10 @@
+<% if !merges.empty? %>
+<%= heading %>
+
+<% merges.each do |source_branch, target_branches| %>
+Merged <%= source_branch.name %> into:
+<% target_branches.each do |target_branch| %>
+    <%= target_branch.name %>
+<% end %>
+<% end %>
+<% end %>

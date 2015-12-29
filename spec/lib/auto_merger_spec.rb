@@ -35,19 +35,29 @@ describe 'AutoMerger' do
     end
     expect_any_instance_of(Git::Git).to receive(:detect_conflicts).exactly(target_branch_count).times.and_return(*conflict_results)
     auto_merger = AutoMerger.new(@settings)
-
+    # a single notification email should be sent
+    expect(MergeMailer).to receive(:maybe_send_merge_email_to_user).and_call_original
 
     # run the test
     auto_merger.run
 
-    # merges should be created for non conflicting and non-up to date branches
+    # merges should be created for non-up to date branches
     if branches_up_to_date
       expect(Merge.all.size).to eq(0)
     else
-      expect(Merge.all.size).to eq(target_branch_count - conflict_count)
-      Merge.all.each do |merge|
+      # check for successful and unsuccessful merges
+      expect(Merge.all.size).to eq(target_branch_count)
+      expect(Merge.successful.all.size).to eq(target_branch_count - conflict_count)
+      Merge.successful.all.each do |merge|
         expect(merge.target_branch.name).to match(/target\/.*/)
         expect(merge.source_branch.name).to eq('source')
+        expect(merge.successful).to be_truthy
+      end
+      expect(Merge.unsuccessful.all.size).to eq(conflict_count)
+      Merge.unsuccessful.all.each do |merge|
+        expect(merge.target_branch.name).to match(/target\/.*/)
+        expect(merge.source_branch.name).to eq('source')
+        expect(merge.successful).to be_falsey
       end
     end
 

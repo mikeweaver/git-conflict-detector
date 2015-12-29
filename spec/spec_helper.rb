@@ -65,6 +65,6 @@ def create_test_conflict(branch_a, branch_b, tested_at: Time.now, file_list: ['t
   Conflict.create!(branch_a, branch_b, file_list, tested_at)
 end
 
-def create_test_merge(source_branch, target_branch)
-  Merge.create!(source_branch: source_branch, target_branch: target_branch)
+def create_test_merge(source_branch, target_branch, successful: true)
+  Merge.create!(source_branch: source_branch, target_branch: target_branch, successful: successful)
 end

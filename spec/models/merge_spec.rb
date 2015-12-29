@@ -9,8 +9,9 @@ describe 'Merge' do
   end
 
   it 'can be created' do
-    create_test_merge(@branches[0], @branches[1])
-    expect(Merge.all.size).to eq(1)
+    create_test_merge(@branches[0], @branches[1], successful: true)
+    create_test_merge(@branches[0], @branches[2], successful: false)
+    expect(Merge.all.size).to eq(2)
   end
 
   it 'does not allow duplicate merges' do
@@ -46,6 +47,12 @@ describe 'Merge' do
       expect(merges[0].target_branch.author.name).to eq(DIFFERENT_NAME)
     end
 
+    it 'can be looked up by user and repository' do
+      merges = Merge.from_repository('repository_name').by_target_user(User.where(name: DIFFERENT_NAME).first)
+      expect(merges.size).to eq(1)
+      expect(merges[0].target_branch.author.name).to eq(DIFFERENT_NAME)
+    end
+
     it 'can be filtered by status change date' do
       merges = Merge.created_after(2.minutes.from_now)
       expect(merges.size).to eq(0)
@@ -65,6 +72,23 @@ describe 'Merge' do
       merges = Merge.from_repository('repository_b').all
       expect(merges.size).to eq(1)
       expect(merges[0].id).to eq(@merge_2.id)
+    end
+  end
+
+  context 'with successful and unsuccessful merges' do
+    before do
+      @merge_1 = create_test_merge(@branches[0], @branches[1], successful: true)
+      @merge_2 = create_test_merge(@branches[0], @branches[2], successful: false)
+    end
+
+    it 'can be filtered by success' do
+      expect(Merge.successful.size).to eq(1)
+      expect(Merge.successful[0].id).to eq(@merge_1.id)
+    end
+
+    it 'can be filtered by failure' do
+      expect(Merge.unsuccessful.size).to eq(1)
+      expect(Merge.unsuccessful[0].id).to eq(@merge_2.id)
     end
   end
 end

@@ -1,11 +1,12 @@
 class Merge < ActiveRecord::Base
   fields do
     timestamps
+    successful :boolean, null: false, default: true
   end
 
   belongs_to :source_branch, class_name: Branch, required: true
   belongs_to :target_branch, class_name: Branch, required: true
-  has_one :repository, through: :source_branch
+  has_one :repository, through: :target_branch
 
   validates :source_branch, :target_branch, presence: true
   validates :source_branch, uniqueness: { scope: :target_branch, message: "Merges must be unique" }
@@ -23,13 +24,17 @@ class Merge < ActiveRecord::Base
 
   scope :by_target_user, lambda { |user|
     joins(:target_branch).where(
-      '(branches.author_id = ?)',
+      "(branches.author_id = ?)",
       user.id)
   }
 
   scope :created_after, lambda { |after_date|
-    where('created_at >= ?', after_date)
+    where('merges.created_at >= ?', after_date)
   }
+
+  scope :successful, lambda { where(successful: true) }
+
+  scope :unsuccessful, lambda { where(successful: false) }
 
   scope :from_repository, lambda { |repository_name| joins(:repository).where("repositories.name = ?", repository_name) }
 end

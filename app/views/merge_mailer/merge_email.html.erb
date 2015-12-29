@@ -1,0 +1,8 @@
+<%= render partial: 'merge_list', locals: {merges: @successful_merges, heading: 'Successful Merges:'} %>
+
+<%= render partial: 'merge_list', locals: {merges: @unsuccessful_merges, heading: 'Unsuccessful Merges:'} %>
+
+<p>
+You are receiving this email because you made a commit to the <%= @repository_name %> repository.<br>
+<%= link_to 'Click here to unsubscribe.', { controller: :users, action: :new_unsubscribe, id: @user.id }, { style: 'text-decoration: none;' } %>
+</p>
