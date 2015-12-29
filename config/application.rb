@@ -37,5 +37,10 @@ module GitConflictDetector
     config.autoload_paths += Dir["#{config.root}/lib/**/"]
 
     config.exceptions_app = self.routes
+
+    config.after_initialize do
+      # make the cache folder
+      FileUtils.mkdir_p(GlobalSettings.cache_directory)
+    end
   end
 end
