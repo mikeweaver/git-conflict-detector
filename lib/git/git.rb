@@ -97,6 +97,7 @@ module Git
     end
 
     def checkout_branch(branch_name)
+      execute("reset --hard origin/#{branch_name}")
       execute("checkout #{branch_name}")
       execute("reset --hard origin/#{branch_name}")
     end

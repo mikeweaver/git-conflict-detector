@@ -76,7 +76,7 @@ describe 'Git' do
     end
 
     it 'can checkout a branch' do
-      mock_execute('Success', 1, 2)
+      mock_execute('Success', 1, 3)
       @git.checkout_branch('branch_name')
     end
 
