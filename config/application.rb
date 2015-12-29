@@ -39,6 +39,9 @@ module GitConflictDetector
     config.exceptions_app = self.routes
 
     config.after_initialize do
+      # disable logging of SQL statements
+      ActiveRecord::Base.logger = nil
+
       # make the cache folder
       FileUtils.mkdir_p(GlobalSettings.cache_directory)
     end
