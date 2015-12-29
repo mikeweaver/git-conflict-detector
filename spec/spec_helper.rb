@@ -1,6 +1,6 @@
 ENV['RAILS_ENV'] ||= 'test'
 require 'coveralls'
-Coveralls.wear!('rails')
+Coveralls.wear!('rails') if ENV['CI'] == 'true'
 require_relative '../config/environment'
 require 'rails/test_help'
 require_relative '../lib/git/git.rb'
