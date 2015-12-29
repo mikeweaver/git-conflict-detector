@@ -71,7 +71,7 @@ describe 'Git' do
     end
 
     it 'can detect if a push results in a no-op' do
-      mock_execute('Everything up-to-date', 0)
+      mock_execute("Everything up-to-date\n", 1)
       expect(@git.push).to eq(false)
     end
 

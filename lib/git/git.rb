@@ -91,11 +91,8 @@ module Git
       if GlobalSettings.dry_run
         dry_run_argument = '--dry-run'
       end
-      execute("push #{dry_run_argument} origin")
-      true
-    rescue GitError => ex
-      ex.error_message == 'Everything up-to-date' and return false
-      raise
+      raw_output = execute("push #{dry_run_argument} origin")
+      raw_output != "Everything up-to-date\n"
     end
 
     def checkout_branch(branch_name)
