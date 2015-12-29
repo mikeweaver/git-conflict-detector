@@ -8,6 +8,13 @@ namespace :run do
       ConflictDetector.new(settings).run
     end
   end
+
+  desc "run the git auto-merger"
+  task :auto_merger => :environment do |task, args|
+    GlobalSettings.branches_to_merge.each do |branch_name, settings|
+      AutoMerger.new(settings).run
+    end
+  end
 end
 
 
