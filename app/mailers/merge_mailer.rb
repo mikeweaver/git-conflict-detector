@@ -1,6 +1,6 @@
 class MergeMailer < ActionMailer::Base
-  default from: "gitconflictdetector@noreply.com"
-  default content_type: 'text/plain'
+  default from: "Auto Merger <#{GlobalSettings.email_from_address}>"
+  default content_type: 'text/html'
 
   def self.send_merge_emails(repository_name, merges_newer_than)
     User.subscribed_users.users_with_emails(GlobalSettings.email_filter).each do |user|

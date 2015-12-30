@@ -8,6 +8,7 @@ DEFAULT_SETTINGS = {
   email_override: '',
   email_filter: [],
   bcc_emails: [],
+  email_from_address: 'gitconflictdetector@noreply.com',
   web_server_url: '',
   repositories_to_check_for_conflicts: {},
   branches_to_merge: {},

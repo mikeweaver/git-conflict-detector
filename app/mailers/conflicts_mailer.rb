@@ -1,6 +1,6 @@
 class ConflictsMailer < ActionMailer::Base
-  default from: "gitconflictdetector@noreply.com"
-  default content_type: 'text/plain'
+  default from: "Conflict Detector <#{GlobalSettings.email_from_address}>"
+  default content_type: 'text/html'
 
   def self.send_conflict_emails(repository_name, conflicts_newer_than, exclude_branches_if_owned_by_user, hidden_file_list)
     User.subscribed_users.users_with_emails(GlobalSettings.email_filter).each do |user|
