@@ -110,7 +110,6 @@ module Git
       branch_name = execute('rev-parse --abbrev-ref HEAD')
       execute("reset --hard origin/#{branch_name}")
     end
-    end
 
     private
 
