@@ -76,7 +76,7 @@ class AutoMerger < BranchManager
       @git.reset
       Merge.create!(source_branch: source_branch, target_branch: target_branch, successful: false)
     else
-      Rails.logger.info("NO-OP: #{target_branch.name} is already up to date with origin")
+      Rails.logger.info("NO-OP: #{target_branch.name} is already up to date with #{source_branch.name}")
     end
   end
 
