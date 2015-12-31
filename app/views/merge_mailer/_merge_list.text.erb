@@ -1,8 +1,18 @@
 <% if !merges.empty? %>
-<%= heading %>
+<%=
+if success
+'Successful Merges:'
+else
+'Unsuccessful Merges'
+end%>
 
 <% merges.each do |source_branch, target_branches| %>
-Merged <%= source_branch.name %> into:
+<%=
+if success
+'Merged '
+else
+'Failed to merge '
+end%><%= source_branch.name %> into:
 <% target_branches.each do |target_branch| %>
     <%= target_branch.name %>
 <% end %>

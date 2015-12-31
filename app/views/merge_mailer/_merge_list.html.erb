@@ -1,8 +1,18 @@
 <% if !merges.empty? %>
-    <h3><%= heading %></h3>
+    <h3><%=
+        if success
+          'Successful Merges:'
+        else
+          'Unsuccessful Merges'
+        end%></h3>
     <% merges.each do |source_branch, target_branches| %>
         <p>
-          Merged <%= render partial: 'shared/branch_link', locals: {repository_name: @repository_name, branch: source_branch} %> into:
+          <%=
+          if success
+            'Merged '
+          else
+            'Failed to merge '
+          end%><%= render partial: 'shared/branch_link', locals: {repository_name: @repository_name, branch: source_branch} %> into:
         </p>
         <% target_branches.each do |target_branch| %>
           <p style="margin-left:20px;margin-top:0px;margin-bottom:0px">

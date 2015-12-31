@@ -1,6 +1,6 @@
-<%= render partial: 'merge_list', locals: {merges: @successful_merges, heading: 'Successful Merges:'} %>
+<%= render partial: 'merge_list', locals: {merges: @successful_merges, success: true} %>
 
-<%= render partial: 'merge_list', locals: {merges: @unsuccessful_merges, heading: 'Unsuccessful Merges:'} %>
+<%= render partial: 'merge_list', locals: {merges: @unsuccessful_merges, success: false} %>
 
 <p>
 You are receiving this email because you made a commit to the branches listed above in the <%= @repository_name %> repository.<br>
