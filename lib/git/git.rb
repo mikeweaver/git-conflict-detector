@@ -111,6 +111,10 @@ module Git
       execute("reset --hard origin/#{branch_name}")
     end
 
+    def lookup_tag(tag)
+      execute("git describe --abbrev=0 --match #{tag}")
+    end
+
     private
 
     def self.get_conflict_list_from_failed_merge_output(failed_merged_output)

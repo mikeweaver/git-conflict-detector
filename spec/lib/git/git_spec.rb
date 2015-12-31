@@ -213,5 +213,17 @@ describe 'Git' do
                    '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size')).to eq([false, nil])
       end
     end
+
+    describe 'lookup_tag' do
+      it 'can lookup a tag' do
+        mock_execute('tag-exists', 1)
+        expect(@git.lookup_tag('tag-e*')).to eq('tag-exists')
+      end
+
+      it 'raises when the tag cannot be found' do
+        mock_execute('fatal: No names found, cannot describe anything.', 0)
+        expect { @git.lookup_tag('does-not-exist') }.to raise_exception(Git::GitError)
+      end
+    end
   end
 end
