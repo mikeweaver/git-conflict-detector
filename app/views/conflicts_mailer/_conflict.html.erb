@@ -16,6 +16,5 @@ end %>
     conflicts with
     <%= render partial: 'shared/branch_link', locals: {repository_name: @repository_name, branch: branch_b} %>
     <a href="https://github.com/<%= @repository_name %>/compare/<%= branch_a.name %>...<%= branch_b.name %>" style="text-decoration: none;">(diff)</a>
-    <a href="https://github.com/<%= @repository_name %>/compare/<%= branch_a.name %>...<%= branch_b.name %>" style="text-decoration: none;">(diff)</a>
     <%= link_to 'suppress', { controller: :suppressions, action: :new, conflict_id: conflict.id, user_id: @user.id }, { style: 'text-decoration: none;' } %>
 <% end %>
