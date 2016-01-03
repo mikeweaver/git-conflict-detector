@@ -44,10 +44,15 @@ module Git
       end
     end
 
-    def merge_branches(target_branch_name, source_branch_name, keep_changes: true, commit_message: nil)
+    def merge_branches(target_branch_name, source_branch_name, source_tag_name: nil, keep_changes: true, commit_message: nil)
       commit_message_argument = "-m \"#{commit_message}\"" if commit_message
+      if source_tag_name.present?
+        source = source_tag_name
+      else
+        source = "origin/#{source_branch_name}"
+      end
 
-      raw_output = execute("merge --no-ff --no-edit #{commit_message_argument} origin/#{source_branch_name}")
+      raw_output = execute("merge --no-ff --no-edit #{commit_message_argument} #{source}")
 
       if raw_output =~ /.*Already up-to-date.\n/
         [false, nil]

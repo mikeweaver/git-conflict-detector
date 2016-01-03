@@ -21,10 +21,15 @@ class AutoMerger < BranchManager
       return
     end
 
+    tag_name = nil
+    if @settings.only_merge_source_branch_with_tag.present?
+      tag_name = @git.lookup_tag(@settings.only_merge_source_branch_with_tag)
+    end
+
     # note the time at which we started creating merge records, so we only send out emails for the new ones
     start_time = DateTime.now
 
-    merge_and_push_branches(source_branch, target_branches)
+    merge_and_push_branches(source_branch, tag_name, target_branches)
 
     # send notifications out
     MergeMailer.send_merge_emails(
@@ -50,17 +55,18 @@ class AutoMerger < BranchManager
     end
   end
 
-  def merge_and_push_branch(target_branch, source_branch)
+  def merge_and_push_branch(target_branch, source_branch_tag, source_branch)
     # don't try to merge the branch with itself
     target_branch.name != source_branch.name or return
 
     # get onto the target branch
     @git.checkout_branch(target_branch.name)
 
-    Rails.logger.debug("Attempt to merge #{source_branch.name} into #{target_branch.name}")
+    Rails.logger.debug("Attempt to merge #{source_branch.name} with tag #{source_branch_tag} into #{target_branch.name}")
     success, conflict = @git.merge_branches(
         target_branch.name,
         source_branch.name,
+        source_tag_name: source_branch_tag,
         keep_changes: true,
         commit_message: "Auto merge branch #{source_branch.name} into #{target_branch.name}")
     if success
@@ -80,10 +86,10 @@ class AutoMerger < BranchManager
     end
   end
 
-  def merge_and_push_branches(source_branch, target_branches)
+  def merge_and_push_branches(source_branch, source_branch_tag, target_branches)
     target_branches.each do |target_branch|
-      Rails.logger.info("\nProcessing target branch: #{target_branch.name}")
-      merge_and_push_branch(target_branch, source_branch)
+      Rails.logger.info("\nProcessing target branch: #{target_branch.name}, tag #{source_branch_tag}")
+      merge_and_push_branch(target_branch, source_branch_tag, source_branch)
     end
   end
 end

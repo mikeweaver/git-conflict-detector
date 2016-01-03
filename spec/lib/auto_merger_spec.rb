@@ -75,7 +75,13 @@ describe 'AutoMerger' do
     end
   end
 
-  it 'merges the target branches' do
+  it 'merges the source branch into the target branches' do
+    expect_merges(target_branch_count: 2)
+  end
+
+  it 'merges the source tag into the target branches' do
+    @settings.only_merge_source_branch_with_tag = 'master-clean-*'
+    expect_any_instance_of(Git::Git).to receive(:lookup_tag).and_return('master-clean-1234')
     expect_merges(target_branch_count: 2)
   end
 

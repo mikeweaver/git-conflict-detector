@@ -212,6 +212,20 @@ describe 'Git' do
                    '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
                    '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size')).to eq([false, nil])
       end
+
+      it 'merges a tag, if requested' do
+        mock_execute(
+            "From github.com:/Invoca/web\n" +
+            " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
+            "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
+            "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
+            1)
+
+        expect(@git.merge_branches(
+                   '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+                   '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
+                   source_tag_name: 'tag_name')).to eq([true, nil])
+      end
     end
 
     describe 'lookup_tag' do
