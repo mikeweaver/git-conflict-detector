@@ -230,7 +230,7 @@ describe 'Git' do
 
     describe 'lookup_tag' do
       it 'can lookup a tag' do
-        mock_execute('tag-exists', 1)
+        mock_execute("tag-exists\n", 1)
         expect(@git.lookup_tag('tag-e*')).to eq('tag-exists')
       end
 

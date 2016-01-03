@@ -117,7 +117,7 @@ module Git
     end
 
     def lookup_tag(tag)
-      execute("git describe --abbrev=0 --match #{tag}")
+      execute("describe --abbrev=0 --match #{tag}").strip
     end
 
     private
