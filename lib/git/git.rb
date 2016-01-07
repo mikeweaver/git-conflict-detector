@@ -52,7 +52,7 @@ module Git
         source = "origin/#{source_branch_name}"
       end
 
-      raw_output = execute("merge --no-ff --no-edit #{commit_message_argument} #{source}")
+      raw_output = execute("merge --no-edit #{commit_message_argument} #{source}")
 
       if raw_output =~ /.*Already up-to-date.\n/
         [false, nil]
