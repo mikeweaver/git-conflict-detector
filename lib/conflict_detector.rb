@@ -38,6 +38,7 @@ class ConflictDetector < BranchManager
   end
 
   def get_conflicts(target_branch, source_branches)
+    # TODO: Smarten up merge_branches to automatically checkout the target branch
     # get onto the target branch
     @git.checkout_branch(target_branch.name)
 
@@ -51,26 +52,53 @@ class ConflictDetector < BranchManager
         break
       end
 
-      # don't try to merge the branch with itself
-      next if target_branch.name == source_branch.name
-
-      Rails.logger.debug("Attempt to merge #{source_branch.name}")
-      success, conflict = @git.merge_branches(target_branch.name, source_branch.name, keep_changes: false)
-      if success
-        Rails.logger.info("MERGED: #{source_branch.name} can be merged into #{target_branch.name} without conflicts")
-      elsif conflict.present?
-        if should_ignore_conflicts?(conflict.conflicting_files)
-          Rails.logger.info("MERGED: #{target_branch.name} conflicts with #{source_branch.name}, but all conflicting files are on the ignore list.")
-        else
-          Rails.logger.info("CONFLICT: #{target_branch.name} conflicts with #{source_branch.name}\nConflicting files:\n#{conflict.conflicting_files}")
-          conflicts << conflict
-        end
-      else
-        Rails.logger.info("MERGED: #{source_branch.name} was already up to date with #{target_branch.name}")
+      conflict = get_conflict(target_branch.name, source_branch.name)
+      if conflict
+        conflicts << conflict
       end
     end
 
     conflicts
+  end
+  
+  def get_conflict(target_branch_name, source_branch_name)
+    # don't try to merge the branch with itself
+    unless target_branch_name == source_branch_name
+      Rails.logger.debug("Attempting to merge #{source_branch_name}")
+      success, conflict = @git.merge_branches(target_branch_name, source_branch_name, keep_changes: false)
+      if success
+        Rails.logger.info("MERGED: #{source_branch_name} can be merged into #{target_branch_name} without conflicts")
+      elsif conflict.present?
+        Rails.logger.info("CONFLICT: #{target_branch_name} conflicts with #{source_branch_name}\nConflicting files:\n#{conflict.conflicting_files}")
+      else
+        Rails.logger.info("MERGED: #{source_branch_name} was already up to date with #{target_branch_name}")
+      end
+      conflict
+    end
+  end
+
+  def get_conflicting_files_to_ignore(conflict)
+    inherited_files = get_inherited_conflicting_files(conflict)
+    unless inherited_files.empty?
+      Rails.logger.info("Ignoring files conflicting between #{conflict.branch_a} and #{conflict.branch_b} because they were inherited from the parent branch.\n#{inherited_files}")
+    end
+
+    files_to_ignore = get_files_to_ignore(conflict)
+    unless files_to_ignore.empty?
+      Rails.logger.info("Ignoring files conflicting between #{conflict.branch_a} and #{conflict.branch_b} because they are on the ignore list.\n#{files_to_ignore}")
+    end
+
+    (inherited_files + files_to_ignore).uniq
+  end
+
+  def get_inherited_conflicting_files(conflict)
+    files_changed_on_branch_a = @git.diff_branch_with_ancestor(conflict.branch_a, @settings.default_branch_name)
+    files_changed_on_branch_b = @git.diff_branch_with_ancestor(conflict.branch_b, @settings.default_branch_name)
+    conflict.conflicting_files - (files_changed_on_branch_a + files_changed_on_branch_b).uniq
+  end
+
+  def get_files_to_ignore(conflict)
+    conflict.conflicting_files.select_regex(@settings.ignore_conflicts_in_file_paths)
   end
 
   def get_branches_not_tested_since
@@ -96,6 +124,35 @@ class ConflictDetector < BranchManager
     end
   end
 
+  def create_branch_name_pairs(branch_a, branch_b)
+    ["#{branch_a.name}:#{branch_b.name}", "#{branch_b.name}:#{branch_a.name}"]
+  end
+
+  def get_conflict_that_contains_branch(conflicts, branch)
+    # see if we got a conflict for this branch
+    matching_conflicts = conflicts.select do |conflict|
+      conflict.contains_branch(branch.name)
+    end
+    matching_conflicts.size <= 1 or raise "Found more than one conflict for the branch #{tested_branch}!"
+    matching_conflicts[0]
+  end
+
+  def create_or_resolve_conflict(target_branch, source_branch, start_time, conflict)
+    if conflict.nil?
+      Rails.logger.info("RESOLVED: Conflict between #{source_branch.name} and #{target_branch.name} no longer exists")
+      Conflict.resolve!(target_branch, source_branch, start_time)
+    else
+      if (conflict.conflicting_files - get_conflicting_files_to_ignore(conflict)).empty?
+        Rails.logger.info("RESOLVED: Ignoring conflict between #{source_branch.name} and #{target_branch.name} because all the conflicting files were ignored")
+        Conflict.resolve!(target_branch, source_branch, start_time)
+      else
+        Rails.logger.info("CONFLICT: Creating conflict between #{source_branch.name} and #{target_branch.name}")
+        # TODO store ignored files in the conflict record so they can be sent in email
+        Conflict.create!(target_branch, source_branch, conflict.conflicting_files, start_time)
+      end
+    end
+  end
+
   def test_branches(untested_branches, all_branches, start_time)
     tested_pairs = []
     untested_branches.each do |branch|
@@ -108,23 +165,10 @@ class ConflictDetector < BranchManager
       conflicts = get_conflicts(branch, branches_to_test)
 
       branches_to_test.each do |tested_branch|
-        # see if we got a conflict for this branch
-        matching_conflicts = conflicts.select do |conflict|
-          conflict.contains_branch(tested_branch.name)
-        end
-        matching_conflicts.size <= 1 or raise "Found more than one conflict for the branch #{tested_branch}!"
-        conflict = matching_conflicts[0]
-
-        # record or clear the conflict based on the test result
-        unless matching_conflicts.empty?
-          Conflict.create!(branch, tested_branch, conflict.conflicting_files, start_time)
-        else
-          Conflict.resolve!(branch, tested_branch, start_time)
-        end
-
-        # record the fact that we tested these branches
-        tested_pairs << "#{branch.name}:#{tested_branch.name}"
-        tested_pairs << "#{tested_branch.name}:#{branch.name}"
+        Rails.logger.info("Looking at #{tested_branch}")
+        conflict = get_conflict_that_contains_branch(conflicts, tested_branch)
+        create_or_resolve_conflict(branch, tested_branch, start_time, conflict)
+        tested_pairs += create_branch_name_pairs(branch, tested_branch)
       end
 
       branch.mark_as_tested!

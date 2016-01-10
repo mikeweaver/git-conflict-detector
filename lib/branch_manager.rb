@@ -58,10 +58,5 @@ class BranchManager
     !@settings.only_branches.empty? or return true
     @settings.only_branches.include_regex?(branch)
   end
-
-  def should_ignore_conflicts?(conflicts)
-    @settings.ignore_conflicts_in_file_paths or return false
-    conflicts.reject_regex(@settings.ignore_conflicts_in_file_paths).empty?
-  end
 end
 

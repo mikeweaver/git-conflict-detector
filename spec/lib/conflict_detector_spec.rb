@@ -20,6 +20,7 @@ describe 'ConflictDetector' do
     start_time = Time.now
     expect_any_instance_of(Git::Git).to receive(:clone_repository)
     expect_any_instance_of(Git::Git).to receive(:get_branch_list) { create_test_git_branches }
+    expect_any_instance_of(Git::Git).to receive(:diff_branch_with_ancestor).exactly(2).times.and_return(['file1', 'file2'])
     conflict_detector = ConflictDetector.new(@settings)
     expect(conflict_detector).to receive(:get_conflicts ).exactly(3).times.and_return(
       [create_test_git_conflict(branch_a_name: 'path/branch0', branch_b_name: 'path/branch1')], [], [])
@@ -62,31 +63,66 @@ describe 'ConflictDetector' do
       expect(conflict_detector.send(:get_conflicts, target_branch, source_branches)).to match_array(expected_conflict_list)
     end
 
-    it 'should include all conflicts when the "ignore files" list is empty' do
-      @settings.ignore_conflicts_in_file_paths = []
-      conflict_list = [create_test_git_conflict, nil]
-      expected_conflict_list = [conflict_list[0]]
-      expect_get_conflicts_equals(conflict_list, expected_conflict_list)
+    it 'should include all conflicts found' do
+      conflict_list = [create_test_git_conflict, nil, create_test_git_conflict(branch_b_name: 'branch_d')]
+      expected_conflict_list = [conflict_list[0], conflict_list[2]]
+      expect_get_conflicts_equals(conflict_list, expected_conflict_list, source_branch_names: ['branch_b', 'branch_c', 'branch_d'])
     end
 
-    it 'should ignore conflicts when all the conflicting files are on the ignore list' do
-      @settings.ignore_conflicts_in_file_paths = ['ignore_me', 'regex/.*']
-      conflict_list = [
-          create_test_git_conflict(file_list: ['ignore_me', 'regex/match']),
-          create_test_git_conflict(file_list: ['nomatch'])]
-      expected_conflict_list = [conflict_list[1]]
-      expect_get_conflicts_equals(conflict_list, expected_conflict_list)
+    it 'should not treat branches that do not need merging as conflicts' do
+      expect_get_conflicts_equals([], [], alreadyUpToDate: true)
     end
 
     it 'should ignore all conflicts when too many branches have been checked' do
       allow(GlobalSettings).to receive(:maximum_branches_to_check).and_return(1)
-      conflict_list = [create_test_git_conflict, create_test_git_conflict]
-      expected_conflict_list = [create_test_git_conflict]
+      conflict_list = [create_test_git_conflict, create_test_git_conflict(branch_b_name: 'branch_c')]
+      expected_conflict_list = [conflict_list[0]]
       expect_get_conflicts_equals(conflict_list, expected_conflict_list)
     end
 
     it 'should ignore branches with the same name' do
       expect_get_conflicts_equals([], [], source_branch_names: ['branch_a'])
+    end
+  end
+
+  context 'get_conflicting_files_to_ignore' do
+    before do
+      allow_any_instance_of(Git::Git).to receive(:diff_branch_with_ancestor).and_return(
+                                             ['not_inherited_file_1', 'not_inherited_file_2'], ['not_inherited_file_3'])
+    end
+
+    def expect_get_conflicting_files_to_ignore_equals(conflict, expected_file_list)
+      conflict_detector = ConflictDetector.new(@settings)
+      expect(conflict_detector.send(:get_conflicting_files_to_ignore, conflict)).to match_array(expected_file_list)
+    end
+
+    it 'should be empty when the "ignore files" list is empty and there are no inherited conflicting files' do
+      @settings.ignore_conflicts_in_file_paths = []
+      expect_get_conflicting_files_to_ignore_equals(
+          create_test_git_conflict(file_list: ['not_inherited_file_1', 'not_inherited_file_2', 'not_inherited_file_3']),
+          [])
+    end
+
+    it 'should contain the conflicting files on the "ignore files" list' do
+      @settings.ignore_conflicts_in_file_paths = ['not_inherited_file_1']
+      expect_get_conflicting_files_to_ignore_equals(
+          create_test_git_conflict(file_list: ['not_inherited_file_1', 'not_inherited_file_2', 'not_inherited_file_3']),
+          ['not_inherited_file_1'])
+      expect_get_conflicting_files_to_ignore_equals(create_test_git_conflict(file_list: ['not_inherited_file_2']), [])
+    end
+
+    it 'should contain inherited conflicting files if present' do
+      @settings.ignore_conflicts_in_file_paths = []
+      expect_get_conflicting_files_to_ignore_equals(
+          create_test_git_conflict(file_list: ['inherited_file_1', 'not_inherited_file_1', 'not_inherited_file_3']),
+          ['inherited_file_1'])
+    end
+
+    it 'should contain inherited conflicting files and ignored files if both are present' do
+      @settings.ignore_conflicts_in_file_paths = ['not_inherited_file_1']
+      expect_get_conflicting_files_to_ignore_equals(
+          create_test_git_conflict(file_list: ['inherited_file_1', 'not_inherited_file_1', 'not_inherited_file_3']),
+          ['inherited_file_1', 'not_inherited_file_1'])
     end
   end
 end
