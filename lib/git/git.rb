@@ -76,14 +76,14 @@ module Git
       keep_changes or reset
     end
 
-    def clone_repository(default_branch)
+    def clone_repository(default_branch_name)
       if Dir.exists?("#{@repository_path}")
         # cleanup any changes that might have been left over if we crashed while running
         reset
         execute('clean -f -d')
 
         # move to the master branch
-        execute("checkout #{default_branch}")
+        execute("checkout #{default_branch_name}")
         reset
 
         # remove branches that no longer exist on origin and update all branches that do
