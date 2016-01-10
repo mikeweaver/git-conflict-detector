@@ -129,8 +129,9 @@ describe 'Git' do
     describe 'merge_branches' do
 
       it 'returns false, with conflicts, if merge is not clean' do
-        expect(Open3).to receive(:capture2e).exactly(1).times.and_return(
-           ["From github.com:/Invoca/web\n" +
+        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
+        mock_execute(
+            "From github.com:/Invoca/web\n" +
                 " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
                 "warning: Cannot merge binary files: test/fixtures/whitepages.sql (HEAD vs. fedc8e0cfa136d5e1f84005ab6d82235122b0006)\n" +
                 "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
@@ -138,7 +139,7 @@ describe 'Git' do
                 "CONFLICT (modify/delete): pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js deleted in fedc8e0cfa136d5e1f84005ab6d82235122b0006 and modified in HEAD. Version HEAD of pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js left in tree.\n" +
                 "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n" +
                 "Automatic merge failed; fix conflicts and then commit the result.\n",
-            create_mock_open_status(0)])
+            0)
 
         conflict = Git::GitConflict.new(
             'repository_name',
@@ -151,16 +152,17 @@ describe 'Git' do
       end
 
       it 'aborts unsuccessful merge if requested' do
-        expect(Open3).to receive(:capture2e).and_return(
-                             ["From github.com:/Invoca/web\n" +
-                                  " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
-                                  "warning: Cannot merge binary files: test/fixtures/whitepages.sql (HEAD vs. fedc8e0cfa136d5e1f84005ab6d82235122b0006)\n" +
-                                  "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
-                                  "CONFLICT (content): Merge conflict in test/workers/adwords_detail_worker_test.rb\n" +
-                                  "CONFLICT (modify/delete): pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js deleted in fedc8e0cfa136d5e1f84005ab6d82235122b0006 and modified in HEAD. Version HEAD of pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js left in tree.\n" +
-                                  "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n" +
-                                  "Automatic merge failed; fix conflicts and then commit the result.",
-                              create_mock_open_status(0)])
+        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
+        mock_execute(
+              "From github.com:/Invoca/web\n" +
+                  " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
+                  "warning: Cannot merge binary files: test/fixtures/whitepages.sql (HEAD vs. fedc8e0cfa136d5e1f84005ab6d82235122b0006)\n" +
+                  "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
+                  "CONFLICT (content): Merge conflict in test/workers/adwords_detail_worker_test.rb\n" +
+                  "CONFLICT (modify/delete): pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js deleted in fedc8e0cfa136d5e1f84005ab6d82235122b0006 and modified in HEAD. Version HEAD of pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js left in tree.\n" +
+                  "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n" +
+                  "Automatic merge failed; fix conflicts and then commit the result.",
+              0)
         expect(@git).to receive(:reset)
 
         conflict = Git::GitConflict.new(
@@ -175,12 +177,13 @@ describe 'Git' do
       end
 
       it 'aborts successful merge if requested' do
-        expect(Open3).to receive(:capture2e).and_return(
-                             ["From github.com:/Invoca/web\n" +
-                                  " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
-                                  "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
-                                  "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
-                              create_mock_open_status(1)])
+        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
+        mock_execute(
+              "From github.com:/Invoca/web\n" +
+                  " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
+                  "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
+                  "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
+              1)
         expect(@git).to receive(:reset)
 
         expect(@git.merge_branches(
@@ -190,12 +193,13 @@ describe 'Git' do
       end
 
       it 'returns true, with no conflicts, if merge is clean' do
-        expect(Open3).to receive(:capture2e).and_return(
-                             ["From github.com:/Invoca/web\n" +
-                                  " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
-                                  "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
-                                  "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
-                              create_mock_open_status(1)])
+        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
+        mock_execute(
+              "From github.com:/Invoca/web\n" +
+                  " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
+                  "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
+                  "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
+              1)
 
         expect(@git.merge_branches(
                    '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
@@ -203,17 +207,32 @@ describe 'Git' do
       end
 
       it 'returns false, with no conflicts, if nothing is merged' do
-        expect(Open3).to receive(:capture2e).and_return(
-                             ["From github.com:mikeweaver/git-conflict-detector\n" +
-                              " * branch            master     -> FETCH_HEAD\n" +
-                              "Already up-to-date.\n",
-                              create_mock_open_status(1)])
+        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
+        mock_execute(
+             "From github.com:mikeweaver/git-conflict-detector\n" +
+              " * branch            master     -> FETCH_HEAD\n" +
+              "Already up-to-date.\n",
+              1)
+        expect(@git.merge_branches(
+                   '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+                   '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size')).to eq([false, nil])
+      end
+
+      it 'checks out branch if needed' do
+        expect(@git).to receive(:get_current_branch_name).and_return('not_the_right_branch')
+        expect(@git).to receive(:checkout_branch)
+        mock_execute(
+            "From github.com:mikeweaver/git-conflict-detector\n" +
+                " * branch            master     -> FETCH_HEAD\n" +
+                "Already up-to-date.\n",
+            1)
         expect(@git.merge_branches(
                    '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
                    '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size')).to eq([false, nil])
       end
 
       it 'merges a tag, if requested' do
+        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
         mock_execute(
             "From github.com:/Invoca/web\n" +
             " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
@@ -249,6 +268,13 @@ describe 'Git' do
       it 'can handle an up to date branch' do
         mock_execute('', 1)
         expect(@git.diff_branch_with_ancestor('branch', 'ancestor_branch')).to eq([])
+      end
+    end
+
+    describe 'get_current_branch_name' do
+      it 'can get the branch name' do
+        mock_execute("path/branch\n", 1)
+        expect(@git.get_current_branch_name).to eq('path/branch')
       end
     end
   end

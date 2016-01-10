@@ -32,7 +32,6 @@ describe 'AutoMerger' do
         expect_any_instance_of(Git::Git).to receive(:reset).exactly(conflict_count).times
       end
     end
-    expect_any_instance_of(Git::Git).to receive(:checkout_branch).exactly(target_branch_count).times
     conflict_results = []
     (0..(conflict_count - 1)).each do |i|
       conflict_results << [false, create_test_git_conflict(branch_a_name: 'source', branch_b_name: 'target/branch0')]

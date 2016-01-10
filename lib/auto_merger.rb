@@ -59,9 +59,6 @@ class AutoMerger < BranchManager
     # don't try to merge the branch with itself
     target_branch.name != source_branch.name or return
 
-    # get onto the target branch
-    @git.checkout_branch(target_branch.name)
-
     Rails.logger.debug("Attempt to merge #{source_branch.name} with tag #{source_branch_tag} into #{target_branch.name}")
     success, conflict = @git.merge_branches(
         target_branch.name,

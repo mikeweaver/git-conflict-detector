@@ -38,10 +38,6 @@ class ConflictDetector < BranchManager
   end
 
   def get_conflicts(target_branch, source_branches)
-    # TODO: Smarten up merge_branches to automatically checkout the target branch
-    # get onto the target branch
-    @git.checkout_branch(target_branch.name)
-
     conflicts = []
     branches_checked = 0
     source_branches.each do |source_branch|

@@ -53,7 +53,6 @@ describe 'ConflictDetector' do
       target_branch = create_test_branch(name: target_branch_name)
       source_branches = source_branch_names.collect { |branch_name| create_test_branch(name: branch_name) }
       conflict_detector = ConflictDetector.new(@settings)
-      expect_any_instance_of(Git::Git).to receive(:checkout_branch)
       if unfiltered_conflict_list.size > 0
         return_values = unfiltered_conflict_list.collect { |conflict| [false, conflict] }
         allow_any_instance_of(Git::Git).to receive(:merge_branches).and_return(*return_values)

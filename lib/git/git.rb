@@ -45,6 +45,10 @@ module Git
     end
 
     def merge_branches(target_branch_name, source_branch_name, source_tag_name: nil, keep_changes: true, commit_message: nil)
+      if get_current_branch_name != target_branch_name
+        checkout_branch(target_branch_name)
+      end
+
       commit_message_argument = "-m \"#{commit_message}\"" if commit_message
       if source_tag_name.present?
         source = source_tag_name
@@ -124,6 +128,10 @@ module Git
       # gets the merge base of the branch and its ancestor, then gets a list of files changed since the merge base
       raw_output = execute("diff --name-only $(git merge-base origin/#{ancestor_branch_name} origin/#{branch_name})..origin/#{branch_name}")
       raw_output.split("\n")
+    end
+
+    def get_current_branch_name
+      execute('rev-parse --abbrev-ref HEAD').strip
     end
 
     private
