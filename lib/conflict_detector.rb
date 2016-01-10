@@ -90,7 +90,12 @@ class ConflictDetector < BranchManager
   def get_inherited_conflicting_files(conflict)
     files_changed_on_branch_a = @git.diff_branch_with_ancestor(conflict.branch_a, @settings.default_branch_name)
     files_changed_on_branch_b = @git.diff_branch_with_ancestor(conflict.branch_b, @settings.default_branch_name)
-    conflict.conflicting_files - (files_changed_on_branch_a + files_changed_on_branch_b).uniq
+    # Only files that were modified in both branches are conflicts, we should ignore all the others.
+    # This is because files that were only modified in one branch, are either not conflicting,
+    # or were inherited (and are showing up in the branch diff for some unknown reason)
+    # Logic below explained: Get list of files that were modified in both branches. Remove this list from the list
+    # of conflicting files and what you are left with the list of conflicting files that should be ignored.
+    conflict.conflicting_files - (files_changed_on_branch_a & files_changed_on_branch_b).uniq
   end
 
   def get_files_to_ignore(conflict)
