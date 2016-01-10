@@ -239,5 +239,17 @@ describe 'Git' do
         expect { @git.lookup_tag('does-not-exist') }.to raise_exception(Git::GitError)
       end
     end
+
+    describe 'diff_branch_with_ancestor' do
+      it 'can diff the branch' do
+        mock_execute("file1.txt\nfile2.txt\n", 1)
+        expect(@git.diff_branch_with_ancestor('branch', 'ancestor_branch')).to eq(['file1.txt', 'file2.txt'])
+      end
+
+      it 'can handle an up to date branch' do
+        mock_execute('', 1)
+        expect(@git.diff_branch_with_ancestor('branch', 'ancestor_branch')).to eq([])
+      end
+    end
   end
 end

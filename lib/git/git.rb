@@ -120,6 +120,12 @@ module Git
       execute("describe --abbrev=0 --match #{tag}").strip
     end
 
+    def diff_branch_with_ancestor(branch_name, ancestor_branch_name)
+      # gets the merge base of the branch and its ancestor, then gets a list of files changed since the merge base
+      raw_output = execute("diff --name-only $(git merge-base origin/#{ancestor_branch_name} origin/#{branch_name})..origin/#{branch_name}")
+      raw_output.split("\n")
+    end
+
     private
 
     def self.get_conflict_list_from_failed_merge_output(failed_merged_output)
