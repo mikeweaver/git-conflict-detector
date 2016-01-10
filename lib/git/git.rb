@@ -116,8 +116,7 @@ module Git
     end
 
     def reset
-      branch_name = execute('rev-parse --abbrev-ref HEAD')
-      execute("reset --hard origin/#{branch_name}")
+      execute("reset --hard origin/#{get_current_branch_name}")
     end
 
     def lookup_tag(tag)
