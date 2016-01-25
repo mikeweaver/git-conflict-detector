@@ -10,9 +10,9 @@ describe 'Git' do
     return status_object
   end
 
-  def mock_execute(stdout_andstderr_str, status, execution_count=1)
+  def mock_execute(stdout_andstderr_str, status, execution_count: 1, expected_command: anything)
     # mock the call and repsonse to execute the git command
-    expect(Open3).to receive(:capture2e).exactly(execution_count).times.and_return([stdout_andstderr_str, create_mock_open_status(status)])
+    expect(Open3).to receive(:capture2e).with(expected_command, anything).exactly(execution_count).times.and_return([stdout_andstderr_str, create_mock_open_status(status)])
   end
 
   it 'can be created' do
@@ -53,8 +53,9 @@ describe 'Git' do
       end
 
       it 'can update a previously cloned repository' do
-        expect(@git).to receive(:reset).exactly(2).times
-        mock_execute('Success', 1, 4)
+        expect(@git).to receive(:reset).exactly(1).times
+        expect(@git).to receive(:checkout_branch)
+        mock_execute('Success', 1, execution_count: 3)
         FileUtils.mkpath(@git.repository_path)
         @git.clone_repository('default_branch')
       end
@@ -86,12 +87,24 @@ describe 'Git' do
         mock_execute('Success', 1)
         @git.checkout_branch('branch_name')
       end
+
+      it 'escapes backticks in branch names' do
+        expect(@git).to receive(:reset).exactly(2).times
+        mock_execute('sample output', 1, expected_command: '/usr/bin/git checkout branch_\\`name')
+        @git.checkout_branch('branch_`name')
+      end
     end
 
     describe 'reset' do
       it 'can reset a branch to HEAD of origin' do
-        mock_execute('master', 1)
+        expect(@git).to receive(:get_current_branch_name).and_return('master')
         mock_execute("HEAD is now at beb5e09 Merge branch 'master'", 1)
+        @git.reset
+      end
+
+      it 'escapes backticks in branch names' do
+        expect(@git).to receive(:get_current_branch_name).and_return('branch_`name')
+        mock_execute('sample output', 1, expected_command: '/usr/bin/git reset --hard origin/branch_\\`name')
         @git.reset
       end
     end
@@ -245,6 +258,21 @@ describe 'Git' do
                    '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
                    source_tag_name: 'tag_name')).to eq([true, nil])
       end
+
+      it 'escapes backticks in branch names and commit messages' do
+        expect(@git).to receive(:get_current_branch_name).and_return('target`name')
+        mock_execute(
+            "From github.com:/Invoca/web\n" +
+                " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
+                "Auto-merging test/workers/adwords_detail_worker_test.rb\n",
+            1,
+            expected_command: '/usr/bin/git merge --no-edit -m "commit\\`message" origin/source\\`name')
+
+        @git.merge_branches(
+            'target`name',
+            'source`name',
+            commit_message: 'commit`message')
+      end
     end
 
     describe 'lookup_tag' do
@@ -268,6 +296,14 @@ describe 'Git' do
       it 'can handle an up to date branch' do
         mock_execute('', 1)
         expect(@git.diff_branch_with_ancestor('branch', 'ancestor_branch')).to eq([])
+      end
+
+      it 'escapes backticks in branch names' do
+        mock_execute(
+            "file1.txt\nfile2.txt\n",
+            1,
+            expected_command: '/usr/bin/git diff --name-only $(git merge-base origin/ancestor\\`_branch origin/branch\\`name..origin/branch\\`name')
+        @git.diff_branch_with_ancestor('branch`name', 'ancestor`_branch')
       end
     end
 

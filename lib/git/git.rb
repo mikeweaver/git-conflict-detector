@@ -49,11 +49,11 @@ module Git
         checkout_branch(target_branch_name)
       end
 
-      commit_message_argument = "-m \"#{commit_message}\"" if commit_message
+      commit_message_argument = "-m \"#{Shellwords.escape(commit_message)}\"" if commit_message
       if source_tag_name.present?
-        source = source_tag_name
+        source = Shellwords.escape(source_tag_name)
       else
-        source = "origin/#{source_branch_name}"
+        source = "origin/#{Shellwords.escape(source_branch_name)}"
       end
 
       raw_output = execute("merge --no-edit #{commit_message_argument} #{source}")
@@ -87,8 +87,7 @@ module Git
         execute('clean -f -d')
 
         # move to the master branch
-        execute("checkout #{default_branch_name}")
-        reset
+        checkout_branch(default_branch_name)
 
         # remove branches that no longer exist on origin and update all branches that do
         execute('fetch --prune --all')
@@ -111,12 +110,12 @@ module Git
 
     def checkout_branch(branch_name)
       reset
-      execute("checkout #{branch_name}")
+      execute("checkout #{Shellwords.escape(branch_name)}")
       reset
     end
 
     def reset
-      execute("reset --hard origin/#{get_current_branch_name}")
+      execute("reset --hard origin/#{Shellwords.escape(get_current_branch_name)}")
     end
 
     def lookup_tag(tag)
@@ -125,7 +124,7 @@ module Git
 
     def diff_branch_with_ancestor(branch_name, ancestor_branch_name)
       # gets the merge base of the branch and its ancestor, then gets a list of files changed since the merge base
-      raw_output = execute("diff --name-only $(git merge-base origin/#{ancestor_branch_name} origin/#{branch_name})..origin/#{branch_name}")
+      raw_output = execute("diff --name-only $(git merge-base origin/#{Shellwords.escape(ancestor_branch_name)} origin/#{Shellwords.escape(branch_name)}..origin/#{Shellwords.escape(branch_name)}")
       raw_output.split("\n")
     end
 
