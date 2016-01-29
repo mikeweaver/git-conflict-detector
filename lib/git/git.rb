@@ -124,7 +124,7 @@ module Git
 
     def diff_branch_with_ancestor(branch_name, ancestor_branch_name)
       # gets the merge base of the branch and its ancestor, then gets a list of files changed since the merge base
-      raw_output = execute("diff --name-only $(git merge-base origin/#{Shellwords.escape(ancestor_branch_name)} origin/#{Shellwords.escape(branch_name)}..origin/#{Shellwords.escape(branch_name)}")
+      raw_output = execute("diff --name-only $(git merge-base origin/#{Shellwords.escape(ancestor_branch_name)} origin/#{Shellwords.escape(branch_name)})..origin/#{Shellwords.escape(branch_name)}")
       raw_output.split("\n")
     end
 

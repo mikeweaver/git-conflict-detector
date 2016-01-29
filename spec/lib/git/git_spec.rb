@@ -302,7 +302,7 @@ describe 'Git' do
         mock_execute(
             "file1.txt\nfile2.txt\n",
             1,
-            expected_command: '/usr/bin/git diff --name-only $(git merge-base origin/ancestor\\`_branch origin/branch\\`name..origin/branch\\`name')
+            expected_command: '/usr/bin/git diff --name-only $(git merge-base origin/ancestor\\`_branch origin/branch\\`name)..origin/branch\\`name')
         @git.diff_branch_with_ancestor('branch`name', 'ancestor`_branch')
       end
     end
