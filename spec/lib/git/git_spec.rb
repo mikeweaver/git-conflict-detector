@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Git' do
+describe 'Git::Git' do
   include FakeFS::SpecHelpers
 
   def create_mock_open_status(status)

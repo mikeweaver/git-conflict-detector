@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'GitBranch' do
+describe 'Git::GitBranch' do
 
   it 'can be created' do
     last_modified_date = Time.now
@@ -41,5 +41,10 @@ describe 'GitBranch' do
 
     branch_g = Git::GitBranch.new('repository_name', 'name', last_modified_date , 'author_name', 'different@email.com')
     expect(branch_a).not_to eq(branch_g)
+  end
+
+  it 'returns its name when converted to string' do
+    branch = Git::GitBranch.new('repository_name', 'name', Time.now, 'author_name', 'author@email.com')
+    expect(branch.to_s).to eq('name')
   end
 end

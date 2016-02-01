@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'GitError' do
+describe 'Git::GitError' do
 
   it 'can be raised' do
     last_modified_date = Time.now

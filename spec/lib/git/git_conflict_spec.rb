@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'GitConflict' do
+describe 'Git::GitConflict' do
 
   it 'can be created' do
     conflict = Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', ['file1', 'file2'])

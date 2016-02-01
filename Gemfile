@@ -41,6 +41,7 @@ group :development, :test do
   gem 'timecop'
   gem 'coveralls', require: false
   gem 'fakefs', require: 'fakefs/safe'
+  gem 'mutant-rspec', require: false
 end
 
 group :development do
