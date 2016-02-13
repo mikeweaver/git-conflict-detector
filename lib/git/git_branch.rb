@@ -11,15 +11,15 @@ module Git
     end
 
     def to_s
-      @name
+      name
     end
 
     def =~(rhs)
-      @name =~ rhs
+      name =~ rhs
     end
 
     def ==(rhs)
-      @repository_name == rhs.repository_name && @name == rhs.name && @last_modified_date == rhs.last_modified_date && @author_email == rhs.author_email && @author_name == rhs.author_name
+      repository_name == rhs.repository_name && name == rhs.name && last_modified_date == rhs.last_modified_date && author_email == rhs.author_email && author_name == rhs.author_name
     end
   end
 end
