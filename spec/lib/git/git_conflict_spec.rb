@@ -12,8 +12,8 @@ describe 'Git::GitConflict' do
   end
 
   it 'cannot be created without conflicting files' do
-    expect { Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', nil) }.to raise_exception(ArgumentError)
-    expect { Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', []) }.to raise_exception(ArgumentError)
+    expect { Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', nil) }.to raise_exception(ArgumentError, 'Must specify conflicting file list')
+    expect { Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', []) }.to raise_exception(ArgumentError, 'Must specify conflicting file list')
   end
 
   it 'implements equality operator' do
