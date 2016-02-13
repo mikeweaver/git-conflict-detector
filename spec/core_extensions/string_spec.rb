@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'String' do
+describe 'CoreExtensions::String' do
 
   before(:all) do
     String.include CoreExtensions::String

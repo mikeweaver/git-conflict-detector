@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Array' do
+describe 'CoreExtensions::Array' do
 
   before(:all) do
     Array.include CoreExtensions::Array
