@@ -49,7 +49,7 @@ module Git
         checkout_branch(target_branch_name)
       end
 
-      commit_message_argument = "-m \"#{Shellwords.escape(commit_message)}\"" if commit_message
+      commit_message_argument = "-m \"#{commit_message.escape_double_quotes}\"" if commit_message
       if source_tag_name.present?
         source = Shellwords.escape(source_tag_name)
       else

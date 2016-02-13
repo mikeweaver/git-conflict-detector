@@ -259,19 +259,19 @@ describe 'Git::Git' do
                    source_tag_name: 'tag_name')).to eq([true, nil])
       end
 
-      it 'escapes backticks in branch names and commit messages' do
+      it 'escapes backticks and spaces in branch names but not commit messages' do
         expect(@git).to receive(:get_current_branch_name).and_return('target`name')
         mock_execute(
             "From github.com:/Invoca/web\n" +
                 " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
                 "Auto-merging test/workers/adwords_detail_worker_test.rb\n",
             1,
-            expected_command: '/usr/bin/git merge --no-edit -m "commit\\`message" origin/source\\`name')
+            expected_command: '/usr/bin/git merge --no-edit -m "commit `message" origin/source\\`name\ space')
 
         @git.merge_branches(
             'target`name',
-            'source`name',
-            commit_message: 'commit`message')
+            'source`name space',
+            commit_message: 'commit `message')
       end
     end
 
