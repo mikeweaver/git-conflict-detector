@@ -8,6 +8,7 @@ module CoreExtensions
         else
           Regexp.new(regex_string_or_object)
         end
+        # compare with nil to force a boolean return type
         (object =~ regex) != nil
       end
     end
@@ -19,7 +20,7 @@ module CoreExtensions
         end
       else
         reject do |object|
-          (object =~ regex_or_regex_array) != nil
+          object =~ regex_or_regex_array
         end
       end
     end
@@ -31,7 +32,7 @@ module CoreExtensions
         end
       else
         select do |object|
-          (object =~ regex_or_regex_array) != nil
+          object =~ regex_or_regex_array
         end
       end
     end
