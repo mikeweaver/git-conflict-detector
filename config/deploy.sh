@@ -38,7 +38,7 @@ SCRIPT_DIRECTORY=`dirname $0`
 STAGING_PATH=$(cd "$SCRIPT_DIRECTORY/.." ; pwd)
 
 echo "Stopping services"
-#bundle exec bin/delayed_job stop
+bundle exec bin/delayed_job stop
 sudo service nginx stop
 sudo service unicorn stop
 
