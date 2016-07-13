@@ -11,4 +11,14 @@ Rails.application.routes.draw do
   post 'users/:id/unsubscribe/create' => 'users#create_unsubscribe'
   
   resources :suppressions, except: [:show, :edit, :update, :destroy]
+
+  scope '/api' do
+    scope '/v1' do
+      scope '/callbacks' do
+        scope '/github' do
+            post '/push' => 'api/callbacks/github#push'
+        end
+      end
+    end
+  end
 end
