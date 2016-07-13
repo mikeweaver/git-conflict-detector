@@ -5,7 +5,7 @@ describe Api::Callbacks::GithubController, type: :controller do
 
   describe "POST #push" do
     it "returns success if valid JSON" do
-      post :push, {'valid' => 'json'}.to_json
+      post :push, File.read(Rails.root.join('spec/fixtures/github_push.json'))
       expect(response).to have_http_status(200)
     end
 
