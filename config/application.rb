@@ -45,5 +45,7 @@ module GitConflictDetector
       # make the cache folder
       FileUtils.mkdir_p(GlobalSettings.cache_directory)
     end
+
+    config.active_job.queue_adapter = :delayed_job
   end
 end

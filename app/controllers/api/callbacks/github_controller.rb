@@ -5,14 +5,15 @@ module Api
       before_filter :parse_request
 
       def push
-        puts @json
+        Rails.logger.info("Received Github push callback. Adding to delayed job queue. Current queue depth: #{Delayed::Job.count}")
+        GithubPushHookHandler.new(@payload).handle!
         render(nothing: true, status: :ok)
       end
 
       private
 
       def parse_request
-        @json = JSON.parse(request.body.read)
+        @payload = JSON.parse(request.body.read)
       rescue
         render(text: 'Invalid JSON', status: :bad_request)
       end

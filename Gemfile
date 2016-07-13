@@ -57,4 +57,6 @@ group :production do
 end
 
 gem 'hobo_fields'
+gem 'delayed_job_active_record'
+gem 'daemons'
 

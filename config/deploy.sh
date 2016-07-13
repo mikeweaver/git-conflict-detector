@@ -38,6 +38,7 @@ SCRIPT_DIRECTORY=`dirname $0`
 STAGING_PATH=$(cd "$SCRIPT_DIRECTORY/.." ; pwd)
 
 echo "Stopping services"
+bundle exec bin/delayed_job stop
 sudo service nginx stop
 sudo service unicorn stop
 
@@ -63,5 +64,6 @@ echo "Starting services"
 mkdir -p $DEPLOY_PATH/shared/pids $DEPLOY_PATH/shared/sockets
 sudo service nginx start
 sudo service unicorn start
+bundle exec bin/delayed_job start
 
 echo "Complete"
