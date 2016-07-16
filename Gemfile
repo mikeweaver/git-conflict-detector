@@ -42,6 +42,7 @@ group :development, :test do
   gem 'coveralls', require: false
   gem 'fakefs', require: 'fakefs/safe'
   gem 'mutant-rspec', require: false
+  gem 'webmock'
 end
 
 group :development do

@@ -11,6 +11,7 @@ require 'database_cleaner'
 require 'rake'
 require 'rspec/rails'
 require 'fakefs/spec_helpers'
+require 'webmock/rspec'
 
 GitConflictDetector::Application.load_tasks
 
