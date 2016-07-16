@@ -1,0 +1,48 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          delayed_job
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts the delayed_job workers
+# Description:       starts delayed_job workers using bundle exec bin/delayed_job start
+### END INIT INFO
+
+set -e
+
+USAGE="Usage: $0 <start|stop|restart>"
+
+# app settings
+USER="ubuntu"
+APP_NAME="delayed-job"
+APP_ROOT="/home/$USER/deploy/git-conflict-detector/current"
+ENV="production"
+
+# environment settings
+PATH="/home/$USER/.rbenv/shims:/home/$USER/.rbenv/bin:$PATH"
+CMD="cd $APP_ROOT && RAILS_ENV=$ENV bundle exec bin/delayed_job"
+
+# make sure the app exists
+cd $APP_ROOT || exit 1
+
+case $1 in
+  start)
+    echo "Starting $APP_NAME"
+    su - $USER -c "$CMD start"
+    ;;
+  stop)
+    echo "Stopping $APP_NAME"
+    su - $USER -c "$CMD stop"
+    ;;
+  restart|reload|upgrade)
+    echo "Stopping $APP_NAME"
+    su - $USER -c "$CMD stop"
+    echo "Starting $APP_NAME"
+    su - $USER -c "$CMD start"
+    ;;
+  *)
+    echo >&2 $USAGE
+    exit 1
+    ;;
+esac
