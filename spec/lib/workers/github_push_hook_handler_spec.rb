@@ -17,6 +17,12 @@ describe 'GithubPushHookHandler' do
     expect(Github::Api::Status).to receive(:new).and_return(api)
   end
 
+  def mock_failed_status_request
+    api = instance_double(Github::Api::Status)
+    expect(api).to receive(:set_status).and_raise(Net::HTTPServerException.new(nil, nil))
+    expect(Github::Api::Status).to receive(:new).and_return(api)
+  end
+
   it 'can create be constructed from github push hook payload data' do
     handler = GithubPushHookHandler.new(load_payload)
     expect(handler).not_to be_nil
@@ -45,5 +51,19 @@ describe 'GithubPushHookHandler' do
 
     # process the job
     expect(Delayed::Worker.new.work_off).to eq([1, 0])
+  end
+
+  it 'retries on failure' do
+    mock_failed_status_request
+    GithubPushHookHandler.new(load_payload).process!
+
+    # a job should be queued
+    expect(Delayed::Job.count).to eq(1)
+
+    # process the job, it will fail
+    expect(Delayed::Worker.new.work_off).to eq([0, 1])
+
+    # the job should still be queued
+    expect(Delayed::Job.count).to eq(1)
   end
 end
