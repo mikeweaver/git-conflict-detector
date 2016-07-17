@@ -1,5 +1,5 @@
 {
-  "ref": "refs/heads/1606/sw/STORY-4163_facebook_network_flag_validation",
+  "ref": "refs/heads/test/branch_name",
   "before": "07a9dba2bd854314be6f647ef9a4b29ae8480e63",
   "after": "6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25",
   "created": false,
@@ -12,7 +12,7 @@
       "id": "6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25",
       "tree_id": "a31d4bf04382954bd2f058a2fcc471870abc46e9",
       "distinct": true,
-      "message": " STORY-4163 facebook network flag validation: refactor set connected app function to only exist in base class",
+      "message": "The commit message",
       "timestamp": "2016-07-15T13:33:45-07:00",
       "url": "https://github.com/OwnerName/reponame/commit/6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25",
       "author": {
@@ -43,7 +43,7 @@
     "id": "6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25",
     "tree_id": "a31d4bf04382954bd2f058a2fcc471870abc46e9",
     "distinct": true,
-    "message": " STORY-4163 facebook network flag validation: refactor set connected app function to only exist in base class",
+    "message": "The commit message",
     "timestamp": "2016-07-15T13:33:45-07:00",
     "url": "https://github.com/OwnerName/reponame/commit/6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25",
     "author": {
