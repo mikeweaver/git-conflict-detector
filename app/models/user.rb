@@ -12,11 +12,7 @@ class User < ActiveRecord::Base
   has_many :notification_suppressions, dependent: :destroy
 
   def self.create_from_git_data!(branch_data)
-    user = User.where(name: branch_data.author_name, email: branch_data.author_email).first_or_initialize
-    user.name = branch_data.author_name
-    user.email = branch_data.author_email
-    user.save!
-    user
+    User.where(name: branch_data.author_name, email: branch_data.author_email).first_or_create!
   end
 
   def self.users_with_emails(email_filter_list)
