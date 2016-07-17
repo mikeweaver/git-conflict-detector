@@ -16,14 +16,14 @@
       "timestamp": "2016-07-15T13:33:45-07:00",
       "url": "https://github.com/OwnerName/reponame/commit/6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25",
       "author": {
-        "name": "Alec Jacobs",
-        "email": "ajacobs@invoca.com",
-        "username": "alecjacobs5401"
+        "name": "Author Name",
+        "email": "author@email.com",
+        "username": "author_use_name"
       },
       "committer": {
-        "name": "Alec Jacobs",
-        "email": "ajacobs@invoca.com",
-        "username": "alecjacobs5401"
+        "name": "Committer Name",
+        "email": "comitter@email.com",
+        "username": "committer_user_name"
       },
       "added": [
 
@@ -47,14 +47,14 @@
     "timestamp": "2016-07-15T13:33:45-07:00",
     "url": "https://github.com/OwnerName/reponame/commit/6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25",
     "author": {
-      "name": "Alec Jacobs",
-      "email": "ajacobs@invoca.com",
-      "username": "alecjacobs5401"
+      "name": "Author Name",
+      "email": "author@email.com",
+      "username": "author_use_name"
     },
     "committer": {
-      "name": "Alec Jacobs",
-      "email": "ajacobs@invoca.com",
-      "username": "alecjacobs5401"
+      "name": "Committer Name",
+      "email": "comitter@email.com",
+      "username": "committer_user_name"
     },
     "added": [
 
@@ -146,8 +146,8 @@
     "organization": "OwnerName"
   },
   "pusher": {
-    "name": "alecjacobs5401",
-    "email": "ajacobs@invoca.com"
+    "name": "pusher_user_name",
+    "email": "pusher@email.com"
   },
   "organization": {
     "login": "OwnerName",
