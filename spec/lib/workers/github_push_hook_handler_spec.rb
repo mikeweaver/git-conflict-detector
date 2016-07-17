@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'GithubPushHookHandler' do
-  def load_payload
+  def payload
     JSON.parse(File.read(Rails.root.join('spec/fixtures/github_push_payload.json')))
   end
 
@@ -24,13 +24,13 @@ describe 'GithubPushHookHandler' do
   end
 
   it 'can create be constructed from github push hook payload data' do
-    handler = GithubPushHookHandler.new(load_payload)
+    handler = GithubPushHookHandler.new(payload)
     expect(handler).not_to be_nil
   end
 
   it 'sets sha status when queued' do
     mock_status_request(Github::Api::Status::STATE_PENDING, GithubPushHookHandler::PENDING_DESCRIPTION)
-    GithubPushHookHandler.new(load_payload).queue!
+    GithubPushHookHandler.new(payload).queue!
 
     # a job should be queued
     expect(Delayed::Job.count).to eq(1)
@@ -44,7 +44,7 @@ describe 'GithubPushHookHandler' do
 
   it 'sets sha status after processing' do
     mock_status_request(Github::Api::Status::STATE_SUCCESS, GithubPushHookHandler::SUCCESS_DESCRIPTION)
-    GithubPushHookHandler.new(load_payload).process!
+    GithubPushHookHandler.new(payload).process!
 
     # a job should be queued
     expect(Delayed::Job.count).to eq(1)
@@ -55,7 +55,7 @@ describe 'GithubPushHookHandler' do
 
   it 'retries on failure' do
     mock_failed_status_request
-    GithubPushHookHandler.new(load_payload).process!
+    GithubPushHookHandler.new(payload).process!
 
     # a job should be queued
     expect(Delayed::Job.count).to eq(1)
