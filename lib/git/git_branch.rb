@@ -21,5 +21,9 @@ module Git
     def ==(rhs)
       repository_name == rhs.repository_name && name == rhs.name && last_modified_date == rhs.last_modified_date && author_email == rhs.author_email && author_name == rhs.author_name
     end
+
+    def self.name_from_ref(ref)
+      ref.gsub(/^refs\/heads\//, '')
+    end
   end
 end

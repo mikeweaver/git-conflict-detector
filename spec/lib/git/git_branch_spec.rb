@@ -47,4 +47,9 @@ describe 'Git::GitBranch' do
     branch = Git::GitBranch.new('repository_name', 'name', Time.now, 'author_name', 'author@email.com')
     expect(branch.to_s).to eq('name')
   end
+
+  it 'parses branch name from ref' do
+    expect(Git::GitBranch.name_from_ref('refs/heads/branch_name')).to eq('branch_name')
+    expect(Git::GitBranch.name_from_ref('branch_name')).to eq('branch_name')
+  end
 end
