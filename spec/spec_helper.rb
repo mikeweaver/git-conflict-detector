@@ -61,6 +61,24 @@ def create_test_branches(repository_name: 'repository_name', author_name: 'Autho
   branches
 end
 
+def create_test_commit(sha: '1234567890123456789012345678901234567890', message: 'Commit message', author_name: 'Author Name', author_email: 'author@email.com')
+  commit = Commit.create(sha: sha, message: message)
+  commit.author = User.first_or_create!(name: author_name, email: author_email)
+  commit.save!
+end
+
+def create_test_commits(author_name: 'Author Name', author_email: 'author@email.com', count: 2)
+  commits = []
+  (0..count - 1).each do |i|
+    commits << create_test_commit(
+        sha: "#{i+1}".ljust(40, '0'),
+        message: "Commit message #{i+1}",
+        author_name: author_name,
+        author_email: author_email)
+  end
+  commits
+end
+
 def create_test_conflict(branch_a, branch_b, tested_at: Time.now, file_list: ['test/file.rb'])
   Conflict.create!(branch_a, branch_b, file_list, tested_at)
 end

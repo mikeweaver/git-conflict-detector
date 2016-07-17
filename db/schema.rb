@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160713043725) do
+ActiveRecord::Schema.define(version: 20160717053600) do
 
   create_table "branches", force: :cascade do |t|
     t.datetime "git_tested_at"
@@ -25,6 +25,21 @@ ActiveRecord::Schema.define(version: 20160713043725) do
 
   add_index "branches", ["author_id"], name: "index_branches_on_author_id"
   add_index "branches", ["repository_id"], name: "index_branches_on_repository_id"
+
+  create_table "commits", force: :cascade do |t|
+    t.text     "sha",        limit: 40,   null: false
+    t.text     "message",    limit: 1024, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "author_id"
+  end
+
+  add_index "commits", ["author_id"], name: "index_commits_on_author_id"
+
+  create_table "commits_and_pushes", id: false, force: :cascade do |t|
+    t.integer "commit_id"
+    t.integer "push_id"
+  end
 
   create_table "conflicts", force: :cascade do |t|
     t.boolean  "resolved",                 default: false, null: false
@@ -80,6 +95,17 @@ ActiveRecord::Schema.define(version: 20160713043725) do
   add_index "notification_suppressions", ["conflict_id"], name: "index_notification_suppressions_on_conflict_id"
   add_index "notification_suppressions", ["type"], name: "index_notification_suppressions_on_type"
   add_index "notification_suppressions", ["user_id"], name: "index_notification_suppressions_on_user_id"
+
+  create_table "pushes", force: :cascade do |t|
+    t.string   "status",         limit: 32
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "head_commit_id"
+    t.integer  "branch_id"
+  end
+
+  add_index "pushes", ["branch_id"], name: "index_pushes_on_branch_id"
+  add_index "pushes", ["head_commit_id"], name: "index_pushes_on_head_commit_id"
 
   create_table "repositories", force: :cascade do |t|
     t.text     "name",       limit: 1024, null: false

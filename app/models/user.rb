@@ -9,6 +9,7 @@ class User < ActiveRecord::Base
   validates :name, :uniqueness => {:scope => :email}
   
   has_many :branches, foreign_key: "author_id"
+  has_many :commits, foreign_key: "author_id"
   has_many :notification_suppressions, dependent: :destroy
 
   def self.create_from_git_data!(branch_data)

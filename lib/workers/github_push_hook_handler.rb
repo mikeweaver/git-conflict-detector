@@ -20,6 +20,15 @@ class GithubPushHookHandler
 
   def process!
     Rails.logger.info('Processing request')
+    push = Push.create_from_github_data!(@payload)
+    # clone repo
+    # diff with master to get list of commits
+    # save list of orphaned commits
+    # lookup tickets in JIRA
+    # save tickets
+    # compute status
+    push.status = Github::Api::Status::STATE_SUCCESS
+    push.save!
     set_status_for_repo(Github::Api::Status::STATE_SUCCESS, SUCCESS_DESCRIPTION)
   end
   handle_asynchronously(:process!, queue: PROCESSING_QUEUE)

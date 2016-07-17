@@ -25,6 +25,12 @@ describe 'User' do
     expect(user.branches.size).to eq(2)
   end
 
+  it 'can have multiple commits related to it' do
+    create_test_commits(author_email: 'author@email.com')
+    user = User.where(email: 'author@email.com').first
+    expect(user.commits.size).to eq(2)
+  end
+
   it 'will not allow duplicate name/email combinations' do
     user1 = User.create(name: 'Author Name', email: 'author@email.com')
     user1.save!

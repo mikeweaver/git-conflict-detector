@@ -12,6 +12,7 @@ class Branch < ActiveRecord::Base
   belongs_to :repository, inverse_of: :branches, required: true
   has_many :conflicts, foreign_key: :branch_a_id, dependent: :destroy
   has_many :branch_notification_suppressions, dependent: :destroy
+  has_many :pushes, class_name: Push, dependent: :destroy
 
   def self.create_from_git_data!(branch_data)
     repository = Repository.create!(branch_data.repository_name)
