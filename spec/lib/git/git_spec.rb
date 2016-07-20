@@ -287,15 +287,15 @@ describe 'Git::Git' do
       end
     end
 
-    describe 'diff_branch_with_ancestor' do
+    describe 'file_diff_branch_with_ancestor' do
       it 'can diff the branch' do
         mock_execute("file1.txt\nfile2.txt\n", 1)
-        expect(@git.diff_branch_with_ancestor('branch', 'ancestor_branch')).to eq(['file1.txt', 'file2.txt'])
+        expect(@git.file_diff_branch_with_ancestor('branch', 'ancestor_branch')).to eq(['file1.txt', 'file2.txt'])
       end
 
       it 'can handle an up to date branch' do
         mock_execute('', 1)
-        expect(@git.diff_branch_with_ancestor('branch', 'ancestor_branch')).to eq([])
+        expect(@git.file_diff_branch_with_ancestor('branch', 'ancestor_branch')).to eq([])
       end
 
       it 'escapes backticks in branch names' do
@@ -303,7 +303,7 @@ describe 'Git::Git' do
             "file1.txt\nfile2.txt\n",
             1,
             expected_command: '/usr/bin/git diff --name-only $(git merge-base origin/ancestor\\`_branch origin/branch\\`name)..origin/branch\\`name')
-        @git.diff_branch_with_ancestor('branch`name', 'ancestor`_branch')
+        @git.file_diff_branch_with_ancestor('branch`name', 'ancestor`_branch')
       end
     end
 
@@ -331,9 +331,6 @@ describe 'Git::Git' do
         @git.commits_diff_branch_with_ancestor('branch`name', 'ancestor`_branch')
       end
     end
-
-
-
 
     describe 'get_current_branch_name' do
       it 'can get the branch name' do

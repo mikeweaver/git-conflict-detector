@@ -88,8 +88,8 @@ class ConflictDetector < BranchManager
   end
 
   def get_inherited_conflicting_files(conflict)
-    files_changed_on_branch_a = @git.diff_branch_with_ancestor(conflict.branch_a, @settings.default_branch_name)
-    files_changed_on_branch_b = @git.diff_branch_with_ancestor(conflict.branch_b, @settings.default_branch_name)
+    files_changed_on_branch_a = @git.file_diff_branch_with_ancestor(conflict.branch_a, @settings.default_branch_name)
+    files_changed_on_branch_b = @git.file_diff_branch_with_ancestor(conflict.branch_b, @settings.default_branch_name)
     # Only files that were modified in both branches are conflicts, we should ignore all the others.
     # This is because files that were only modified in one branch, are either not conflicting,
     # or were inherited (and are showing up in the branch diff for some unknown reason)

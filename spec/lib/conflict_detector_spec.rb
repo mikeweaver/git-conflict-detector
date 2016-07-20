@@ -20,7 +20,7 @@ describe 'ConflictDetector' do
     start_time = Time.now
     expect_any_instance_of(Git::Git).to receive(:clone_repository)
     expect_any_instance_of(Git::Git).to receive(:get_branch_list) { create_test_git_branches }
-    expect_any_instance_of(Git::Git).to receive(:diff_branch_with_ancestor).exactly(2).times.and_return(['file1', 'file2'])
+    expect_any_instance_of(Git::Git).to receive(:file_diff_branch_with_ancestor).exactly(2).times.and_return(['file1', 'file2'])
     conflict_detector = ConflictDetector.new(@settings)
     expect(conflict_detector).to receive(:get_conflicts ).exactly(3).times.and_return(
       [create_test_git_conflict(branch_a_name: 'path/branch0', branch_b_name: 'path/branch1')], [], [])
@@ -121,7 +121,7 @@ describe 'ConflictDetector' do
 
     context 'with an empty "ignore files" list' do
       it 'should contain inherited conflicting files if present' do
-        allow_any_instance_of(Git::Git).to receive(:diff_branch_with_ancestor).and_return(
+        allow_any_instance_of(Git::Git).to receive(:file_diff_branch_with_ancestor).and_return(
                                                ['modified_on_branch_a_and_b', 'modified_on_branch_a'],
                                                ['modified_on_branch_a_and_b', 'modified_on_branch_b'])
 
@@ -132,7 +132,7 @@ describe 'ConflictDetector' do
       end
 
       it 'should be empty when there are no inherited conflicting files' do
-        allow_any_instance_of(Git::Git).to receive(:diff_branch_with_ancestor).and_return(
+        allow_any_instance_of(Git::Git).to receive(:file_diff_branch_with_ancestor).and_return(
                                                ['modified_on_branch_a_and_b_1', 'modified_on_branch_a_and_b_2'],
                                                ['modified_on_branch_a_and_b_1', 'modified_on_branch_a_and_b_2'])
 
