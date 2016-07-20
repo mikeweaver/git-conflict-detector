@@ -128,6 +128,14 @@ module Git
       raw_output.split("\n")
     end
 
+    def commits_diff_branch_with_ancestor(branch_name, ancestor_branch_name)
+      raw_output = execute("log --format=$'%H\t%an\t%ae\t%aI\t%s' --no-color origin/#{Shellwords.escape(ancestor_branch_name)}..origin/#{Shellwords.escape(branch_name)}")
+      raw_output.split("\n").map do |row|
+        commit_data = row.split("\t")
+        GitCommit.new(commit_data[0], commit_data[4], DateTime::parse(commit_data[3]), commit_data[1], commit_data[2])
+      end
+    end
+
     def get_current_branch_name
       execute('rev-parse --abbrev-ref HEAD').strip
     end
