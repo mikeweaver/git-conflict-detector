@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe 'JIRA::ClientWrapper' do
 
+  def jira_issue_query_response
+    @jira_issue_query_response ||= JSON.parse(File.read(Rails.root.join('spec/fixtures/jira_issue_response.json')))
+  end
+
   it 'can be created' do
     settings = {
         site: 'https://www.jira.com',
@@ -26,7 +30,7 @@ describe 'JIRA::ClientWrapper' do
     end
 
     it 'can find an issue' do
-      stub_request(:get, /.*/).to_return(status: 200, body: 'tbd')
+      stub_request(:get, /.*/).to_return(status: 200, body: jira_issue_query_response.to_json)
 
       expect(@client.find_issue('ISSUE-1234')).to_not be_nil
     end

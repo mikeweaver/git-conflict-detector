@@ -21,9 +21,7 @@ module JIRA
     def find_issue(key)
       self.Issue.find(key)
     rescue JIRA::HTTPError => ex
-      puts ex.response
-      puts '****'
-      if ex.message == 'Not Found'
+      if ex.response.code == "404"
         nil
       else
         raise
