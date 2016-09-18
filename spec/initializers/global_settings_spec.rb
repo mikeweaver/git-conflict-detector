@@ -32,6 +32,7 @@ describe 'GlobalSettings' do
               DEFAULT_CONFLICT_DETECTION_SETTINGS.merge({
                   repository_name: 'Organization/repository',
                   default_branch_name: 'master'}))}
+      expected_settings.jira = OpenStruct.new(DEFAULT_JIRA_SETTINGS)
 
       expect(load_global_settings).to eq(expected_settings)
     end
@@ -72,6 +73,7 @@ describe 'GlobalSettings' do
                   repository_name: 'Organization/repository',
                   default_branch_name: 'master',
                   source_branch_name: 'source'}))}
+      expected_settings.jira = OpenStruct.new(DEFAULT_JIRA_SETTINGS)
 
       expect(load_global_settings).to eq(expected_settings)
     end
@@ -106,4 +108,6 @@ describe 'GlobalSettings' do
       expect { load_global_settings }.to raise_exception(InvalidSettings)
     end
   end
+
+  # TODO Add JIRA settings tests
 end
