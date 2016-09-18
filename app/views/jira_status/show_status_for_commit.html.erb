@@ -1,0 +1,111 @@
+<%= form_for :suppression, url: suppressions_path do |f| %>
+
+<div class="container">
+  <div class="alert alert-danger">
+    Warning: Branch is not ready to deploy.<br>
+    <ul>
+      <li>1 JIRA ticket is in the wrong state</li>
+      <li>1 JIRA ticket is ready to deploy, but has no commits</li>
+      <li>1 Commit has no JIRA ticket</li>
+    </ul>
+  </div>
+  <h4>2 JIRA tickets in this branch</h4>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>Ignore</th>
+      <th>Key</th>
+      <th>Last SHA</th>
+      <th>Assignee</th>
+      <th>Status</th>
+      <th>Deploy Date</th>
+      <th>Summary</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><input type="checkbox"></td>
+      <td><a href="#">STORY-4127</a></td>
+      <td><a href="#">aaf2ef4</a></td>
+      <td>Ion Biziiac</td>
+      <td>Ready to Deploy</td>
+      <td>11/27/2016</td>
+      <td>Visual Player Volume Visualization</td>
+    </tr>
+    <tr class="danger">
+      <td><input type="checkbox"></td>
+      <td><a href="#">STORY-4185</a></td>
+      <td><a href="#">bbf2ef4</a></td>
+      <td>Dave Lamo</td>
+      <td>In Progress</td>
+      <td>11/29/2016</td>
+      <td>The whatamahoozit</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h4>2 Commits with no JIRA, or invalid, ticket number</h4>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>Ignore</th>
+      <th>SHA</th>
+      <th>Author Name</th>
+      <th>Commit Message</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="danger">
+      <td><input type="checkbox"></td>
+      <td><a href="#">aaf2ef4</a></td>
+      <td>deeptidjjain</td>
+      <td>Changing the email account to the correct one.</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" checked></td>
+      <td><a href="#">f826709</a></td>
+      <td>gkent</td>
+      <td>1609/qa/QA-132_add_automation_networks_to_sample_data: add missed network flag to sample data.</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h4>JIRA tickets ready to deploy, but not in this branch</h4>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>Ignore</th>
+      <th>Key</th>
+      <th>Last SHA</th>
+      <th>Assignee</th>
+      <th>Status</th>
+      <th>Deploy Date</th>
+      <th>Summary</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><input type="checkbox" checked></td>
+      <td><a href="#">STORY-4533</a></td>
+      <td><a href="#">aaf2ef4</a></td>
+      <td>Yo Biziiac</td>
+      <td>Ready to Deploy</td>
+      <td>11/27/2016</td>
+      <td>Description for ya</td>
+    </tr>
+    <tr class="danger">
+      <td><input type="checkbox"></td>
+      <td><a href="#">STORY-9999</a></td>
+      <td><a href="#">bbf2ef4</a></td>
+      <td>Dave Lamo</td>
+      <td>Ready to Deploy</td>
+      <td>11/30/2016</td>
+      <td>The thingermahowzer</td>
+    </tr>
+    </tbody>
+  </table>
+  Save Ignore and Update Status Button --
+  Refresh JIRA Data Button
+  Copy/Paste deploy list
+</div>
+<% end %>

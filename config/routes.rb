@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   
   resources :suppressions, except: [:show, :edit, :update, :destroy]
 
+  get 'jira/status/commit/:sha' => 'jira_status#show_status_for_commit'
+
   scope '/api' do
     scope '/v1' do
       scope '/callbacks' do
