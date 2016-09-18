@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'Commit' do
   def payload
-    Github::Api::PushHookPayload.new(JSON.parse(File.read(Rails.root.join('spec/fixtures/github_push_payload.json'))))
+    Github::Api::PushHookPayload.new(load_json_fixture('github_push_payload'))
   end
 
   it 'can create be constructed from github data' do
@@ -40,7 +40,7 @@ describe 'Commit' do
   end
 
   it 'rejects shas that are all zeros' do
-    payload_hash = JSON.parse(File.read(Rails.root.join('spec/fixtures/github_push_payload.json')))
+    payload_hash = load_json_fixture('github_push_payload')
     payload_hash['head_commit']['id'] = '0' * 40
 
     expect { Commit.create_from_github_data!(Github::Api::PushHookPayload.new(payload_hash)) }.to raise_exception(ActiveRecord::RecordInvalid)

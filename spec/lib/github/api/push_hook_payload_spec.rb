@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'PushHookPayload' do
   context 'with payload' do
     before do
-      @payload = Github::Api::PushHookPayload.new(JSON.parse(File.read(Rails.root.join('spec/fixtures/github_push_payload.json'))))
+      @payload = Github::Api::PushHookPayload.new(load_json_fixture('github_push_payload'))
     end
 
     it 'has a sha' do

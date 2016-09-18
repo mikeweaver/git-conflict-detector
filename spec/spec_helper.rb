@@ -31,6 +31,14 @@ RSpec.configure do |config|
 
 end
 
+def load_json_fixture(fixture_name)
+  JSON.parse(load_fixture_file("#{fixture_name}.json"))
+end
+
+def load_fixture_file(fixture_file_name)
+  File.read(Rails.root.join("spec/fixtures/#{fixture_file_name}"))
+end
+
 def create_test_git_branch(repository_name: 'repository_name', name: 'path/branch', last_modified_date: Time.now, author_name: 'Author Name', author_email: 'author@email.com')
   Git::GitBranch.new(repository_name, name, last_modified_date, author_name, author_email)
 end

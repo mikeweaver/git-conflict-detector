@@ -2,8 +2,7 @@ require 'spec_helper'
 
 describe 'User' do
   def jira_user
-    jira_issue_json = JSON.parse(File.read(Rails.root.join('spec/fixtures/jira_issue_response.json')))
-    @jira_user ||= JIRA::Resource::UserFactory.new(nil).build(jira_issue_json['fields']['assignee'])
+    @jira_user ||= JIRA::Resource::UserFactory.new(nil).build(load_json_fixture('jira_issue_response')['fields']['assignee'])
   end
 
   it 'can create be constructed from git data' do

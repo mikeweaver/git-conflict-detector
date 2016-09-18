@@ -2,11 +2,11 @@ require 'spec_helper'
 
 describe 'GithubPushHookHandler' do
   def payload
-    @payload ||= JSON.parse(File.read(Rails.root.join('spec/fixtures/github_push_payload.json')))
+    @payload ||= load_json_fixture('github_push_payload')
   end
 
   def jira_issue_query_response
-    @jira_issue_query_response ||= JSON.parse(File.read(Rails.root.join('spec/fixtures/jira_issue_response.json')))
+    @jira_issue_query_response ||= load_json_fixture('jira_issue_response')
   end
 
   def mock_status_request(state, description)
