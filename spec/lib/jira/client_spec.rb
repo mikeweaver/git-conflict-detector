@@ -11,7 +11,8 @@ describe 'JIRA::ClientWrapper' do
         site: 'https://www.jira.com',
         consumer_key: 'fake_key',
         access_token: 'fake_access_token',
-        access_key: 'fake_access_key'
+        access_key: 'fake_access_key',
+        private_key_file: Rails.root.join('spec/fixtures/rsakey.pem')
     }
     client = JIRA::ClientWrapper.new(OpenStruct.new(settings))
     expect(client).to_not be_nil
@@ -24,7 +25,8 @@ describe 'JIRA::ClientWrapper' do
           site: 'https://www.jira.com',
           consumer_key: 'fake_key',
           access_token: 'fake_access_token',
-          access_key: 'fake_access_key'
+          access_key: 'fake_access_key',
+          private_key_file: Rails.root.join('spec/fixtures/rsakey.pem')
       }
       @client = JIRA::ClientWrapper.new(OpenStruct.new(settings))
     end

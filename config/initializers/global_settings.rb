@@ -41,7 +41,8 @@ DEFAULT_JIRA_SETTINGS = {
   site: '',
   consumer_key: '',
   access_token: '',
-  access_key: ''
+  access_key: '',
+  private_key_file: './rsakey.pem'
 }.freeze
 
 class InvalidSettings < StandardError; end

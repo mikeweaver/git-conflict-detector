@@ -7,8 +7,9 @@ module JIRA
           signature_method: 'RSA-SHA1',
           consumer_key: settings.consumer_key,
           site: settings.site,
-          context_path: "",
-          use_ssl: true
+          context_path: '',
+          use_ssl: true,
+          private_key_file: settings.private_key_file
       }
 
       super(client_options)
