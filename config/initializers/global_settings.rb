@@ -12,7 +12,8 @@ DEFAULT_SETTINGS = {
   web_server_url: '',
   repositories_to_check_for_conflicts: {},
   branches_to_merge: {},
-  dry_run: false
+  dry_run: false,
+  jira: {}
 }.freeze
 
 DEFAULT_BRANCH_FILTERS = {
@@ -35,6 +36,13 @@ DEFAULT_AUTO_MERGE_SETTINGS = {
   source_branch_name: [],
   only_merge_source_branch_with_tag: ''
 }.merge(DEFAULT_BRANCH_FILTERS).merge(DEFAULT_REPOSITORY_SETTINGS).freeze
+
+DEFAULT_JIRA_SETTINGS = {
+  site: '',
+  consumer_key: '',
+  access_token: '',
+  access_key: ''
+}.freeze
 
 class InvalidSettings < StandardError; end
 
@@ -83,6 +91,8 @@ def load_global_settings
     end
     settings_object.branches_to_merge[branch_name] = auto_merge_settings
   end
+
+  settings_object.jira = OpenStruct.new(DEFAULT_JIRA_SETTINGS.merge(settings_object.jira))
 
   # cleanup data
   settings_object.email_override.downcase!

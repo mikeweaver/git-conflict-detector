@@ -61,4 +61,4 @@ end
 gem 'hobo_fields'
 gem 'delayed_job_active_record'
 gem 'daemons'
-
+gem 'jira-ruby', '0.1.17', require: 'jira'

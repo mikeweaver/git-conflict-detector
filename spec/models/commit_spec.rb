@@ -15,6 +15,22 @@ describe 'Commit' do
     expect(commit.updated_at).to_not be_nil
   end
 
+  it 'can create be constructed from a git commit' do
+    git_commit = Git::GitCommit.new(
+        '6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25',
+        'test message',
+        Time.now,
+        'author name',
+        'author@email.com')
+    commit = Commit.create_from_git_commit!(git_commit)
+    expect(commit.sha).to eq('6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25')
+    expect(commit.message).to_not be_nil
+    expect(commit.author.name).to_not be_nil
+    expect(commit.author.email).to_not be_nil
+    expect(commit.created_at).to_not be_nil
+    expect(commit.updated_at).to_not be_nil
+  end
+
   it 'does not create duplicate database records' do
     Commit.create_from_github_data!(payload)
     expect(Commit.all.count).to eq(1)

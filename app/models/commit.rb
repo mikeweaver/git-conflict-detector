@@ -19,6 +19,14 @@ class Commit < ActiveRecord::Base
     commit
   end
 
+  def self.create_from_git_commit!(git_commit)
+    commit = Commit.where(sha: git_commit.sha).first_or_initialize
+    commit.message = git_commit.message.truncate(1024)
+    commit.author = User.create_from_git_data!(git_commit)
+    commit.save!
+    commit
+  end
+
   def to_s
     sha
   end

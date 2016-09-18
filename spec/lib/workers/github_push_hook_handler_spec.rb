@@ -2,7 +2,11 @@ require 'spec_helper'
 
 describe 'GithubPushHookHandler' do
   def payload
-    JSON.parse(File.read(Rails.root.join('spec/fixtures/github_push_payload.json')))
+    @payload ||= JSON.parse(File.read(Rails.root.join('spec/fixtures/github_push_payload.json')))
+  end
+
+  def jira_issue_query_response
+    @jira_issue_query_response ||= JSON.parse(File.read(Rails.root.join('spec/fixtures/jira_issue_response.json')))
   end
 
   def mock_status_request(state, description)
@@ -29,7 +33,10 @@ describe 'GithubPushHookHandler' do
   end
 
   it 'sets sha status when queued' do
-    mock_status_request(Github::Api::Status::STATE_PENDING, GithubPushHookHandler::PENDING_DESCRIPTION)
+    mock_status_request(
+        Github::Api::Status::STATE_PENDING,
+        GithubPushHookHandler::STATE_DESCRIPTIONS[Github::Api::Status::STATE_PENDING])
+
     GithubPushHookHandler.new(payload).queue!
 
     # a job should be queued
@@ -43,7 +50,11 @@ describe 'GithubPushHookHandler' do
   end
 
   it 'sets sha status after processing' do
-    mock_status_request(Github::Api::Status::STATE_SUCCESS, GithubPushHookHandler::SUCCESS_DESCRIPTION)
+    mock_status_request(
+        Github::Api::Status::STATE_SUCCESS,
+        GithubPushHookHandler::STATE_DESCRIPTIONS[Github::Api::Status::STATE_SUCCESS])
+    expect_any_instance_of(GithubPushHookHandler).to receive(:handle_process_request!).and_return(Github::Api::Status::STATE_SUCCESS)
+
     GithubPushHookHandler.new(payload).process!
 
     # a job should be queued
@@ -55,6 +66,8 @@ describe 'GithubPushHookHandler' do
 
   it 'retries on failure' do
     mock_failed_status_request
+    expect_any_instance_of(GithubPushHookHandler).to receive(:handle_process_request!).and_return(Github::Api::Status::STATE_SUCCESS)
+
     GithubPushHookHandler.new(payload).process!
 
     # a job should be queued
@@ -66,4 +79,23 @@ describe 'GithubPushHookHandler' do
     # the job should still be queued
     expect(Delayed::Job.count).to eq(1)
   end
+
+  it 'can process payloads' do
+    commits = [Git::GitCommit.new('efd778098239838c165ffab2f12ad293f32824c8', 'STORY-1234 Description1', nil, 'Author 1', 'author1@email.com'),
+               Git::GitCommit.new('667f3e5347c48c04663209682642fd8d6d93fde2', 'STORY-5678 Description2', nil, 'Author 2', 'author2@email.com')]
+    expect_any_instance_of(Git::Git).to receive(:commits_diff_branch_with_ancestor).and_return(commits)
+
+    ['STORY-1234', 'STORY-5678'].each do |ticket_number|
+      response = jira_issue_query_response.clone
+      response['key'] = ticket_number
+      stub_request(:get, /.*#{ticket_number}/).to_return(:status => 200, :body => response.to_json)
+    end
+
+    GithubPushHookHandler.new(payload).send(:handle_process_request!)
+  end
+
+  # TODO:
+  # commits without ticket numbers
+  # ticket numbers that don't exist
+  # tickets in invalid states
 end
