@@ -16,6 +16,10 @@ class User < ActiveRecord::Base
     User.where(name: branch_data.author_name, email: branch_data.author_email).first_or_create!
   end
 
+  def self.create_from_jira_data!(jira_user_data)
+    User.where(name: jira_user_data.displayName, email: jira_user_data.emailAddress).first_or_create!
+  end
+
   def self.users_with_emails(email_filter_list)
     # if filter is empty, return all users, otherwise only return users whose emails are in the list
     User.all.select { |user| email_filter_list.empty? || email_filter_list.include?(user.email.downcase) }

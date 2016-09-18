@@ -225,17 +225,17 @@
       }
     ],
     "assignee": {
-      "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/user?username=vcarrillo",
-      "name": "vcarrillo",
-      "key": "vcarrillo",
-      "emailAddress": "vcarrillo@invoca.com",
+      "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/user?username=aname",
+      "name": "aname",
+      "key": "aname",
+      "emailAddress": "author@email.com",
       "avatarUrls": {
-        "48x48": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?ownerId=vcarrillo&avatarId=17201",
-        "24x24": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=small&ownerId=vcarrillo&avatarId=17201",
-        "16x16": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=xsmall&ownerId=vcarrillo&avatarId=17201",
-        "32x32": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=medium&ownerId=vcarrillo&avatarId=17201"
+        "48x48": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?ownerId=aname&avatarId=17201",
+        "24x24": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=small&ownerId=aname&avatarId=17201",
+        "16x16": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=xsmall&ownerId=aname&avatarId=17201",
+        "32x32": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=medium&ownerId=aname&avatarId=17201"
       },
-      "displayName": "Vicente Carrillo",
+      "displayName": "Author Name",
       "active": true,
       "timeZone": "America\/Los_Angeles"
     },
