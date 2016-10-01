@@ -96,3 +96,11 @@ end
 def create_test_merge(source_branch, target_branch, successful: true)
   Merge.create!(source_branch: source_branch, target_branch: target_branch, successful: successful)
 end
+
+def create_test_push()
+  Push.create_from_github_data!(Github::Api::PushHookPayload.new(load_json_fixture('github_push_payload')))
+end
+
+def create_test_jira_issue()
+  JiraIssue.create_from_jira_data!(JIRA::Resource::IssueFactory.new(nil).build(load_json_fixture('jira_issue_response')))
+end

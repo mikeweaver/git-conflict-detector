@@ -74,6 +74,20 @@ describe 'JiraIssue' do
     end
   end
 
+  context 'pushes' do
+    it 'can belong to one' do
+      issue = JiraIssue.create_from_jira_data!(jira_issue)
+      expect(issue.pushes.count).to eq(0)
+      push = create_test_push
+      issue.pushes << push
+      issue.save!
+      issue.reload
+      push.reload
+      expect(issue.pushes.count).to eq(1)
+      expect(push.jira_issues.count).to eq(1)
+    end
+  end
+
   context 'subtask parent' do
     it 'gets created if it does not exist' do
       child_issue = JiraIssue.create_from_jira_data!(jira_sub_task)

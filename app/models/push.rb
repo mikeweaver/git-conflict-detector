@@ -7,7 +7,8 @@ class Push < ActiveRecord::Base
   validates_inclusion_of :status, :in => Github::Api::Status::STATES.map { |state| state.to_s }
 
   belongs_to :head_commit, class_name: 'Commit', required: true
-  has_and_belongs_to_many :orphan_commits, class_name: 'Commit', join_table: 'commits_and_pushes'
+  has_and_belongs_to_many :commits, class_name: 'Commit', join_table: 'commits_and_pushes'
+  has_and_belongs_to_many :jira_issues, class_name: 'JiraIssue', join_table: 'jira_tickets_and_pushes'
   belongs_to :branch, inverse_of: :pushes, required: true
 
   def self.create_from_github_data!(github_data)
@@ -15,6 +16,7 @@ class Push < ActiveRecord::Base
     branch = Branch.create_from_git_data!(github_data.git_branch_data)
     push = Push.where(head_commit: commit, branch: branch).first_or_initialize
     push.status = Github::Api::Status::STATE_PENDING
+    push.commits << commit
     push.save!
     push
   end

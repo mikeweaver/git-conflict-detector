@@ -58,11 +58,24 @@ describe 'Commit' do
   end
 
   it 'can belong to a JIRA issue' do
-    jira_issue = JiraIssue.create_from_jira_data!(JIRA::Resource::IssueFactory.new(nil).build(load_json_fixture('jira_issue_response')))
+    jira_issue = create_test_jira_issue
     commit = Commit.create_from_github_data!(payload)
     commit.jira_issue = jira_issue
     commit.save!
     expect(commit.jira_issue.id).to eq(jira_issue.id)
+  end
+
+  it 'can belong to a GitHub push' do
+    commit = create_test_commit
+    expect(commit.pushes.count).to eq(0)
+    push = create_test_push
+    expect(push.commits.count).to eq(1)
+    commit.pushes << push
+    commit.save!
+    commit.reload
+    push.reload
+    expect(commit.pushes.count).to eq(1)
+    expect(push.commits.count).to eq(2)
   end
 
 end
