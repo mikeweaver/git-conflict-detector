@@ -1,0 +1,244 @@
+{
+  "id": "40343",
+  "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+  "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/issue\/40343",
+  "key": "STORY-4240",
+  "fields": {
+    "issuetype": {
+      "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/issuetype\/5",
+      "id": "5",
+      "description": "The sub-task of the issue",
+      "iconUrl": "https:\/\/ringrevenue.atlassian.net\/secure\/viewavatar?size=xsmall&avatarId=12716&avatarType=issuetype",
+      "name": "Sub-task",
+      "subtask": true,
+      "avatarId": 12716
+    },
+    "parent": {
+      "id": "42806",
+      "key": "STORY-4380",
+      "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/issue\/42806",
+      "fields": {
+        "summary": "This is the issue summary",
+        "status": {
+          "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/status\/3",
+          "description": "This issue is being actively worked on at the moment by the assignee.",
+          "iconUrl": "https:\/\/ringrevenue.atlassian.net\/images\/icons\/statuses\/inprogress.png",
+          "name": "In Progress",
+          "id": "3",
+          "statusCategory": {
+            "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/statuscategory\/4",
+            "id": 4,
+            "key": "indeterminate",
+            "colorName": "yellow",
+            "name": "In Progress"
+          }
+        },
+        "priority": {
+          "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/priority\/3",
+          "iconUrl": "https:\/\/ringrevenue.atlassian.net\/images\/icons\/priorities\/major.svg",
+          "name": "Major",
+          "id": "3"
+        },
+        "issuetype": {
+          "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/issuetype\/7",
+          "id": "7",
+          "description": "A user story. Created by JIRA Software - do not edit or delete.",
+          "iconUrl": "https:\/\/ringrevenue.atlassian.net\/secure\/viewavatar?size=xsmall&avatarId=12711&avatarType=issuetype",
+          "name": "Story",
+          "subtask": false,
+          "avatarId": 12711
+        }
+      }
+    },
+    "timespent": null,
+    "project": {
+      "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/project\/10200",
+      "id": "10200",
+      "key": "STORY",
+      "name": "Product Backlog",
+      "avatarUrls": {
+        "48x48": "https:\/\/ringrevenue.atlassian.net\/secure\/projectavatar?pid=10200&avatarId=10011",
+        "24x24": "https:\/\/ringrevenue.atlassian.net\/secure\/projectavatar?size=small&pid=10200&avatarId=10011",
+        "16x16": "https:\/\/ringrevenue.atlassian.net\/secure\/projectavatar?size=xsmall&pid=10200&avatarId=10011",
+        "32x32": "https:\/\/ringrevenue.atlassian.net\/secure\/projectavatar?size=medium&pid=10200&avatarId=10011"
+      }
+    },
+    "fixVersions": [
+
+    ],
+    "customfield_11200": null,
+    "aggregatetimespent": null,
+    "customfield_11400": null,
+    "resolutiondate": null,
+    "workratio": -1,
+    "lastViewed": null,
+    "watches": {
+      "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/issue\/STORY-4240\/watchers",
+      "watchCount": 1,
+      "isWatching": false
+    },
+    "created": "2016-06-30T09:41:03.989-0700",
+    "customfield_12400": null,
+    "customfield_10300": null,
+    "labels": [
+      "trex"
+    ],
+    "customfield_10016": null,
+    "customfield_10017": null,
+    "customfield_11501": null,
+    "customfield_10018": null,
+    "customfield_10019": null,
+    "timeestimate": null,
+    "aggregatetimeoriginalestimate": null,
+    "assignee": {
+      "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/user?username=bob",
+      "name": "bob",
+      "key": "bob",
+      "emailAddress": "bob@invoca.com",
+      "avatarUrls": {
+        "48x48": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?ownerId=bob&avatarId=12200",
+        "24x24": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=small&ownerId=bob&avatarId=12200",
+        "16x16": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=xsmall&ownerId=bob&avatarId=12200",
+        "32x32": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=medium&ownerId=bob&avatarId=12200"
+      },
+      "displayName": "Bob Smith",
+      "active": true,
+      "timeZone": "America\/Los_Angeles"
+    },
+    "updated": "2016-08-31T11:36:30.976-0700",
+    "status": {
+      "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/status\/10000",
+      "description": "",
+      "iconUrl": "https:\/\/ringrevenue.atlassian.net\/images\/icons\/statuses\/generic.png",
+      "name": "Ready for QA",
+      "id": "10000",
+      "statusCategory": {
+        "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/statuscategory\/4",
+        "id": 4,
+        "key": "indeterminate",
+        "colorName": "yellow",
+        "name": "In Progress"
+      }
+    },
+    "timeoriginalestimate": null,
+    "description": "h2. Proposed Aggregate Data in These Report(s)\r\n* Business Category Aggregates: aggregates based on the business categories specified through the data dictionary of a given organization.\r\n* Complete Calls Aggregate (hyperlinked into call details report)\r\n* Signals: sum of percent met for each Signal column based on the sum of complete calls: calls where signals were met\/total calls (hyperlinked into details report)\r\n* Total Sale Amount: aggregate of total sales for the sum of complete calls.\r\n* Average Sale Amount: aggregate of averages based the sum of complete calls.\r\n* All other fields\/columns available in summary reports today (paid calls, payable calls etc.)",
+    "customfield_13000": "",
+    "customfield_11100": "0|zxlscl:",
+    "customfield_10014": null,
+    "customfield_11500": null,
+    "customfield_10015": null,
+    "timetracking": {
+
+    },
+    "customfield_10006": "9223372036854775807",
+    "customfield_12700": "com.atlassian.servicedesk.plugins.approvals.internal.customfield.ApprovalsCFValue@1fa78fc",
+    "customfield_10007": null,
+    "customfield_12900": null,
+    "attachment": [
+
+    ],
+    "aggregatetimeestimate": null,
+    "summary": "Create Warehouse Aggregates for Custom Summary Report ",
+    "creator": {
+      "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/user?username=sstorlie",
+      "name": "sstorlie",
+      "key": "sstorlie",
+      "emailAddress": "sstorlie@invoca.com",
+      "avatarUrls": {
+        "48x48": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?avatarId=10122",
+        "24x24": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=small&avatarId=10122",
+        "16x16": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=xsmall&avatarId=10122",
+        "32x32": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=medium&avatarId=10122"
+      },
+      "displayName": "Sean Storlie",
+      "active": true,
+      "timeZone": "America\/Los_Angeles"
+    },
+    "subtasks": [
+
+    ],
+    "reporter": {
+      "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/user?username=sstorlie",
+      "name": "sstorlie",
+      "key": "sstorlie",
+      "emailAddress": "sstorlie@invoca.com",
+      "avatarUrls": {
+        "48x48": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?avatarId=10122",
+        "24x24": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=small&avatarId=10122",
+        "16x16": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=xsmall&avatarId=10122",
+        "32x32": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=medium&avatarId=10122"
+      },
+      "displayName": "Sean Storlie",
+      "active": true,
+      "timeZone": "America\/Los_Angeles"
+    },
+    "customfield_10000": null,
+    "aggregateprogress": {
+      "progress": 0,
+      "total": 0
+    },
+    "customfield_10001": null,
+    "customfield_10200": null,
+    "progress": {
+      "progress": 0,
+      "total": 0
+    },
+    "comment": {
+      "comments": [
+        {
+          "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/issue\/40343\/comment\/52855",
+          "id": "52855",
+          "author": {
+            "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/user?username=sstorlie",
+            "name": "sstorlie",
+            "key": "sstorlie",
+            "emailAddress": "sstorlie@invoca.com",
+            "avatarUrls": {
+              "48x48": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?avatarId=10122",
+              "24x24": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=small&avatarId=10122",
+              "16x16": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=xsmall&avatarId=10122",
+              "32x32": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=medium&avatarId=10122"
+            },
+            "displayName": "Sean Storlie",
+            "active": true,
+            "timeZone": "America\/Los_Angeles"
+          },
+          "body": "Hey Bob, assuming this is shipped to PROD, can you please move it along the JIRA workflow as such",
+          "updateAuthor": {
+            "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/user?username=sstorlie",
+            "name": "sstorlie",
+            "key": "sstorlie",
+            "emailAddress": "sstorlie@invoca.com",
+            "avatarUrls": {
+              "48x48": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?avatarId=10122",
+              "24x24": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=small&avatarId=10122",
+              "16x16": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=xsmall&avatarId=10122",
+              "32x32": "https:\/\/ringrevenue.atlassian.net\/secure\/useravatar?size=medium&avatarId=10122"
+            },
+            "displayName": "Sean Storlie",
+            "active": true,
+            "timeZone": "America\/Los_Angeles"
+          },
+          "created": "2016-08-03T08:38:47.823-0700",
+          "updated": "2016-08-03T08:38:47.823-0700"
+        }
+      ],
+      "maxResults": 1,
+      "total": 1,
+      "startAt": 0
+    },
+    "votes": {
+      "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/issue\/STORY-4240\/votes",
+      "votes": 0,
+      "hasVoted": false
+    },
+    "worklog": {
+      "startAt": 0,
+      "maxResults": 20,
+      "total": 0,
+      "worklogs": [
+
+      ]
+    }
+  }
+}

@@ -9,6 +9,7 @@ class Commit < ActiveRecord::Base
   validates :sha, format: { without: /[0]{40}/ }
 
   belongs_to :author, class_name: User, inverse_of: :commits, required: true
+  belongs_to :jira_issue, class_name: JiraIssue, inverse_of: :commits, required: false
   has_and_belongs_to_many :pushes, join_table: 'commits_and_pushes'
 
   def self.create_from_github_data!(github_data)

@@ -74,6 +74,7 @@ def create_test_commit(sha: '1234567890123456789012345678901234567890', message:
   commit = Commit.create(sha: sha, message: message)
   commit.author = User.first_or_create!(name: author_name, email: author_email)
   commit.save!
+  commit
 end
 
 def create_test_commits(author_name: 'Author Name', author_email: 'author@email.com', count: 2)

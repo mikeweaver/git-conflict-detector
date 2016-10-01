@@ -57,5 +57,13 @@ describe 'Commit' do
     end
   end
 
+  it 'can belong to a JIRA issue' do
+    jira_issue = JiraIssue.create_from_jira_data!(JIRA::Resource::IssueFactory.new(nil).build(load_json_fixture('jira_issue_response')))
+    commit = Commit.create_from_github_data!(payload)
+    commit.jira_issue = jira_issue
+    commit.save!
+    expect(commit.jira_issue.id).to eq(jira_issue.id)
+  end
+
 end
 
