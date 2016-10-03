@@ -36,15 +36,37 @@ describe 'Push' do
       push.reload
       expect(push.commits.count).to eq(3)
     end
+
+    it 'can find orphans' do
+      push = Push.create_from_github_data!(payload)
+      expect(push.commits.count).to eq(1)
+      issue = create_test_jira_issue
+      issue.pushes << push
+      issue.save!
+      push.commits.first.jira_issue = issue
+      push.commits.first.save
+      expect(push.has_orphan_commits).to be_falsey
+
+      create_test_commits.each do |commit|
+        commit.pushes << push
+        commit.save!
+      end
+      push.reload
+      expect(push.commits.count).to eq(3)
+      expect(push.has_orphan_commits).to be_truthy
+      expect(push.orphan_commits.count).to eq(2)
+    end
   end
 
   context 'jira_issues' do
     it 'can own some' do
       push = Push.create_from_github_data!(payload)
+      expect(push.has_jira_issues).to be_falsey
       issue = create_test_jira_issue
       issue.pushes << push
       issue.save!
       push.reload
+      expect(push.has_jira_issues).to be_truthy
       expect(push.jira_issues.count).to eq(1)
     end
   end

@@ -29,6 +29,18 @@ class Push < ActiveRecord::Base
     "#{branch.name}/#{head_commit.sha}"
   end
 
+  def has_jira_issues
+    jira_issues.any?
+  end
+
+  def has_orphan_commits
+    orphan_commits.any?
+  end
+
+  def orphan_commits
+    @orphan_commits ||= commits.orphans
+  end
+
   def <=>(rhs)
     to_s <=> rhs.to_s
   end
