@@ -28,6 +28,8 @@ class Commit < ActiveRecord::Base
     commit
   end
 
+  scope :orphans, lambda { where(jira_issue_id: nil) }
+
   def short_sha
     sha[0,7]
   end

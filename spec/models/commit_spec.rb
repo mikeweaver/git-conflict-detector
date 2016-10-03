@@ -69,6 +69,18 @@ describe 'Commit' do
     expect(commit.jira_issue.id).to eq(jira_issue.id)
   end
 
+  it 'can find orphan commits' do
+    orphan_commit = create_test_commit
+
+    jira_issue = create_test_jira_issue
+    commit = Commit.create_from_github_data!(payload)
+    commit.jira_issue = jira_issue
+    commit.save!
+
+    expect(Commit.orphans.count).to eq(1)
+    expect(Commit.orphans.first.id).to eq(orphan_commit.id)
+  end
+
   it 'can belong to a GitHub push' do
     commit = create_test_commit
     expect(commit.pushes.count).to eq(0)
