@@ -28,6 +28,10 @@ class Commit < ActiveRecord::Base
     commit
   end
 
+  def short_sha
+    sha[0,7]
+  end
+
   def to_s
     sha
   end

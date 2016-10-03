@@ -55,6 +55,10 @@ describe 'Commit' do
     it 'prints its sha when stringified' do
       expect(@commit.to_s).to eq('6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25')
     end
+
+    it 'has a short sha' do
+      expect(@commit.short_sha).to eq('6d8cc7d')
+    end
   end
 
   it 'can belong to a JIRA issue' do
