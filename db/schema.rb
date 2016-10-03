@@ -87,7 +87,7 @@ ActiveRecord::Schema.define(version: 20161001220901) do
   add_index "jira_issues", ["assignee_id"], name: "index_jira_issues_on_assignee_id"
   add_index "jira_issues", ["parent_issue_id"], name: "index_jira_issues_on_parent_issue_id"
 
-  create_table "jira_tickets_and_pushes", id: false, force: :cascade do |t|
+  create_table "jira_issues_and_pushes", id: false, force: :cascade do |t|
     t.integer "jira_issue_id"
     t.integer "push_id"
   end

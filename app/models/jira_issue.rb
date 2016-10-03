@@ -15,7 +15,7 @@ class JiraIssue < ActiveRecord::Base
   belongs_to :parent_issue, class_name: JiraIssue, inverse_of: :sub_tasks, required: false
   has_many :sub_tasks, class_name: JiraIssue
   has_many :commits, foreign_key: "jira_issue_id"
-  has_and_belongs_to_many :pushes, join_table: 'jira_tickets_and_pushes'
+  has_and_belongs_to_many :pushes, join_table: 'jira_issues_and_pushes'
 
   def self.create_from_jira_data!(jira_data)
     issue = JiraIssue.where(key: jira_data.key).first_or_initialize

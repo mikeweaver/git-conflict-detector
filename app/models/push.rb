@@ -8,7 +8,7 @@ class Push < ActiveRecord::Base
 
   belongs_to :head_commit, class_name: 'Commit', required: true
   has_and_belongs_to_many :commits, class_name: 'Commit', join_table: 'commits_and_pushes'
-  has_and_belongs_to_many :jira_issues, class_name: 'JiraIssue', join_table: 'jira_tickets_and_pushes'
+  has_and_belongs_to_many :jira_issues, class_name: 'JiraIssue', join_table: 'jira_issues_and_pushes'
   belongs_to :branch, inverse_of: :pushes, required: true
 
   def self.create_from_github_data!(github_data)
