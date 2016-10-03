@@ -81,7 +81,7 @@ describe 'GithubPushHookHandler' do
   end
 
   it 'can process payloads' do
-    commits = [Git::GitCommit.new('efd778098239838c165ffab2f12ad293f32824c8', 'STORY-1234 Description1', nil, 'Author 1', 'author1@email.com'),
+    commits = [Git::GitCommit.new('6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25', 'STORY-1234 Description1', nil, 'Author 1', 'author1@email.com'),
                Git::GitCommit.new('667f3e5347c48c04663209682642fd8d6d93fde2', 'STORY-5678 Description2', nil, 'Author 2', 'author2@email.com')]
     expect_any_instance_of(Git::Git).to receive(:commits_diff_branch_with_ancestor).and_return(commits)
 
@@ -92,6 +92,12 @@ describe 'GithubPushHookHandler' do
     end
 
     GithubPushHookHandler.new(payload).send(:handle_process_request!)
+    push = Push.first
+    expect(push.commits.count).to eq(2)
+    expect(push.jira_issues.count).to eq(2)
+    push.jira_issues.each do |jira_issue|
+      expect(jira_issue.commits.count).to eq(1)
+    end
   end
 
   # TODO:

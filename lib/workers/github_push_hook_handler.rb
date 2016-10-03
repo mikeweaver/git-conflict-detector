@@ -37,14 +37,37 @@ class GithubPushHookHandler
     git = Git::Git.new(@payload.repository_path)
     # diff with master to get list of commits
     git_commits = git.commits_diff_branch_with_ancestor(@payload.branch_name, ancestor_branch)
+    # TODO extract into a function
+    git_commits.each do |commit|
+      if commit.sha == push.head_commit.sha
+        push.head_commit = Commit.create_from_git_commit!(commit)
+      else
+        push.commits << Commit.create_from_git_commit!(commit)
+      end
+    end
+    push.reload
+
     # get ticket numbers from commits
     ticket_numbers = extract_jira_issue_keys(git_commits)
     # lookup tickets in JIRA
-    jira_issues = get_jira_issues!(ticket_numbers)
+    push.jira_issues << get_jira_issues!(ticket_numbers)
+    # TODO extract into a function
+    push.jira_issues.each do |jira_issue|
+      push.commits.each do |commit|
+        puts "#{commit.message} == #{jira_issue.key}"
+        puts commit.message.match(/#{jira_issue.key}/)
+        if commit.message.match(/#{jira_issue.key}/)
+          puts "adding commit #{commit}"
+          jira_issue.commits << commit
+        end
+      end
+      jira_issue.save!
+    end
+
     # get list of orphaned commits
     orphan_commits = commits_without_a_jira_issue_key!(git_commits)
     # compute status
-    push.status = compute_push_status(@payload.branch_name, orphan_commits, ticket_numbers, jira_issues)
+    push.status = compute_push_status(@payload.branch_name, orphan_commits, ticket_numbers, push.jira_issues)
     push.save!
     push.status
   end
@@ -92,8 +115,8 @@ class GithubPushHookHandler
   def get_jira_issues!(ticket_numbers)
     jira_client = JIRA::ClientWrapper.new(GlobalSettings.jira)
     ticket_numbers.collect do |ticket_number|
-      # TODO construct JIRA issue models
-      jira_client.find_issue(ticket_number)
+      # TODO: get parents of sub-tasks
+      JiraIssue.create_from_jira_data!(jira_client.find_issue(ticket_number))
     end.compact
   end
 
@@ -109,7 +132,7 @@ class GithubPushHookHandler
 
   def jira_issues_with_invalid_statuses(jira_issues)
     jira_issues.reject do |jira_issue|
-      VALID_JIRA_STATUSES.include?(jira_issue.fields['status']['name'])
+      VALID_JIRA_STATUSES.include?(jira_issue.status)
     end
   end
 
