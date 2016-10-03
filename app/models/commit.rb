@@ -10,7 +10,9 @@ class Commit < ActiveRecord::Base
 
   belongs_to :author, class_name: User, inverse_of: :commits, required: true
   belongs_to :jira_issue, class_name: JiraIssue, inverse_of: :commits, required: false
-  has_and_belongs_to_many :pushes, join_table: 'commits_and_pushes'
+
+  has_many :commits_and_pushes, class_name: :CommitsAndPushes, inverse_of: :commit
+  has_many :pushes, through: :commits_and_pushes
 
   def self.create_from_github_data!(github_data)
     commit = Commit.where(sha: github_data.sha).first_or_initialize

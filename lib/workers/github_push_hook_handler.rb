@@ -31,43 +31,74 @@ class GithubPushHookHandler
 
   private
 
+  # TODO move all of this to the push model?
   def handle_process_request!
     push = Push.create_from_github_data!(@payload)
     # clone repo
     git = Git::Git.new(@payload.repository_path)
     # diff with master to get list of commits
-    git_commits = git.commits_diff_branch_with_ancestor(@payload.branch_name, ancestor_branch)
     # TODO extract into a function
-    git_commits.each do |commit|
-      if commit.sha == push.head_commit.sha
-        push.head_commit = Commit.create_from_git_commit!(commit)
-      else
-        push.commits << Commit.create_from_git_commit!(commit)
-      end
+    commits = git.commits_diff_branch_with_ancestor(@payload.branch_name, ancestor_branch).collect do |git_commit|
+      # TODO: Skip commits that should be ignored
+      Commit.create_from_git_commit!(git_commit)
     end
-    push.reload
 
     # get ticket numbers from commits
-    ticket_numbers = extract_jira_issue_keys(git_commits)
+    ticket_numbers = extract_jira_issue_keys(commits)
+
     # lookup tickets in JIRA
-    push.jira_issues << get_jira_issues!(ticket_numbers)
+    # TODO break up into two functions
+    jira_issues = get_jira_issues!(ticket_numbers)
+
     # TODO extract into a function
-    push.jira_issues.each do |jira_issue|
-      push.commits.each do |commit|
-        puts "#{commit.message} == #{jira_issue.key}"
-        puts commit.message.match(/#{jira_issue.key}/)
+    jira_issues.each do |jira_issue|
+      commits.each do |commit|
         if commit.message.match(/#{jira_issue.key}/)
-          puts "adding commit #{commit}"
           jira_issue.commits << commit
         end
       end
       jira_issue.save!
     end
 
-    # get list of orphaned commits
-    orphan_commits = commits_without_a_jira_issue_key!(git_commits)
+    # TODO extract into a function
+    jira_issues.each do |jira_issue|
+      errors = []
+      if VALID_JIRA_STATUSES.exclude?(jira_issue.status)
+        errors << JiraIssuesAndPushes::ERROR_WRONG_STATE
+      end
+
+      if jira_issue.commits.empty?
+        errors << JiraIssuesAndPushes::ERROR_NO_COMMITS
+      end
+
+      if jira_issue.targeted_deploy_date.to_date != Date.today
+        errors << JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE
+      end
+
+      JiraIssuesAndPushes.create_or_update!(jira_issue, push, errors)
+    end
+
+    # TODO extract into a function
+    commits.each do |commit|
+      commit.reload
+      errors = []
+      unless commit.jira_issue
+        if commit.message.match(jira_issue_regex)
+          errors << CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND
+        else
+          errors << CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER
+        end
+      end
+
+      CommitsAndPushes.create_or_update!(
+          commit,
+          push,
+          errors)
+    end
+    push.reload
+
     # compute status
-    push.status = compute_push_status(@payload.branch_name, orphan_commits, ticket_numbers, push.jira_issues)
+    push.compute_status!
     push.save!
     push.status
   end

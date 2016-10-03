@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161001220901) do
+ActiveRecord::Schema.define(version: 20161004202614) do
 
   create_table "branches", force: :cascade do |t|
     t.datetime "git_tested_at"
@@ -38,10 +38,15 @@ ActiveRecord::Schema.define(version: 20161001220901) do
   add_index "commits", ["author_id"], name: "index_commits_on_author_id"
   add_index "commits", ["jira_issue_id"], name: "index_commits_on_jira_issue_id"
 
-  create_table "commits_and_pushes", id: false, force: :cascade do |t|
+  create_table "commits_and_pushes", force: :cascade do |t|
     t.integer "commit_id"
     t.integer "push_id"
+    t.string  "errors_json",   limit: 256
+    t.boolean "ignore_errors",             default: false
   end
+
+  add_index "commits_and_pushes", ["commit_id"], name: "index_commits_and_pushes_on_commit_id"
+  add_index "commits_and_pushes", ["push_id"], name: "index_commits_and_pushes_on_push_id"
 
   create_table "conflicts", force: :cascade do |t|
     t.boolean  "resolved",                 default: false, null: false
@@ -87,17 +92,22 @@ ActiveRecord::Schema.define(version: 20161001220901) do
   add_index "jira_issues", ["assignee_id"], name: "index_jira_issues_on_assignee_id"
   add_index "jira_issues", ["parent_issue_id"], name: "index_jira_issues_on_parent_issue_id"
 
-  create_table "jira_issues_and_pushes", id: false, force: :cascade do |t|
+  create_table "jira_issues_and_pushes", force: :cascade do |t|
     t.integer "jira_issue_id"
     t.integer "push_id"
+    t.string  "errors_json",   limit: 256
+    t.boolean "ignore_errors",             default: false
   end
+
+  add_index "jira_issues_and_pushes", ["jira_issue_id"], name: "index_jira_issues_and_pushes_on_jira_issue_id"
+  add_index "jira_issues_and_pushes", ["push_id"], name: "index_jira_issues_and_pushes_on_push_id"
 
   create_table "merges", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "source_branch_id"
     t.integer  "target_branch_id"
-    t.boolean  "successful",       null: false
+    t.boolean  "successful",       default: true, null: false
   end
 
   add_index "merges", ["source_branch_id"], name: "index_merges_on_source_branch_id"

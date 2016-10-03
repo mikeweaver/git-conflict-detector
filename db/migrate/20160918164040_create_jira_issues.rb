@@ -14,7 +14,7 @@ class CreateJiraIssues < ActiveRecord::Migration
     add_index :jira_issues, [:assignee_id]
     add_index :jira_issues, [:parent_issue_id]
 
-    create_table :jira_issues_and_pushes, :id => false do |t|
+    create_table :jira_issues_and_pushes do |t|
       t.integer :jira_issue_id
       t.integer :push_id
     end

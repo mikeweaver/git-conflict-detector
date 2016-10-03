@@ -7,8 +7,10 @@ class Push < ActiveRecord::Base
   validates_inclusion_of :status, :in => Github::Api::Status::STATES.map { |state| state.to_s }
 
   belongs_to :head_commit, class_name: 'Commit', required: true
-  has_and_belongs_to_many :commits, class_name: 'Commit', join_table: 'commits_and_pushes'
-  has_and_belongs_to_many :jira_issues, class_name: 'JiraIssue', join_table: 'jira_issues_and_pushes'
+  has_many :commits_and_pushes, class_name: :CommitsAndPushes, inverse_of: :push
+  has_many :commits, through: :commits_and_pushes
+  has_many :jira_issues_and_pushes, class_name: :JiraIssuesAndPushes, inverse_of: :push
+  has_many :jira_issues, through: :jira_issues_and_pushes
   belongs_to :branch, inverse_of: :pushes, required: true
 
   def self.create_from_github_data!(github_data)
@@ -43,5 +45,14 @@ class Push < ActiveRecord::Base
 
   def <=>(rhs)
     to_s <=> rhs.to_s
+  end
+
+  def compute_status!
+    self.status = if jira_issues_and_pushes.where('errors_json IS NOT NULL').where(ignore_errors: false).any? ||
+        commits_and_pushes.where('errors_json IS NOT NULL').where(ignore_errors: false).any?
+      Github::Api::Status::STATE_FAILED
+    else
+      Github::Api::Status::STATE_SUCCESS
+    end
   end
 end

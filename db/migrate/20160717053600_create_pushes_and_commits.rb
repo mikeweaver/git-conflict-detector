@@ -19,7 +19,7 @@ class CreatePushesAndCommits < ActiveRecord::Migration
     end
     add_index :commits, [:author_id]
 
-    create_table :commits_and_pushes, :id => false do |t|
+    create_table :commits_and_pushes do |t|
       t.integer :commit_id
       t.integer :push_id
     end
