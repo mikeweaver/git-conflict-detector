@@ -37,4 +37,9 @@ class JiraIssue < ActiveRecord::Base
     issue.save!
     issue
   end
+
+  def latest_commit
+    # TODO add commit date to commits and sort by that instead
+    commits.order('created_at ASC').first
+  end
 end

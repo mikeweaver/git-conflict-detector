@@ -72,6 +72,18 @@ describe 'JiraIssue' do
       issue.reload
       expect(issue.commits.count).to eq(2)
     end
+
+    it 'can find the latest' do
+      issue = JiraIssue.create_from_jira_data!(jira_issue)
+      expect(issue.commits.count).to eq(0)
+      create_test_commits.each do |commit|
+        # TODO when commit dates are added, improve this test
+        commit.jira_issue = issue
+        commit.save!
+      end
+      issue.reload
+      expect(issue.latest_commit.id).to eq(issue.commits.first.id)
+    end
   end
 
   context 'pushes' do
