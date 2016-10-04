@@ -41,11 +41,11 @@
       <%@push.jira_issues.each do |jira_issue|%>
         <tr>
           <td><input type="checkbox"></td>
-          <td><a href="#"><%=jira_issue.key%></a></td>
-          <td><a href="#"><%=jira_issue.latest_commit.short_sha%></a></td>
-          <td><%=jira_issue.assignee.name%></td>
-          <td><%=jira_issue.status%></td>
-          <td><%=jira_issue.targeted_deploy_date%></td>
+          <td nowrap><%=link_to(jira_issue.key, jira_url_for_issue(jira_issue), target: '_blank' )%></td>
+          <td><%=link_to(jira_issue.latest_commit.short_sha, github_url_for_commit(jira_issue.latest_commit), target: '_blank' )%></td>
+          <td nowrap><%=jira_issue.assignee.name%></td>
+          <td nowrap><%=jira_issue.status%></td>
+          <td nowrap><%=jira_issue.targeted_deploy_date%></td>
           <td><%=jira_issue.summary%></td>
         </tr>
       <%end%>
@@ -66,10 +66,10 @@
       </thead>
       <tbody>
       <%@push.orphan_commits.each do |commit|%>
-        <tr class="danger">
+        <tr class="<%='danger' unless should_ignore_commit_errors(commit)%>">
           <td><input type="checkbox"></td>
-          <td><a href="#"><%=commit.short_sha%></a></td>
-          <td><%=commit.author.name%></td>
+          <td><%=link_to(commit.short_sha, github_url_for_commit(commit), target: '_blank' )%></td>
+          <td nowrap><%=commit.author.name%></td>
           <td><%=commit.message%></td>
         </tr>
       <%end%>
