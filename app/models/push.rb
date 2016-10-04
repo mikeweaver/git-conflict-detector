@@ -18,9 +18,9 @@ class Push < ActiveRecord::Base
     branch = Branch.create_from_git_data!(github_data.git_branch_data)
     push = Push.where(head_commit: commit, branch: branch).first_or_initialize
     push.status = Github::Api::Status::STATE_PENDING
-    push.commits << commit
     push.save!
-    push
+    CommitsAndPushes.create_or_update!(commit, push)
+    push.reload
   end
 
   scope :from_repository, lambda { |repository_name| joins(:branch).joins(:repository).where("repositories.name = ?", repository_name) }
