@@ -38,7 +38,7 @@ class GithubPushHookHandler
     git = Git::Git.new(@payload.repository_path)
     # diff with master to get list of commits
     # TODO extract into a function
-    commits = git.commits_diff_branch_with_ancestor(@payload.branch_name, ancestor_branch).collect do |git_commit|
+    commits = git.commit_diff_refs(push.head_commit.sha, ancestor_branch, fetch: true).collect do |git_commit|
       # TODO: Skip commits that should be ignored
       Commit.create_from_git_commit!(git_commit)
     end

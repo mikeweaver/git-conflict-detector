@@ -122,14 +122,24 @@ module Git
       execute("describe --abbrev=0 --match #{tag}").strip
     end
 
+    def fetch_all
+      execute('fetch --all')
+    end
+
     def file_diff_branch_with_ancestor(branch_name, ancestor_branch_name)
       # gets the merge base of the branch and its ancestor, then gets a list of files changed since the merge base
       raw_output = execute("diff --name-only $(git merge-base origin/#{Shellwords.escape(ancestor_branch_name)} origin/#{Shellwords.escape(branch_name)})..origin/#{Shellwords.escape(branch_name)}")
       raw_output.split("\n")
     end
 
-    def commits_diff_branch_with_ancestor(branch_name, ancestor_branch_name)
-      raw_output = execute("log --format=$'%H\t%an\t%ae\t%aI\t%s' --no-color origin/#{Shellwords.escape(ancestor_branch_name)}..origin/#{Shellwords.escape(branch_name)}")
+    def commit_diff_refs(ref, ancestor_ref, fetch: false)
+      if fetch
+        fetch_all
+      end
+      ref_prefix = 'origin/' unless self.class.is_git_sha?(ref)
+      ancestor_ref_prefix = 'origin/' unless self.class.is_git_sha?(ancestor_ref)
+
+      raw_output = execute("log --format=$'%H\t%an\t%ae\t%aI\t%s' --no-color #{ancestor_ref_prefix}#{Shellwords.escape(ancestor_ref)}..#{ref_prefix}#{Shellwords.escape(ref)}")
       raw_output.split("\n").map do |row|
         commit_data = row.split("\t")
         GitCommit.new(commit_data[0], commit_data[4], DateTime::parse(commit_data[3]), commit_data[1], commit_data[2])
@@ -141,6 +151,11 @@ module Git
     end
 
     private
+
+    def self.is_git_sha?(str)
+      (str =~ /[0-9a-f]{40}/) == 0
+    end
+
 
     def self.get_conflict_list_from_failed_merge_output(failed_merged_output)
       failed_merged_output.split("\n").grep(/CONFLICT/).collect! do |conflict|

@@ -307,28 +307,52 @@ describe 'Git::Git' do
       end
     end
 
-    describe 'commits_diff_branch_with_ancestor' do
-      it 'can diff the branch' do
+    describe 'commit_diff_refs' do
+      it 'can diff a branch' do
         mocked_output = ["efd778098239838c165ffab2f12ad293f32824c8\tAuthor 1\tauthor1@email.com\t2016-07-14T10:09:45-07:00\tMerge branch 'production'\n",
                         "667f3e5347c48c04663209682642fd8d6d93fde2\tAuthor 2\tauthor2@email.com\t2016-07-14T16:46:35-07:00\tMerge pull request #5584 from Owner/repo/dimension_repair\n"].join
         expected_array = [Git::GitCommit.new('efd778098239838c165ffab2f12ad293f32824c8', "Merge branch 'production'", nil, 'Author 1', 'author1@email.com'),
                           Git::GitCommit.new('667f3e5347c48c04663209682642fd8d6d93fde2', 'Merge pull request #5584 from Owner/repo/dimension_repair', nil, 'Author 2', 'author2@email.com')]
-        mock_execute(mocked_output, 1)
-        # TODO - do deeper inspection of gitcommit
-        expect(@git.commits_diff_branch_with_ancestor('branch', 'ancestor_branch')).to eq(expected_array)
+        mock_execute(
+            mocked_output,
+            1,
+            expected_command: "/usr/bin/git log --format=$'%H\t%an\t%ae\t%aI\t%s' --no-color origin/ancestor_branch..origin/branch")
+        expect(@git.commit_diff_refs('branch', 'ancestor_branch')).to eq(expected_array)
       end
 
-      it 'can handle an up to date branch' do
+      it 'can handle a comparison with no changes' do
         mock_execute('', 1)
-        expect(@git.commits_diff_branch_with_ancestor('branch', 'ancestor_branch')).to eq([])
+        expect(@git.commit_diff_refs('branch', 'ancestor_branch')).to eq([])
       end
 
-      it 'escapes backticks in branch names' do
+      it 'can fetch before doing the comparison' do
+        mock_execute('', 1)
+        expect(@git).to receive(:fetch_all)
+        expect(@git.commit_diff_refs('branch', 'ancestor_branch', fetch: true)).to eq([])
+      end
+
+      it 'can diff a sha with a branch' do
+        mock_execute(
+            '',
+            1,
+            expected_command: "/usr/bin/git log --format=$'%H\t%an\t%ae\t%aI\t%s' --no-color origin/ancestor_branch..e2a7e607745d63da4d7f8486e0619e91a410f796")
+        @git.commit_diff_refs('e2a7e607745d63da4d7f8486e0619e91a410f796', 'ancestor_branch')
+      end
+
+      it 'can diff a sha with a sha' do
+        mock_execute(
+            '',
+            1,
+            expected_command: "/usr/bin/git log --format=$'%H\t%an\t%ae\t%aI\t%s' --no-color c5e8de4eb36a2d1b9f66543966ede9ce9cc28a89..e2a7e607745d63da4d7f8486e0619e91a410f796")
+        @git.commit_diff_refs('e2a7e607745d63da4d7f8486e0619e91a410f796', 'c5e8de4eb36a2d1b9f66543966ede9ce9cc28a89')
+      end
+
+      it 'escapes backticks in ref names' do
         mock_execute(
             '',
             1,
             expected_command: "/usr/bin/git log --format=$'%H\t%an\t%ae\t%aI\t%s' --no-color origin/ancestor\\`_branch..origin/branch\\`name")
-        @git.commits_diff_branch_with_ancestor('branch`name', 'ancestor`_branch')
+        @git.commit_diff_refs('branch`name', 'ancestor`_branch')
       end
     end
 
