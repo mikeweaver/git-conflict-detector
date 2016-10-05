@@ -39,9 +39,10 @@ class GithubPushHookHandler
     # diff with master to get list of commits
     # TODO extract into a function
     commits = git.commit_diff_refs(push.head_commit.sha, ancestor_branch, fetch: true).collect do |git_commit|
-      # TODO: Skip commits that should be ignored
-      Commit.create_from_git_commit!(git_commit)
-    end
+      unless git_commit.message.match(commit_messages_to_ignore)
+        Commit.create_from_git_commit!(git_commit)
+      end
+    end.compact
 
     # get ticket numbers from commits
     ticket_numbers = extract_jira_issue_keys(commits)
@@ -126,6 +127,9 @@ class GithubPushHookHandler
   def jira_issue_regex
     /(?:^|\s|\/|_|-)((?:#{jira_project_keys.join('|')})[- _]\d+)/i
   end
+
+  def commit_messages_to_ignore
+    /(^|\s)merge($|\s)/i # TODO move to setting
   end
 
   def extract_jira_issue_keys(commits)
