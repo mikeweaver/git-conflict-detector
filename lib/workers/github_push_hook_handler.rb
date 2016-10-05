@@ -93,10 +93,7 @@ class GithubPushHookHandler
         end
       end
 
-      CommitsAndPushes.create_or_update!(
-          commit,
-          push,
-          errors)
+      CommitsAndPushes.create_or_update!(commit, push, errors)
     end
     # destroy relationship to commits that are no longer in the push
     CommitsAndPushes.destroy_if_commit_not_in_list(push, commits)
