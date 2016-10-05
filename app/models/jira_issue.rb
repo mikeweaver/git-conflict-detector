@@ -43,4 +43,8 @@ class JiraIssue < ActiveRecord::Base
     # TODO add commit date to commits and sort by that instead
     commits.order('created_at ASC').first
   end
+
+  def has_unignored_errors?(push)
+    jira_issues_and_pushes.where(push: push).unignored_errors.any?
+  end
 end

@@ -87,16 +87,40 @@ describe 'JiraIssue' do
   end
 
   context 'pushes' do
+    before do
+      @issue = JiraIssue.create_from_jira_data!(jira_issue)
+      @push = create_test_push
+      expect(@issue.pushes.count).to eq(0)
+    end
+
     it 'can belong to one' do
-      issue = JiraIssue.create_from_jira_data!(jira_issue)
-      expect(issue.pushes.count).to eq(0)
-      push = create_test_push
-      issue.pushes << push
-      issue.save!
-      issue.reload
-      push.reload
-      expect(issue.pushes.count).to eq(1)
-      expect(push.jira_issues.count).to eq(1)
+      JiraIssuesAndPushes.create_or_update!(@issue, @push)
+      @issue.reload
+      @push.reload
+      expect(@issue.pushes.count).to eq(1)
+      expect(@push.jira_issues.count).to eq(1)
+    end
+
+    context 'has_unignored_errors?' do
+      it 'includes pushes with errors' do
+        JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE])
+        @issue.reload
+        expect(@issue.has_unignored_errors?(@push)).to be_truthy
+      end
+
+      it 'excludes pushes with ignored errors' do
+        record = JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE])
+        record.ignore_errors = true
+        record.save!
+        @issue.reload
+        expect(@issue.has_unignored_errors?(@push)).to be_falsey
+      end
+
+      it 'excludes pushes without errors' do
+        JiraIssuesAndPushes.create_or_update!(@issue, @push, [])
+        @issue.reload
+        expect(@issue.has_unignored_errors?(@push)).to be_falsey
+      end
     end
   end
 

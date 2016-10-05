@@ -18,4 +18,6 @@ class JiraIssuesAndPushes < ActiveRecord::Base
     record.save!
     record
   end
+
+  scope :unignored_errors, lambda { where('errors_json IS NOT NULL').where(ignore_errors: false) }
 end
