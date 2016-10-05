@@ -24,7 +24,7 @@
     </div>
   <%end%>
   <%if @push.has_jira_issues%>
-    <h4><%=@push.jira_issues.count%> JIRA ticket(s) in this branch</h4>
+    <h4><%=@push.jira_issues.count%> JIRA issues(s) in this branch</h4>
     <table class="table table-striped">
       <thead>
       <tr>
@@ -54,7 +54,7 @@
   <%end%>
 
   <%if @push.has_orphan_commits%>
-    <h4><%=@push.orphan_commits.count%> Commit(s) with no JIRA, or invalid, ticket number</h4>
+    <h4><%=@push.orphan_commits.count%> Commit(s) with no JIRA, or invalid, issue number</h4>
     <table class="table table-striped">
       <thead>
       <tr>
@@ -77,7 +77,7 @@
     </table>
   <%end%>
   <%if false%>
-    <h4>JIRA tickets ready to deploy, but not in this branch</h4>
+    <h4>JIRA issues ready to deploy, but not in this branch</h4>
     <table class="table table-striped">
       <thead>
       <tr>
