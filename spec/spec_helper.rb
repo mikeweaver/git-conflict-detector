@@ -13,6 +13,8 @@ require 'rake'
 require 'rspec/rails'
 require 'fakefs/spec_helpers'
 require 'webmock/rspec'
+require 'digest/sha1'
+require 'securerandom'
 
 GitConflictDetector::Application.load_tasks
 
@@ -101,6 +103,14 @@ def create_test_push()
   Push.create_from_github_data!(Github::Api::PushHookPayload.new(load_json_fixture('github_push_payload')))
 end
 
-def create_test_jira_issue()
-  JiraIssue.create_from_jira_data!(JIRA::Resource::IssueFactory.new(nil).build(load_json_fixture('jira_issue_response')))
+def create_test_jira_issue(key: nil)
+  json = load_json_fixture('jira_issue_response')
+  if key
+    json['key'] = key
+  end
+  JiraIssue.create_from_jira_data!(JIRA::Resource::IssueFactory.new(nil).build(json))
+end
+
+def create_test_sha
+  Digest::SHA1.hexdigest(SecureRandom.hex)
 end

@@ -87,5 +87,36 @@ describe 'CommitsAndPushes' do
       expect(CommitsAndPushes.get_error_counts_for_push(@push)).to eq( {} )
     end
   end
+
+  context 'destroy_if_commit_not_in_list' do
+    context 'with commits' do
+      before do
+        CommitsAndPushes.create_or_update!(@commit, @push)
+        @second_commit = create_test_commit(sha: create_test_sha)
+        CommitsAndPushes.create_or_update!(@second_commit, @push)
+        @third_commit = create_test_commit(sha: create_test_sha)
+        CommitsAndPushes.create_or_update!(@third_commit, @push)
+        expect(@push.commits.count).to eq(3)
+      end
+
+      it 'should only destroy commits not in the list' do
+        CommitsAndPushes.destroy_if_commit_not_in_list(@push, [@second_commit])
+        expect(@push.commits.count).to eq(1)
+        expect(@push.commits.first).to eq(@second_commit)
+      end
+
+      it 'should destroy all commits if the list is empty' do
+        CommitsAndPushes.destroy_if_commit_not_in_list(@push, [])
+        expect(@push.commits).to be_empty
+      end
+    end
+
+    context 'without commits' do
+      it 'should not fail if there are no commits to destroy' do
+        expect(@push.commits).to be_empty
+        CommitsAndPushes.destroy_if_commit_not_in_list(@push, [@commit])
+      end
+    end
+  end
 end
 

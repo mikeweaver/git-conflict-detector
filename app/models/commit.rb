@@ -45,6 +45,6 @@ class Commit < ActiveRecord::Base
   end
 
   def has_unignored_errors?(push)
-    commits_and_pushes.where(push: push).unignored_errors.any?
+    commits_and_pushes.unignored_errors.for_push(push).any?
   end
 end

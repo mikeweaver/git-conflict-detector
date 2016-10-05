@@ -78,6 +78,8 @@ class GithubPushHookHandler
 
       JiraIssuesAndPushes.create_or_update!(jira_issue, push, errors)
     end
+    # destroy relationship to issues that are no longer in the push
+    JiraIssuesAndPushes.destroy_if_jira_issue_not_in_list(push, jira_issues)
 
     # TODO extract into a function
     commits.each do |commit|
@@ -96,6 +98,8 @@ class GithubPushHookHandler
           push,
           errors)
     end
+    # destroy relationship to commits that are no longer in the push
+    CommitsAndPushes.destroy_if_commit_not_in_list(push, commits)
     push.reload
 
     # compute status

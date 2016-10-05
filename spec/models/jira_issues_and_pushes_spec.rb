@@ -87,5 +87,36 @@ describe 'JiraIssuesAndPushes' do
       expect(JiraIssuesAndPushes.get_error_counts_for_push(@push)).to eq( {} )
     end
   end
+
+  context 'destroy_if_jira_issue_not_in_list' do
+    context 'with jira_issues' do
+      before do
+        JiraIssuesAndPushes.create_or_update!(@issue, @push)
+        @second_issue = create_test_jira_issue(key: 'WEB-1234')
+        JiraIssuesAndPushes.create_or_update!(@second_issue, @push)
+        @third_issue = create_test_jira_issue(key: 'WEB-5678')
+        JiraIssuesAndPushes.create_or_update!(@third_issue, @push)
+        expect(@push.jira_issues.count).to eq(3)
+      end
+
+      it 'should only destroy issues not in the list' do
+        JiraIssuesAndPushes.destroy_if_jira_issue_not_in_list(@push, [@second_issue])
+        expect(@push.jira_issues.count).to eq(1)
+        expect(@push.jira_issues.first).to eq(@second_issue)
+      end
+
+      it 'should destroy all issues if the list is empty' do
+        JiraIssuesAndPushes.destroy_if_jira_issue_not_in_list(@push, [])
+        expect(@push.jira_issues).to be_empty
+      end
+    end
+
+    context 'without jira_issues' do
+      it 'should not fail if there are no issues to destroy' do
+        expect(@push.jira_issues).to be_empty
+        JiraIssuesAndPushes.destroy_if_jira_issue_not_in_list(@push, [@issue])
+      end
+    end
+  end
 end
 
