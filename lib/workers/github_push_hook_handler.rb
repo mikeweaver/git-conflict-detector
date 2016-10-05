@@ -53,7 +53,7 @@ class GithubPushHookHandler
     # TODO extract into a function
     jira_issues.each do |jira_issue|
       commits.each do |commit|
-        if commit.message.match(/#{jira_issue.key}/)
+        if extract_jira_issue_key(commit) == jira_issue.key
           jira_issue.commits << commit
         end
       end
@@ -120,19 +120,24 @@ class GithubPushHookHandler
   end
 
   def jira_project_keys
-    ['STORY', 'TECH', 'WEB'] # TODO move to setting
+    ['STORY', 'TECH', 'WEB', 'OPS'] # TODO move to setting
   end
 
   def jira_issue_regex
-    /(?:^|\s)((?:#{jira_project_keys.join('|')})[- _]\d+)/
+    /(?:^|\s|\/|_|-)((?:#{jira_project_keys.join('|')})[- _]\d+)/i
+  end
   end
 
   def extract_jira_issue_keys(commits)
     commits.collect do |commit|
-      if match = commit.message.match(jira_issue_regex)
-        match.captures[0]
-      end
+      extract_jira_issue_key(commit)
     end.compact.uniq
+  end
+
+  def extract_jira_issue_key(commit)
+    if match = commit.message.match(jira_issue_regex)
+      match.captures[0].upcase
+    end
   end
 
   def commits_without_a_jira_issue_key!(commits)
