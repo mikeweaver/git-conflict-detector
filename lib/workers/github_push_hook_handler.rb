@@ -72,8 +72,12 @@ class GithubPushHookHandler
         errors << JiraIssuesAndPushes::ERROR_NO_COMMITS
       end
 
-      if jira_issue.targeted_deploy_date.to_date != Date.today
-        errors << JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE
+      if jira_issue.targeted_deploy_date
+        if jira_issue.targeted_deploy_date.to_date < Date.today
+          errors << JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE
+        end
+      else
+        errors << JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE
       end
 
       JiraIssuesAndPushes.create_or_update!(jira_issue, push, errors)
