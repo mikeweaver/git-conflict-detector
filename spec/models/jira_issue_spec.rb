@@ -34,9 +34,7 @@ describe 'JiraIssue' do
   end
 
   it 'rejects keys that are invalid' do
-    jira_issue.attrs['key'] = 'invalidkey'
-
-    expect { JiraIssue.create_from_jira_data!(jira_issue) }.to raise_exception(ActiveRecord::RecordInvalid)
+    expect { create_test_jira_issue(key: 'invalidkey') }.to raise_exception(ActiveRecord::RecordInvalid)
   end
 
   context 'assignee' do
