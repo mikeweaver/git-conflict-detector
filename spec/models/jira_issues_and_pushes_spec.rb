@@ -17,7 +17,7 @@ describe 'JiraIssuesAndPushes' do
       @push.reload
       expect(@issue.pushes.count).to eq(1)
       expect(@push.jira_issues.count).to eq(1)
-      expect(record.error_list).to eq([])
+      expect(record.error_list).to match_array([])
       expect(record.ignore_errors).to be_falsey
     end
 
@@ -27,8 +27,13 @@ describe 'JiraIssuesAndPushes' do
       @push.reload
       expect(@issue.pushes.count).to eq(1)
       expect(@push.jira_issues.count).to eq(1)
-      expect(record.error_list).to eq([JiraIssuesAndPushes::ERROR_WRONG_STATE])
+      expect(record.error_list).to match_array([JiraIssuesAndPushes::ERROR_WRONG_STATE])
       expect(record.ignore_errors).to be_falsey
+    end
+
+    it 'duplicate errors are consolidated' do
+      record = JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_WRONG_STATE])
+      expect(record.error_list).to match_array([JiraIssuesAndPushes::ERROR_WRONG_STATE])
     end
 
     it 'does not create duplicate database records' do
@@ -41,22 +46,22 @@ describe 'JiraIssuesAndPushes' do
 
     context 'with ignored errors' do
       before do
-        @record = JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_STATE])
+        @record = JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_NO_COMMITS])
         @record.ignore_errors = true
         @record.save!
       end
 
-      it 'new errors clear the ignore flag' do
-        JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_NO_COMMITS])
+      it 'changes to errors clears the ignore flag' do
+        JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_STATE])
         @record.reload
-        expect(@record.error_list).to eq([JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_NO_COMMITS])
+        expect(@record.error_list).to match_array([JiraIssuesAndPushes::ERROR_WRONG_STATE])
         expect(@record.ignore_errors).to be_falsey
       end
 
-      it 'existing errors do not clear the ignore flag' do
-        JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_STATE])
+      it 'existing errors do not clear the ignore flag, even if the error order is different' do
+        JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_NO_COMMITS, JiraIssuesAndPushes::ERROR_WRONG_STATE])
         @record.reload
-        expect(@record.error_list).to eq([JiraIssuesAndPushes::ERROR_WRONG_STATE])
+        expect(@record.error_list).to match_array([JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_NO_COMMITS])
         expect(@record.ignore_errors).to be_truthy
       end
     end

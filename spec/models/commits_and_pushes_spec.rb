@@ -17,7 +17,7 @@ describe 'CommitsAndPushes' do
       @push.reload
       expect(@commit.pushes.count).to eq(1)
       expect(@push.commits.count).to eq(1)
-      expect(record.error_list).to eq([])
+      expect(record.error_list).to match_array([])
       expect(record.ignore_errors).to be_falsey
     end
 
@@ -27,8 +27,13 @@ describe 'CommitsAndPushes' do
       @push.reload
       expect(@commit.pushes.count).to eq(1)
       expect(@push.commits.count).to eq(1)
-      expect(record.error_list).to eq([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
+      expect(record.error_list).to match_array([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
       expect(record.ignore_errors).to be_falsey
+    end
+
+    it 'duplicate errors are consolidated' do
+      record = CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
+      expect(record.error_list).to match_array([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
     end
 
     it 'does not create duplicate database records' do
@@ -41,22 +46,22 @@ describe 'CommitsAndPushes' do
 
     context 'with ignored errors' do
       before do
-        @record = CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
+        @record = CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
         @record.ignore_errors = true
         @record.save!
       end
 
-      it 'new errors clear the ignore flag' do
-        CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
+      it 'changes to errors clears the ignore flag' do
+        CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
         @record.reload
-        expect(@record.error_list).to eq([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
+        expect(@record.error_list).to match_array([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
         expect(@record.ignore_errors).to be_falsey
       end
 
-      it 'existing errors do not clear the ignore flag' do
-        CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
+      it 'existing errors do not clear the ignore flag, even if the error order is different' do
+        CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND, CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
         @record.reload
-        expect(@record.error_list).to eq([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
+        expect(@record.error_list).to match_array([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
         expect(@record.ignore_errors).to be_truthy
       end
     end
