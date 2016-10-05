@@ -15,11 +15,11 @@
     <div class="alert alert-danger">
       Warning: Branch is not ready to deploy.<br>
       <ul>
-        <li>1 JIRA ticket is in the wrong state</li>
-        <li>1 JIRA ticket is ready to deploy, but has no commits</li>
-        <%if @push.has_orphan_commits%>
-        <li><%=@push.orphan_commits.count%> Commit(s) has no JIRA ticket</li>
+      <%get_combined_error_counts.each do |error_object, error_counts|%>
+          <%error_counts.each do |error_code, count|%>
+            <li><%=count%> <%=map_error_code_to_message(error_object, error_code)%>
         <%end%>
+      <%end%>
       </ul>
     </div>
   <%end%>
@@ -39,7 +39,7 @@
       </thead>
       <tbody>
       <%@push.jira_issues.each do |jira_issue|%>
-        <tr>
+        <tr class="<%='danger' if jira_issue.has_unignored_errors?(@push)%>">
           <td><input type="checkbox"></td>
           <td nowrap><%=link_to(jira_issue.key, jira_url_for_issue(jira_issue), target: '_blank' )%></td>
           <td><%=link_to(jira_issue.latest_commit.short_sha, github_url_for_commit(jira_issue.latest_commit), target: '_blank' )%></td>
@@ -66,7 +66,7 @@
       </thead>
       <tbody>
       <%@push.orphan_commits.each do |commit|%>
-        <tr class="<%='danger' unless should_ignore_commit_errors(commit)%>">
+        <tr class="<%='danger' if commit.has_unignored_errors?(@push)%>">
           <td><input type="checkbox"></td>
           <td><%=link_to(commit.short_sha, github_url_for_commit(commit), target: '_blank' )%></td>
           <td nowrap><%=commit.author.name%></td>
