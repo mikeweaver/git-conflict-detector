@@ -40,7 +40,7 @@ class Push < ActiveRecord::Base
   end
 
   def orphan_commits
-    @orphan_commits ||= commits.orphans
+    commits.orphans
   end
 
   def <=>(rhs)
@@ -48,8 +48,8 @@ class Push < ActiveRecord::Base
   end
 
   def compute_status!
-    self.status = if jira_issues_and_pushes.where('errors_json IS NOT NULL').where(ignore_errors: false).any? ||
-        commits_and_pushes.where('errors_json IS NOT NULL').where(ignore_errors: false).any?
+    self.status = if jira_issues_and_pushes.unignored_errors.any? ||
+        commits_and_pushes.unignored_errors.any?
       Github::Api::Status::STATE_FAILED
     else
       Github::Api::Status::STATE_SUCCESS

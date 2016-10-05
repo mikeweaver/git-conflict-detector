@@ -43,4 +43,8 @@ class Commit < ActiveRecord::Base
   def <=>(rhs)
     sha <=> rhs.sha
   end
+
+  def has_unignored_errors?(push)
+    commits_and_pushes.where(push: push).unignored_errors.any?
+  end
 end

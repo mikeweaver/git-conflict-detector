@@ -81,18 +81,45 @@ describe 'Commit' do
     expect(Commit.orphans.first.id).to eq(orphan_commit.id)
   end
 
-  it 'can belong to a GitHub push' do
-    commit = create_test_commit
-    expect(commit.pushes.count).to eq(0)
-    push = create_test_push
-    expect(push.commits.count).to eq(1)
-    commit.pushes << push
-    commit.save!
-    commit.reload
-    push.reload
-    expect(commit.pushes.count).to eq(1)
-    expect(push.commits.count).to eq(2)
-  end
+  context 'pushes' do
+    before do
+      @commit = create_test_commit
+      @push = create_test_push
+      # remove head commit so we don't confuse it with the commit we are testing
+      @push.commits_and_pushes.destroy_all
+      @push.head_commit.destroy
+      expect(@commit.pushes.count).to eq(0)
+    end
 
+    it 'can belong to one' do
+      CommitsAndPushes.create_or_update!(@commit, @push)
+      @commit.reload
+      @push.reload
+      expect(@commit.pushes.count).to eq(1)
+      expect(@push.commits.count).to eq(1)
+    end
+
+    context 'has_unignored_errors?' do
+      it 'includes pushes with errors' do
+        CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
+        @commit.reload
+        expect(@commit.has_unignored_errors?(@push)).to be_truthy
+      end
+
+      it 'excludes pushes with ignored errors' do
+        record = CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
+        record.ignore_errors = true
+        record.save!
+        @commit.reload
+        expect(@commit.has_unignored_errors?(@push)).to be_falsey
+      end
+
+      it 'excludes pushes without errors' do
+        CommitsAndPushes.create_or_update!(@commit, @push, [])
+        @commit.reload
+        expect(@commit.has_unignored_errors?(@push)).to be_falsey
+      end
+    end
+  end
 end
 
