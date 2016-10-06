@@ -16,7 +16,6 @@ class SuppressionsController < ApplicationController
   end
 
   def new
-    redirect_to action: 'new', conflict_id: @conflict.id, user_id: @user.id
   end
 
   def create
