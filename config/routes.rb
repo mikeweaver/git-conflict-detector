@@ -12,13 +12,17 @@ Rails.application.routes.draw do
   
   resources :suppressions, except: [:show, :edit, :update, :destroy]
 
-  get 'jira/status/commit/:sha' => 'jira_status#show_status_for_commit'
-
-  scope '/api' do
+  namespace 'jira' do
+    namespace 'status' do
+      resources :push, only: [:edit, :update]
+    end
+  end
+  
+  namespace 'api' do
     scope '/v1' do
-      scope '/callbacks' do
+      namespace 'callbacks' do
         scope '/github' do
-            post '/push' => 'api/callbacks/github#push'
+            post '/push' => 'github#push'
         end
       end
     end

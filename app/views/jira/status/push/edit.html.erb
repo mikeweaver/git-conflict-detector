@@ -1,7 +1,10 @@
-<%= form_for :suppression, url: suppressions_path do |f| %>
+<%= form_for @push, url: "/jira/status/push/#{@push.head_commit.sha}.json" do |form| %>
 
 <div class="container">
   TODO: Show the tags on the commit, autobahn clean, build clean
+  <% if flash[:alert] %>
+    <div class="alert alert-success"><%= flash[:alert] %></div>
+  <% end %>
   <%case @push.status%>
   <%when Github::Api::Status::STATE_PENDING.to_s%>
     <div class="alert alert-warning">
@@ -117,6 +120,7 @@
       </tbody>
     </table>
   <%end%>
+  <%= form.submit %>
   Save Ignore and Update Status Button --
   Refresh JIRA Data Button
   Copy/Paste deploy list
