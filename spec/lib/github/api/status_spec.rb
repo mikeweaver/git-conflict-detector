@@ -44,8 +44,7 @@ describe 'Status' do
 
   def send_set_status_request(state)
     api = Github::Api::Status.new('test_user','test_password')
-    api.set_status('owner',
-                   'repo',
+    api.set_status('owner/repo',
                    '9999b61a5393432301de18960686226379d76999',
                    'JIRA Checker',
                    state,

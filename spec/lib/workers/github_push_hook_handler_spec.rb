@@ -7,11 +7,10 @@ describe 'GithubPushHookHandler' do
 
   def mock_status_request(state, description)
     api = instance_double(Github::Api::Status)
-    expect(api).to receive(:set_status).with('OwnerName',
-                                             'reponame',
+    expect(api).to receive(:set_status).with('OwnerName/reponame',
                                              '6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25',
                                              GithubPushHookHandler::CONTEXT_NAME,
-                                             state,
+                                             state.to_s,
                                              description,
                                              anything).and_return({})
     expect(Github::Api::Status).to receive(:new).and_return(api)
@@ -23,8 +22,8 @@ describe 'GithubPushHookHandler' do
     expect(Github::Api::Status).to receive(:new).and_return(api)
   end
 
-  it 'can create be constructed from github push hook payload data' do
-    handler = GithubPushHookHandler.new(payload)
+  it 'can create be constructed' do
+    handler = GithubPushHookHandler.new()
     expect(handler).not_to be_nil
   end
 
@@ -33,7 +32,7 @@ describe 'GithubPushHookHandler' do
         Github::Api::Status::STATE_PENDING,
         GithubPushHookHandler::STATE_DESCRIPTIONS[Github::Api::Status::STATE_PENDING])
 
-    GithubPushHookHandler.new(payload).queue!
+    GithubPushHookHandler.new().queue!(payload)
 
     # a job should be queued
     expect(Delayed::Job.count).to eq(1)
@@ -45,13 +44,17 @@ describe 'GithubPushHookHandler' do
     expect(Delayed::Job.count).to eq(1)
   end
 
-  it 'sets sha status after processing' do
+  it 'sets GitHub push status after processing' do
     mock_status_request(
         Github::Api::Status::STATE_SUCCESS,
         GithubPushHookHandler::STATE_DESCRIPTIONS[Github::Api::Status::STATE_SUCCESS])
-    expect(PushManager).to receive(:process_push!).and_return(Github::Api::Status::STATE_SUCCESS)
 
-    GithubPushHookHandler.new(payload).process!
+    push = Push.create_from_github_data!(Github::Api::PushHookPayload.new(payload))
+    push.status = Github::Api::Status::STATE_SUCCESS.to_s
+    push.save!
+    expect(PushManager).to receive(:process_push!).and_return(push)
+
+    GithubPushHookHandler.new().process_push!(push.id)
 
     # a job should be queued
     expect(Delayed::Job.count).to eq(1)
@@ -60,11 +63,15 @@ describe 'GithubPushHookHandler' do
     expect(Delayed::Worker.new.work_off).to eq([1, 0])
   end
 
-  it 'retries on failure' do
+  it 'retries on if it cannot set the GitHub push status' do
     mock_failed_status_request
-    expect(PushManager).to receive(:process_push!).and_return(Github::Api::Status::STATE_SUCCESS)
 
-    GithubPushHookHandler.new(payload).process!
+    push = Push.create_from_github_data!(Github::Api::PushHookPayload.new(payload))
+    push.status = Github::Api::Status::STATE_SUCCESS.to_s
+    push.save!
+    expect(PushManager).to receive(:process_push!).and_return(push)
+
+    GithubPushHookHandler.new().process_push!(push.id)
 
     # a job should be queued
     expect(Delayed::Job.count).to eq(1)

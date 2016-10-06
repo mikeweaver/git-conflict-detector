@@ -29,7 +29,7 @@ class PushManager
       # compute status
       push.compute_status!
       push.save!
-      push.status
+      push
     end
 
     def ancestor_branch

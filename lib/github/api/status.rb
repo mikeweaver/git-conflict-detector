@@ -11,8 +11,8 @@ module Github
         @password = password
       end
 
-      def set_status(owner, repo, sha, context, state, description, url)
-        Rails.logger.info("Setting #{context} status to #{state} for #{owner}/#{repo}/#{sha}")
+      def set_status(repo_path, sha, context, state, description, url)
+        Rails.logger.info("Setting #{context} status to #{state} for #{repo_path}/#{sha}")
         body = {
             state: state.to_s,
             target_url: url.to_s,
@@ -20,7 +20,7 @@ module Github
             context: context
         }
 
-        uri = URI.parse("https://api.github.com/repos/#{owner}/#{repo}/statuses/#{sha}")
+        uri = URI.parse("https://api.github.com/repos/#{repo_path}/statuses/#{sha}")
         request = Net::HTTP::Post.new(uri.path)
         request.basic_auth(@username, @password)
         request.body = body.to_json

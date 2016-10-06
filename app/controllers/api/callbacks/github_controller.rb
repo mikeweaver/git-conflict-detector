@@ -6,7 +6,7 @@ module Api
 
       def push
         Rails.logger.info("Received Github push callback. Adding to delayed job queue. Current queue depth: #{Delayed::Job.count}")
-        GithubPushHookHandler.new(@payload).queue!
+        GithubPushHookHandler.new().queue!(@payload)
         render(nothing: true, status: :ok)
       end
 

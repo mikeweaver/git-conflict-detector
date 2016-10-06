@@ -1,6 +1,6 @@
 class GithubPushHookHandler
-  PENDING_QUEUE = 'pending'
-  PROCESSING_QUEUE = 'processing'
+  PENDING_QUEUE = 'push_pending'
+  PROCESSING_QUEUE = 'push_processing'
   CONTEXT_NAME = 'JIRA Checker'
   STATE_DESCRIPTIONS = {
       Github::Api::Status::STATE_PENDING => 'Branch is being examined',
@@ -8,41 +8,33 @@ class GithubPushHookHandler
       Github::Api::Status::STATE_FAILED => 'Branch was rejected'
   }
 
-  def initialize(push_hook_payload)
-    @payload = Github::Api::PushHookPayload.new(push_hook_payload)
-  end
-
-  def queue!
+  def queue!(push_hook_payload)
     Rails.logger.info('Queueing request')
-    Rails.logger.info(@payload)
-    set_status_for_repo!(Github::Api::Status::STATE_PENDING, STATE_DESCRIPTIONS[Github::Api::Status::STATE_PENDING])
-    process!
+    payload = Github::Api::PushHookPayload.new(push_hook_payload)
+    Rails.logger.info(payload)
+    push = Push.create_from_github_data!(payload)
+    set_status_for_push!(push)
+    process_push!(push.id)
   end
   handle_asynchronously(:queue!, queue: PENDING_QUEUE)
 
-  def process!
-    Rails.logger.info('Processing request')
-    status = handle_process_request!
-    set_status_for_repo!(status, STATE_DESCRIPTIONS[status])
+  def process_push!(push_id)
+    Rails.logger.info("Processing push id #{push_id}")
+    push = PushManager.process_push!(Push.find(push_id))
+    set_status_for_push!(push)
   end
-  handle_asynchronously(:process!, queue: PROCESSING_QUEUE)
+  handle_asynchronously(:process_push!, queue: PROCESSING_QUEUE)
 
   private
 
-  def handle_process_request!
-    push = Push.create_from_github_data!(@payload)
-    PushManager.process_push!(push)
-  end
-
-  def set_status_for_repo!(state, description)
+  def set_status_for_push!(push)
     api = Github::Api::Status.new(Rails.application.secrets.github_user_name,
                                   Rails.application.secrets.github_password)
-    api.set_status(@payload.repository_owner_name,
-                   @payload.repository_name,
-                   @payload.sha,
+    api.set_status(push.branch.repository.name,
+                   push.head_commit.sha,
                    CONTEXT_NAME,
-                   state,
-                   description,
+                   push.status,
+                   STATE_DESCRIPTIONS[push.status.to_sym],
                    'http://moreinfohere.com')
   end
 end
