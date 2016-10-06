@@ -45,6 +45,6 @@ class JiraIssue < ActiveRecord::Base
   end
 
   def has_unignored_errors?(push)
-    jira_issues_and_pushes.unignored_errors.for_push(push).any?
+    jira_issues_and_pushes.with_unignored_errors.for_push(push).any?
   end
 end

@@ -22,7 +22,7 @@ class JiraIssuesAndPushes < ActiveRecord::Base
   end
 
   def self.get_error_counts_for_push(push)
-    get_error_counts(unignored_errors.for_push(push))
+    get_error_counts(with_unignored_errors.for_push(push))
   end
 
   def self.destroy_if_jira_issue_not_in_list(push, jira_issues)

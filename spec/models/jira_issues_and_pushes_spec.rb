@@ -74,11 +74,11 @@ describe 'JiraIssuesAndPushes' do
 
   end
 
-  context 'unignored_errors scope' do
+  context 'with_unignored_errors scope' do
     it 'can find pushes with errors' do
       JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE])
       @issue.reload
-      expect(@issue.jira_issues_and_pushes.unignored_errors.count).to eq(1)
+      expect(@issue.jira_issues_and_pushes.with_unignored_errors.count).to eq(1)
       expect(JiraIssuesAndPushes.get_error_counts_for_push(@push)).to eq( { JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE => 1 } )
     end
 
@@ -87,14 +87,14 @@ describe 'JiraIssuesAndPushes' do
       record.ignore_errors = true
       record.save!
       @issue.reload
-      expect(@issue.jira_issues_and_pushes.unignored_errors.count).to eq(0)
+      expect(@issue.jira_issues_and_pushes.with_unignored_errors.count).to eq(0)
       expect(JiraIssuesAndPushes.get_error_counts_for_push(@push)).to eq( {} )
     end
 
     it 'excludes pushes without errors' do
       JiraIssuesAndPushes.create_or_update!(@issue, @push, [])
       @issue.reload
-      expect(@issue.jira_issues_and_pushes.unignored_errors.count).to eq(0)
+      expect(@issue.jira_issues_and_pushes.with_unignored_errors.count).to eq(0)
       expect(JiraIssuesAndPushes.get_error_counts_for_push(@push)).to eq( {} )
     end
   end

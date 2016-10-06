@@ -20,7 +20,7 @@ class CommitsAndPushes < ActiveRecord::Base
   end
 
   def self.get_error_counts_for_push(push)
-    get_error_counts(unignored_errors.where(push: push))
+    get_error_counts(with_unignored_errors.where(push: push))
   end
 
   def self.destroy_if_commit_not_in_list(push, commits)

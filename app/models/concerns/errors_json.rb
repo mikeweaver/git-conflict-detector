@@ -8,7 +8,7 @@ module ErrorsJson
     end
 
     scope :with_errors, lambda { where("errors_json IS NOT NULL AND errors_json <> '[]'") }
-    scope :unignored_errors, lambda { with_errors.where(ignore_errors: false) }
+    scope :with_unignored_errors, lambda { with_errors.where(ignore_errors: false) }
 
     def error_list
       @error_list ||= JSON.parse(self.errors_json || '[]').uniq
