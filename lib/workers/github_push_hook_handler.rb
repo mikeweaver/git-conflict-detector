@@ -31,7 +31,7 @@ class GithubPushHookHandler
 
   def handle_process_request!
     push = Push.create_from_github_data!(@payload)
-    PushManager.process_push(push)
+    PushManager.process_push!(push)
   end
 
   def set_status_for_repo!(state, description)

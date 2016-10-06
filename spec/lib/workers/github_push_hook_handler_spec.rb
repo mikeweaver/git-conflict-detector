@@ -49,7 +49,7 @@ describe 'GithubPushHookHandler' do
     mock_status_request(
         Github::Api::Status::STATE_SUCCESS,
         GithubPushHookHandler::STATE_DESCRIPTIONS[Github::Api::Status::STATE_SUCCESS])
-    expect(PushManager).to receive(:process_push).and_return(Github::Api::Status::STATE_SUCCESS)
+    expect(PushManager).to receive(:process_push!).and_return(Github::Api::Status::STATE_SUCCESS)
 
     GithubPushHookHandler.new(payload).process!
 
@@ -62,7 +62,7 @@ describe 'GithubPushHookHandler' do
 
   it 'retries on failure' do
     mock_failed_status_request
-    expect(PushManager).to receive(:process_push).and_return(Github::Api::Status::STATE_SUCCESS)
+    expect(PushManager).to receive(:process_push!).and_return(Github::Api::Status::STATE_SUCCESS)
 
     GithubPushHookHandler.new(payload).process!
 

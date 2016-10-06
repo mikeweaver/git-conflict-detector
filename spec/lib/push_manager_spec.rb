@@ -20,7 +20,7 @@ describe 'PushManager' do
       stub_request(:get, /.*#{ticket_number}/).to_return(:status => 200, :body => response.to_json)
     end
 
-    PushManager.process_push(Push.create_from_github_data!(payload))
+    PushManager.process_push!(Push.create_from_github_data!(payload))
     push = Push.first
     expect(push.commits.count).to eq(2)
     expect(push.jira_issues.count).to eq(2)
