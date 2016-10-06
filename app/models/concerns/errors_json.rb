@@ -7,7 +7,8 @@ module ErrorsJson
       ignore_errors :boolean, default: false, required: true
     end
 
-    scope :unignored_errors, lambda { where("errors_json IS NOT NULL AND errors_json <> '[]'").where(ignore_errors: false) }
+    scope :with_errors, lambda { where("errors_json IS NOT NULL AND errors_json <> '[]'") }
+    scope :unignored_errors, lambda { with_errors.where(ignore_errors: false) }
 
     def error_list
       @error_list ||= JSON.parse(self.errors_json || '[]').uniq
@@ -36,6 +37,18 @@ module ErrorsJson
       super
       # clear memoized data on reload
       @error_list = nil
+    end
+
+    def has_errors?
+      error_list.any?
+    end
+
+    def has_unignored_errors?
+      has_errors? && !ignore_errors
+    end
+
+    def has_ignored_errors?
+      has_errors? && ignore_errors
     end
   end
 end

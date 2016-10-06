@@ -64,6 +64,12 @@ describe 'CommitsAndPushes' do
         expect(@record.error_list).to match_array([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
         expect(@record.ignore_errors).to be_truthy
       end
+
+      it 'detects the ignored errors' do
+        expect(@record.has_errors?).to be_truthy
+        expect(@record.has_ignored_errors?).to be_truthy
+        expect(@record.has_unignored_errors?).to be_falsey
+      end
     end
 
   end

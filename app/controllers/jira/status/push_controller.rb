@@ -14,21 +14,27 @@ module Jira
           }
       }
 
-      before_filter :find_resources
+      before_action :find_resources
 
-      def find_resources
-        @push = Push.joins(:head_commit).where('commits.sha = ?', params[:id]).first
-      end
 
       def edit
-        puts 'edit was called'
-      rescue ActiveRecord::RecordNotFound => e
-        flash[:alert] = 'The push could not be found'
-        redirect_to controller: 'errors', action: 'bad_request'
       end
 
       def update
-        flash[:alert] = 'Push updated'
+        if params['push']
+          jira_issue_keys_to_ignore = params['push']['jira_issue_keys_to_ignore'] || []
+          commit_shas_to_ignore = params['push']['commit_shas_to_ignore'] || []
+        end
+        jira_issue_keys_to_ignore ||= []
+        commit_shas_to_ignore ||= []
+
+        updated_record_count = update_ignored_jira_issues(jira_issue_keys_to_ignore) + update_ignored_commits(commit_shas_to_ignore)
+
+        if updated_record_count > 0
+          flash[:alert] = 'Push updated, reprocessing'
+        else
+          flash[:alert] = 'No changes made, ignoring'
+        end
         redirect_to action: 'edit', id: @push.head_commit.sha
       end
 
@@ -54,6 +60,35 @@ module Jira
         ERROR_CODE_MAP[error_object][error_code]
       end
       helper_method :map_error_code_to_message
+
+      private
+
+      def find_resources
+        @push = Push.joins(:head_commit).where('commits.sha = ?', params[:id]).first!
+      rescue ActiveRecord::RecordNotFound => e
+        flash[:alert] = 'The push could not be found'
+        redirect_to controller: '/errors', action: 'bad_request'
+      end
+
+      def update_ignored_jira_issues(jira_issue_keys_to_ignore)
+        updated_record_count = 0
+        @push.jira_issues_and_pushes.each do |jira_issue_and_push|
+          jira_issue_and_push.ignore_errors = jira_issue_keys_to_ignore.include?(jira_issue_and_push.jira_issue.key)
+          updated_record_count += 1 if jira_issue_and_push.changed?
+          jira_issue_and_push.save!
+        end
+        updated_record_count
+      end
+
+      def update_ignored_commits(commit_shas_to_ignore)
+        updated_record_count = 0
+        @push.commits_and_pushes.each do |commit_and_push|
+          commit_and_push.ignore_errors = commit_shas_to_ignore.include?(commit_and_push.commit.sha)
+          updated_record_count += 1 if commit_and_push.changed?
+          commit_and_push.save!
+        end
+        updated_record_count
+      end
     end
   end
 end

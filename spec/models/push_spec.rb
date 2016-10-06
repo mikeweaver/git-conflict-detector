@@ -39,39 +39,39 @@ describe 'Push' do
       expect(@push.commits.count).to eq(3)
     end
 
-    it 'can find orphans' do
-      issue = create_test_jira_issue
-      issue.pushes << @push
-      issue.save!
-      commit = @push.commits.first
-      commit.jira_issue = issue
-      commit.save!
-      @push.reload
-      expect(@push.has_orphan_commits).to be_falsey
-
+    it 'can detect ones with errors' do
+      expect(@push.has_commits_with_errors?).to be_falsey
+      expect(@push.commits_with_errors.count).to eq(0)
       create_test_commits.each do |commit|
-        commit.pushes << @push
-        commit.save!
+        CommitsAndPushes.create_or_update!(commit, @push, [CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
       end
-      @push.reload
-      expect(@push.commits.count).to eq(3)
-      expect(@push.has_orphan_commits).to be_truthy
-      expect(@push.orphan_commits.count).to eq(2)
+      expect(@push.has_commits_with_errors?).to be_truthy
+      expect(@push.commits_with_errors.count).to eq(2)
     end
   end
 
   context 'jira_issues' do
+    before do
+      @push = Push.create_from_github_data!(payload)
+    end
+
     it 'can own some' do
-      push = Push.create_from_github_data!(payload)
-      expect(push.has_jira_issues).to be_falsey
-      issue = create_test_jira_issue
-      issue.pushes << push
-      issue.save!
-      push.reload
-      expect(push.has_jira_issues).to be_truthy
-      expect(push.jira_issues.count).to eq(1)
+      expect(@push.has_jira_issues).to be_falsey
+      JiraIssuesAndPushes.create_or_update!(create_test_jira_issue, @push)
+      @push.reload
+      expect(@push.has_jira_issues).to be_truthy
+      expect(@push.jira_issues.count).to eq(1)
+    end
+
+    it 'can detect ones with errors' do
+      JiraIssuesAndPushes.create_or_update!(create_test_jira_issue, @push)
+      expect(@push.has_jira_issues_with_errors?).to be_falsey
+      expect(@push.jira_issues_with_errors.count).to eq(0)
+      JiraIssuesAndPushes.create_or_update!(create_test_jira_issue(key: 'WEB-1234'), @push, [CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
+      JiraIssuesAndPushes.create_or_update!(create_test_jira_issue(key: 'WEB-5468'), @push, [CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
+      expect(@push.has_jira_issues_with_errors?).to be_truthy
+      expect(@push.jira_issues_with_errors.count).to eq(2)
     end
   end
-
 end
 

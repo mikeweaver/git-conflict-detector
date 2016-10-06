@@ -35,12 +35,20 @@ class Push < ActiveRecord::Base
     jira_issues.any?
   end
 
-  def has_orphan_commits
-    orphan_commits.any?
+  def has_jira_issues_with_errors?
+    jira_issues_with_errors.any?
   end
 
-  def orphan_commits
-    commits.orphans
+  def jira_issues_with_errors
+    jira_issues_and_pushes.with_errors
+  end
+
+  def has_commits_with_errors?
+    commits_with_errors.any?
+  end
+
+  def commits_with_errors
+    commits_and_pushes.with_errors
   end
 
   def <=>(rhs)
@@ -48,8 +56,7 @@ class Push < ActiveRecord::Base
   end
 
   def compute_status!
-    self.status = if jira_issues_and_pushes.unignored_errors.any? ||
-        commits_and_pushes.unignored_errors.any?
+    self.status = if has_commits_with_errors? || has_jira_issues_with_errors?
       Github::Api::Status::STATE_FAILED
     else
       Github::Api::Status::STATE_SUCCESS

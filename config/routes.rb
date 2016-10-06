@@ -17,7 +17,7 @@ Rails.application.routes.draw do
       resources :push, only: [:edit, :update]
     end
   end
-  
+
   namespace 'api' do
     scope '/v1' do
       namespace 'callbacks' do

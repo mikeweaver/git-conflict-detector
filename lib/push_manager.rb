@@ -76,16 +76,6 @@ class PushManager
       end.compact
     end
 
-    def compute_push_status(branch_name, orphan_commits, ticket_numbers, jira_issues)
-      if jira_issues_with_invalid_statuses(jira_issues) ||
-          ticket_numbers_not_in_jira_issue_list(ticket_numbers, jira_issues).any? ||
-          (orphan_commits && !ignore_orphan_commits_for_branches.includes?(branch_name))
-        Github::Api::Status::STATE_FAILED
-      else
-        Github::Api::Status::STATE_SUCCESS
-      end
-    end
-
     def jira_issues_with_invalid_statuses(jira_issues)
       jira_issues.reject do |jira_issue|
         VALID_JIRA_STATUSES.include?(jira_issue.status)

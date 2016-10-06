@@ -64,6 +64,12 @@ describe 'JiraIssuesAndPushes' do
         expect(@record.error_list).to match_array([JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_NO_COMMITS])
         expect(@record.ignore_errors).to be_truthy
       end
+
+      it 'detects the ignored errors' do
+        expect(@record.has_errors?).to be_truthy
+        expect(@record.has_ignored_errors?).to be_truthy
+        expect(@record.has_unignored_errors?).to be_falsey
+      end
     end
 
   end
