@@ -36,6 +36,8 @@ class PushManager
       GlobalSettings.jira.ancestor_branches[branch_name] || GlobalSettings.jira.ancestor_branches['default']
     end
 
+    private
+
     def jira_issue_regexp
       /(?:^|\s|\/|_|-)((?:#{GlobalSettings.jira.project_keys.join('|')})[- _]\d+)/i
     end
