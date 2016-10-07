@@ -70,6 +70,8 @@
       <%end%>
       </tbody>
     </table>
+  <%else%>
+    <h4>No JIRA issues in this branch</h4><br/>
   <%end%>
 
   <%if @push.has_commits_with_errors? %>
@@ -102,6 +104,8 @@
       <%end%>
       </tbody>
     </table>
+  <%else%>
+      <h4>All commits in this branch are OK</h4><br/>
   <%end%>
   <%if false%>
     <h4>JIRA issues ready to deploy, but not in this branch</h4>
