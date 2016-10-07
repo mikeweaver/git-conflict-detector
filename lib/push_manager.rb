@@ -5,14 +5,13 @@ class PushManager
     def process_push!(push)
       push.status = Github::Api::Status::STATE_PENDING
       push.save!
-      
+
       commits = get_commits_from_push(push)
 
       # get ticket numbers from commits
       ticket_numbers = extract_jira_issue_keys(commits)
 
       # lookup tickets in JIRA
-      # TODO break up into two functions
       jira_issues = get_jira_issues!(ticket_numbers)
 
       link_commits_to_jira_issues(jira_issues, commits)
@@ -74,7 +73,6 @@ class PushManager
     def get_jira_issues!(ticket_numbers)
       jira_client = JIRA::ClientWrapper.new(GlobalSettings.jira)
       ticket_numbers.collect do |ticket_number|
-        # TODO: get parents of sub-tasks
         JiraIssue.create_from_jira_data!(jira_client.find_issue(ticket_number))
       end.compact
     end
