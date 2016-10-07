@@ -32,10 +32,13 @@ module Jira
         updated_record_count = update_ignored_jira_issues(jira_issue_keys_to_ignore) + update_ignored_commits(commit_shas_to_ignore)
 
         if updated_record_count > 0
-          flash[:alert] = 'Push updated, reprocessing'
+          flash[:alert] = 'Push updated, refreshing JIRA and Git data'
+          GithubPushHookHandler.new().submit_push_for_processing!(@push)
+        elsif params['refresh']
+          flash[:alert] = 'Refreshing JIRA and Git data'
           GithubPushHookHandler.new().submit_push_for_processing!(@push)
         else
-          flash[:alert] = 'No changes made, ignoring'
+          flash[:alert] = 'No changes made'
         end
         redirect_to action: 'edit', id: @push.head_commit.sha
       end

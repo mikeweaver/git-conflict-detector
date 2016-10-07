@@ -140,9 +140,8 @@
       </tbody>
     </table>
   <%end%>
-  <%= form.submit %>
-  Save Ignore and Update Status Button --
-  Refresh JIRA Data Button
+  <%= form.submit('Save and Refresh', :name => 'save') %>
+  <%= form.submit('Refresh', :name => 'refresh') %>
   Copy/Paste deploy list
 </div>
 <% end %>
