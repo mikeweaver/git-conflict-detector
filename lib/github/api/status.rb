@@ -3,7 +3,7 @@ module Github
     class Status
       STATE_SUCCESS = :success
       STATE_PENDING = :pending
-      STATE_FAILED = :failed
+      STATE_FAILED = :failure
       STATES = [STATE_SUCCESS, STATE_PENDING, STATE_FAILED]
 
       def initialize(username, password)
