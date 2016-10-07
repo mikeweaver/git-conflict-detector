@@ -3,6 +3,9 @@ class PushManager
 
   class << self
     def process_push!(push)
+      push.status = Github::Api::Status::STATE_PENDING
+      push.save!
+      
       commits = get_commits_from_push(push)
 
       # get ticket numbers from commits

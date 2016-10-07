@@ -32,6 +32,7 @@ module Jira
 
         if updated_record_count > 0
           flash[:alert] = 'Push updated, reprocessing'
+          GithubPushHookHandler.new().submit_push_for_processing!(@push)
         else
           flash[:alert] = 'No changes made, ignoring'
         end

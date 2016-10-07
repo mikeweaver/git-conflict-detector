@@ -14,7 +14,7 @@ class GithubPushHookHandler
     Rails.logger.info(payload)
     push = Push.create_from_github_data!(payload)
     set_status_for_push!(push)
-    process_push!(push.id)
+    submit_push_for_processing!(push)
   end
   handle_asynchronously(:queue!, queue: PENDING_QUEUE)
 
@@ -24,6 +24,12 @@ class GithubPushHookHandler
     set_status_for_push!(push)
   end
   handle_asynchronously(:process_push!, queue: PROCESSING_QUEUE)
+
+  def submit_push_for_processing!(push)
+    push.status = Github::Api::Status::STATE_PENDING
+    push.save!
+    process_push!(push.id)
+  end
 
   private
 
