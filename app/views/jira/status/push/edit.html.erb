@@ -1,7 +1,6 @@
 <%= form_for @push, url: "/jira/status/push/#{@push.head_commit.sha}.html" do |form| %>
 
 <div class="container">
-  TODO: Show the tags on the commit, autobahn clean, build clean
   <% if flash[:alert] %>
     <div class="alert alert-success"><%= flash[:alert] %></div>
   <% end %>
@@ -13,7 +12,7 @@
   <%when Github::Api::Status::STATE_SUCCESS.to_s%>
     <div class="alert alert-success">
       <%if @push.has_errors? %>
-      Push failed some checks, but all of them have been ignored
+      Push failed some checks, but all of them have been approved
       <%else%>
       Push passed all checks
       <%end%>
@@ -35,7 +34,7 @@
     <table class="table table-striped">
       <thead>
       <tr>
-        <th>Ignore</th>
+        <th>Approve</th>
         <th>Key</th>
         <th>Last SHA</th>
         <th>Assignee</th>
@@ -54,8 +53,8 @@
                         'warning'
                       end
         %>
-        <tr class="<%=row_class%>">
-          <td><%= check_box_tag "push[jira_issue_keys_to_ignore][]", jira_issue.key, jira_issue_and_push.has_ignored_errors?, disabled: !jira_issue_and_push.has_errors? %></td>
+        <tr class="<%=row_class%>" title="<%=get_jira_error_messages(jira_issue_and_push.error_list)%>">
+          <td align="center" style="width: 50px;"><%= check_box_tag "push[jira_issue_keys_to_ignore][]", jira_issue.key, jira_issue_and_push.has_ignored_errors?, disabled: !jira_issue_and_push.has_errors? %></td>
           <td nowrap>
             <%if jira_issue.parent_issue %>
               <%=link_to(jira_issue.parent_issue.key, jira_url_for_issue(jira_issue.parent_issue), target: '_blank')%><br/>&#8627;
@@ -78,7 +77,7 @@
     <table class="table table-striped">
       <thead>
       <tr>
-        <th>Ignore</th>
+        <th>Approve</th>
         <th>SHA</th>
         <th>Author Name</th>
         <th>Commit Message</th>
@@ -94,8 +93,8 @@
                         'warning'
                       end
         %>
-        <tr class="<%=row_class%>">
-          <td><%= check_box_tag "push[commit_shas_to_ignore][]", commit.sha, commit_and_push.has_ignored_errors?, disabled: !commit_and_push.has_errors? %></td>
+        <tr class="<%=row_class%>" title="<%=get_commit_error_messages(commit_and_push.error_list)%>">
+          <td align="center" style="width: 50px;"><%= check_box_tag "push[commit_shas_to_ignore][]", commit.sha, commit_and_push.has_ignored_errors?, disabled: !commit_and_push.has_errors? %></td>
           <td><%=link_to(commit.short_sha, github_url_for_commit(commit), target: '_blank')%></td>
           <td nowrap><%=commit.author.name%></td>
           <td><%=commit.message%></td>
@@ -142,6 +141,10 @@
   <%end%>
   <%= form.submit('Save and Refresh', :name => 'save') %>
   <%= form.submit('Refresh', :name => 'refresh') %>
+  <!--
+  TODO:
   Copy/Paste deploy list
+  Show the tags on the commit, autobahn clean, build clean
+  -->
 </div>
 <% end %>

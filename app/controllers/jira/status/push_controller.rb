@@ -1,7 +1,7 @@
 module Jira
   module Status
     class PushController < ApplicationController
-      ERROR_CODE_MAP = {
+      ERROR_CODE_PLURAL_MAP = {
           'commit' => {
               CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER.to_s => "Commit(s) with no JIRA issue number",
               CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND.to_s => "Commit(s) with an unknown JIRA issue number"
@@ -13,9 +13,20 @@ module Jira
               JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE.to_s => "JIRA issue(s) with no deploy date"
           }
       }
+      ERROR_CODE_SINGULAR_MAP = {
+          'commit' => {
+              CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER.to_s => "Has no JIRA issue number",
+              CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND.to_s => "Has an unknown JIRA issue number"
+          },
+          'jira_issue' => {
+              JiraIssuesAndPushes::ERROR_WRONG_STATE.to_s => "In the wrong state",
+              JiraIssuesAndPushes::ERROR_NO_COMMITS.to_s => "Has no commits",
+              JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE.to_s => "The deploy date in the past",
+              JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE.to_s => "Has no deploy date"
+          }
+      }
 
       before_action :find_resources
-
 
       def edit
       end
@@ -62,9 +73,23 @@ module Jira
       helper_method :get_combined_error_counts
 
       def map_error_code_to_message(error_object, error_code)
-        ERROR_CODE_MAP[error_object][error_code]
+        ERROR_CODE_PLURAL_MAP[error_object][error_code]
       end
       helper_method :map_error_code_to_message
+
+      def get_jira_error_messages(error_list)
+        error_list.collect do |error_code|
+          ERROR_CODE_SINGULAR_MAP['jira_issue'][error_code]
+        end.join(', ')
+      end
+      helper_method :get_jira_error_messages
+
+      def get_commit_error_messages(error_list)
+        error_list.collect do |error_code|
+          ERROR_CODE_SINGULAR_MAP['commit'][error_code]
+        end.join(', ')
+      end
+      helper_method :get_commit_error_messages
 
       private
 
