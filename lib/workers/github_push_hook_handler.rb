@@ -1,11 +1,11 @@
 class GithubPushHookHandler
   PENDING_QUEUE = 'push_pending'
   PROCESSING_QUEUE = 'push_processing'
-  CONTEXT_NAME = 'JIRA Checker'
+  CONTEXT_NAME = 'Pre-Deploy Checker'
   STATE_DESCRIPTIONS = {
-      Github::Api::Status::STATE_PENDING => 'Branch is being examined',
-      Github::Api::Status::STATE_SUCCESS => 'Branch is OK',
-      Github::Api::Status::STATE_FAILED => 'Branch was rejected'
+      Github::Api::Status::STATE_PENDING => 'Processing...',
+      Github::Api::Status::STATE_SUCCESS => 'OK to deploy',
+      Github::Api::Status::STATE_FAILED => 'Has unapproved errors'
   }
 
   def queue!(push_hook_payload)
