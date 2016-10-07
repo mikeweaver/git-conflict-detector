@@ -53,6 +53,7 @@ echo "Restoring current DB and settings"
 cp "$BACKUP_PATH/db/production.sqlite3" "$DEPLOY_PATH/db/"
 cp "$BACKUP_PATH/config/settings.production.yml" "$DEPLOY_PATH/config/"
 cp "$BACKUP_PATH/config/database.yml" "$DEPLOY_PATH/config/"
+cp "$BACKUP_PATH/rsakey.pem" "$DEPLOY_PATH/rsakey.pem"
 
 echo "Bundling"
 bundle install
