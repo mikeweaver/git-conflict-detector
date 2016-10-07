@@ -70,6 +70,12 @@ describe 'JiraIssuesAndPushes' do
         expect(@record.has_ignored_errors?).to be_truthy
         expect(@record.has_unignored_errors?).to be_falsey
       end
+
+      it 'copies the ingore_errors flag from its predecessor' do
+        new_push = create_test_push(sha: create_test_sha)
+        record = JiraIssuesAndPushes.create_or_update!(@issue, new_push, [JiraIssuesAndPushes::ERROR_NO_COMMITS, JiraIssuesAndPushes::ERROR_WRONG_STATE])
+        expect(record.ignore_errors).to be_truthy
+      end
     end
 
   end

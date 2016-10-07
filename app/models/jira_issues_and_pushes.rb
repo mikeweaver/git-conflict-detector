@@ -17,6 +17,10 @@ class JiraIssuesAndPushes < ActiveRecord::Base
     if error_list
       record.error_list = error_list
     end
+    # if this is a newly created relationship, copy the ignore flag from the most recent relationship
+    unless record.id
+      record.copy_ignore_flag_from_most_recent_push
+    end
     record.save!
     record
   end
@@ -30,6 +34,12 @@ class JiraIssuesAndPushes < ActiveRecord::Base
       for_push(push).where('jira_issue_id NOT IN (?)', jira_issues).destroy_all
     else
       for_push(push).destroy_all
+    end
+  end
+
+  def copy_ignore_flag_from_most_recent_push
+    if previous_record = JiraIssuesAndPushes.where(jira_issue: self.jira_issue).where.not(id: self.id).order('id desc').first
+      self.ignore_errors = previous_record.ignore_errors
     end
   end
 end

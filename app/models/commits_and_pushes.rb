@@ -15,6 +15,10 @@ class CommitsAndPushes < ActiveRecord::Base
     if error_list
       record.error_list = error_list
     end
+    # if this is a newly created relationship, copy the ignore flag from the most recent relationship
+    unless record.id
+      record.copy_ignore_flag_from_most_recent_push
+    end
     record.save!
     record
   end
@@ -28,6 +32,12 @@ class CommitsAndPushes < ActiveRecord::Base
       for_push(push).where('commit_id NOT IN (?)', commits).destroy_all
     else
       for_push(push).destroy_all
+    end
+  end
+
+  def copy_ignore_flag_from_most_recent_push
+    if previous_record = CommitsAndPushes.where(commit: self.commit).where.not(id: self.id).order('id desc').first
+      self.ignore_errors = previous_record.ignore_errors
     end
   end
 end

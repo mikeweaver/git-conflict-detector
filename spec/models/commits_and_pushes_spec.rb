@@ -70,6 +70,12 @@ describe 'CommitsAndPushes' do
         expect(@record.has_ignored_errors?).to be_truthy
         expect(@record.has_unignored_errors?).to be_falsey
       end
+
+      it 'copies the ingore_errors flag from its predecessor' do
+        new_push = create_test_push(sha: create_test_sha)
+        record = CommitsAndPushes.create_or_update!(@commit, new_push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
+        expect(record.ignore_errors).to be_truthy
+      end
     end
 
   end

@@ -99,8 +99,13 @@ def create_test_merge(source_branch, target_branch, successful: true)
   Merge.create!(source_branch: source_branch, target_branch: target_branch, successful: successful)
 end
 
-def create_test_push()
-  Push.create_from_github_data!(Github::Api::PushHookPayload.new(load_json_fixture('github_push_payload')))
+def create_test_push(sha: nil)
+  json = load_json_fixture('github_push_payload')
+  if sha
+    json['after'] = sha
+    json['head_commit']['id'] = sha
+  end
+  Push.create_from_github_data!(Github::Api::PushHookPayload.new(json))
 end
 
 def create_test_jira_issue(key: nil)
