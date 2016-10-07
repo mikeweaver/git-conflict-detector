@@ -42,7 +42,13 @@ DEFAULT_JIRA_SETTINGS = {
   consumer_key: '',
   access_token: '',
   access_key: '',
-  private_key_file: './rsakey.pem'
+  private_key_file: './rsakey.pem',
+  project_keys: [],
+  valid_statuses: [],
+  ignore_commits_with_messages: [],
+  ignore_branches: [],
+  only_branches: [],
+  ancestor_branches: {}
 }.freeze
 
 class InvalidSettings < StandardError; end
@@ -54,6 +60,35 @@ def validate_repository_settings(name, settings)
   end
   if settings.default_branch_name.blank?
     raise InvalidSettings.new("Must specify default branch name for #{name}")
+  end
+end
+
+def validate_jira_settings(settings)
+  if settings.site.blank?
+    raise InvalidSettings.new("Must specify JIRA site URL")
+  end
+  if settings.consumer_key.blank?
+    raise InvalidSettings.new("Must specify JIRA consumer key")
+  end
+  if settings.access_token.blank?
+    raise InvalidSettings.new("Must specify JIRA access token")
+  end
+  if settings.access_key.blank?
+    raise InvalidSettings.new("Must specify JIRA access key")
+  end
+  if settings.project_keys.empty?
+    raise InvalidSettings.new("Must specify at least one JIRA project key")
+  end
+  if settings.ancestor_branches.empty?
+    raise InvalidSettings.new("Must specify at least one JIRA ancestor branch mapping")
+  end
+  if settings.valid_statuses.empty?
+    raise InvalidSettings.new("Must specify at least one valid JIRA status")
+  end
+  settings.ancestor_branches.each do |branch, ancestor_branch|
+    if ancestor_branch.blank?
+      raise InvalidSettings.new("Must specify an ancestor branch for #{branch}")
+    end
   end
 end
 
@@ -73,8 +108,12 @@ def load_global_settings
   settings_object = OpenStruct.new(DEFAULT_SETTINGS.merge(settings_hash))
 
   # validate required args are present
-  if settings_object.repositories_to_check_for_conflicts.empty? && settings_object.branches_to_merge.empty?
-    raise InvalidSettings.new('Must specify at least one repository to check for conflicts or one branch to merge')
+  if settings_object.repositories_to_check_for_conflicts.empty? && settings_object.branches_to_merge.empty? && settings_object.jira.empty?
+    raise InvalidSettings.new('Must specify at least one repository to check for conflicts, or one branch to merge, or jira settings')
+  end
+
+  if settings_object.web_server_url.blank?
+    raise InvalidSettings.new('Must specify the web server URL')
   end
 
   # convert nested conflict hashes to open struct and validate them
@@ -93,7 +132,10 @@ def load_global_settings
     settings_object.branches_to_merge[branch_name] = auto_merge_settings
   end
 
-  settings_object.jira = OpenStruct.new(DEFAULT_JIRA_SETTINGS.merge(settings_object.jira))
+  if settings_hash['jira']
+    settings_object.jira = OpenStruct.new(DEFAULT_JIRA_SETTINGS.merge(settings_object.jira))
+    validate_jira_settings(settings_object.jira)
+  end
 
   # cleanup data
   settings_object.email_override.downcase!

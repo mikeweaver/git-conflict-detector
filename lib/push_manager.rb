@@ -1,6 +1,4 @@
 class PushManager
-  VALID_JIRA_STATUSES = ['Ready to Deploy'] # TODO move to setting
-
   class << self
     def process_push!(push)
       push.status = Github::Api::Status::STATE_PENDING
@@ -34,20 +32,16 @@ class PushManager
       push
     end
 
-    def ancestor_branch
-      'production' # TODO move to setting
-    end
-
-    def jira_project_keys
-      ['STORY', 'TECH', 'WEB', 'OPS'] # TODO move to setting
+    def ancestor_branch_name(branch_name)
+      GlobalSettings.jira.ancestor_branches[branch_name] || GlobalSettings.jira.ancestor_branches['default']
     end
 
     def jira_issue_regex
-      /(?:^|\s|\/|_|-)((?:#{jira_project_keys.join('|')})[- _]\d+)/i
+      /(?:^|\s|\/|_|-)((?:#{GlobalSettings.jira.project_keys.join('|')})[- _]\d+)/i
     end
 
-    def commit_messages_to_ignore
-      /(^|\s)merge($|\s)/i # TODO move to setting
+    def is_a_valid_jira_status(status)
+      GlobalSettings.jira.valid_statuses.any? { |valid_status| valid_status.casecmp(status) == 0 }
     end
 
     def extract_jira_issue_keys(commits)
@@ -79,7 +73,7 @@ class PushManager
 
     def jira_issues_with_invalid_statuses(jira_issues)
       jira_issues.reject do |jira_issue|
-        VALID_JIRA_STATUSES.include?(jira_issue.status)
+        is_a_valid_jira_status(jira_issue.status)
       end
     end
 
@@ -109,7 +103,7 @@ class PushManager
 
     def detect_errors_for_jira_issue(jira_issue)
       errors = []
-      if VALID_JIRA_STATUSES.exclude?(jira_issue.status)
+      unless is_a_valid_jira_status(jira_issue.status)
         errors << JiraIssuesAndPushes::ERROR_WRONG_STATE
       end
 
@@ -149,8 +143,8 @@ class PushManager
 
     def get_commits_from_push(push)
       git = Git::Git.new(push.branch.repository.name)
-      git.commit_diff_refs(push.head_commit.sha, ancestor_branch, fetch: true).collect do |git_commit|
-        unless git_commit.message.match(commit_messages_to_ignore)
+      git.commit_diff_refs(push.head_commit.sha, ancestor_branch_name(push.branch.name), fetch: true).collect do |git_commit|
+        unless GlobalSettings.jira.ignore_commits_with_messages.include_regex?(git_commit.message)
           Commit.create_from_git_commit!(git_commit)
         end
       end.compact

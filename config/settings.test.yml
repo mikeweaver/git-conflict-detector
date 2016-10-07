@@ -17,5 +17,15 @@ jira:
   site: 'https://test.atlassian.net'
   consumer_key: 'test_consumer_key'
   access_token: 'test_access_token'
-  access_key: 'test_access_keuy'
+  access_key: 'test_access_key'
   private_key_file: './spec/fixtures/rsakey.pem'
+  ancestor_branches:
+    default: 'master'
+    master: 'production'
+    release: 'production'
+    production: 'master'
+  project_keys: ['STORY', 'TECH', 'WEB', 'OPS']
+  valid_statuses: ['Ready to Deploy']
+  ignore_commits_with_messages: ['(^|\s)merge($|\s)']  #regex
+  ignore_branches: []  #regex
+  only_branches: [] #regex
