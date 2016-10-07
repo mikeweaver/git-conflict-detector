@@ -15,8 +15,6 @@ module JIRA
       super(client_options)
 
       @request_client.set_access_token(settings.access_token, settings.access_key)
-
-      consumer.http.set_debug_output($stderr)
     end
 
     def find_issue(key)
