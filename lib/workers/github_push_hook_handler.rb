@@ -1,4 +1,6 @@
 class GithubPushHookHandler
+  include Rails.application.routes.url_helpers
+
   PENDING_QUEUE = 'push_pending'
   PROCESSING_QUEUE = 'push_processing'
   CONTEXT_NAME = 'Pre-Deploy Checker'
@@ -49,7 +51,7 @@ class GithubPushHookHandler
                    CONTEXT_NAME,
                    push.status,
                    STATE_DESCRIPTIONS[push.status.to_sym],
-                   'http://moreinfohere.com')
+                   url_for(controller: '/jira/status/push', action: :edit, id: push.head_commit.sha))
   end
 
   def should_ignore_push?(payload)
