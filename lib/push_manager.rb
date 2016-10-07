@@ -144,7 +144,7 @@ class PushManager
     def get_commits_from_push(push)
       git = Git::Git.new(push.branch.repository.name)
       git.commit_diff_refs(push.head_commit.sha, ancestor_branch_name(push.branch.name), fetch: true).collect do |git_commit|
-        unless GlobalSettings.jira.ignore_commits_with_messages.include_regexp?(git_commit.message)
+        unless GlobalSettings.jira.ignore_commits_with_messages.include_regexp?(git_commit.message, regexp_options=Regexp::IGNORECASE)
           Commit.create_from_git_commit!(git_commit)
         end
       end.compact
