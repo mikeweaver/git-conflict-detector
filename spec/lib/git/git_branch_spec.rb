@@ -13,7 +13,7 @@ describe 'Git::GitBranch' do
     expect(branch.author_email).to eq('author@email.com')
   end
 
-  it 'implements regex operator' do
+  it 'implements regexp operator' do
     branch = Git::GitBranch.new('repository_name', 'verylongname', Time.now , 'author_name', 'author@email.com')
 
     expect(branch =~ /.*long.*/).to be_truthy

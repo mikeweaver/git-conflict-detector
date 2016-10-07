@@ -7,10 +7,10 @@ web_server_url: 'http://localhost:3000'
 repositories_to_check_for_conflicts:
   MyRepo:
     repository_name: 'Organization/repository'
-    ignore_branches: [] #regex
+    ignore_branches: [] #regexp
     ignore_branches_modified_days_ago: 28
-    only_branches: ['^folder/.*$', 'master'] #regex
-    ignore_conflicts_in_file_paths: ['^test/fixtures/.*$', '^lib/data/generated/.*$'] #regex
+    only_branches: ['^folder/.*$', 'master'] #regexp
+    ignore_conflicts_in_file_paths: ['^test/fixtures/.*$', '^lib/data/generated/.*$'] #regexp
     default_branch_name: 'master'
     suppress_conflicts_for_owners_of_branches: ['master', 'production']
 jira:
@@ -26,6 +26,6 @@ jira:
     production: 'master'
   project_keys: ['STORY', 'TECH', 'WEB', 'OPS']
   valid_statuses: ['Ready to Deploy']
-  ignore_commits_with_messages: ['(^|\s)merge($|\s)']  #regex
-  ignore_branches: []  #regex
-  only_branches: [] #regex
+  ignore_commits_with_messages: ['(^|\s)merge($|\s)']  #regexp
+  ignore_branches: []  #regexp
+  only_branches: [] #regexp

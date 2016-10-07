@@ -99,7 +99,7 @@ class ConflictDetector < BranchManager
   end
 
   def get_files_to_ignore(conflict)
-    conflict.conflicting_files.select_regex(@settings.ignore_conflicts_in_file_paths)
+    conflict.conflicting_files.select_regexp(@settings.ignore_conflicts_in_file_paths)
   end
 
   def get_branches_not_tested_since

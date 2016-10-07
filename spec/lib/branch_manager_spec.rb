@@ -23,10 +23,10 @@ describe 'BranchManager' do
       end
 
       it 'should ignore branches on the list when the "ignore branch" list is NOT empty' do
-        @settings.ignore_branches = ['straight_match', 'regex/.*']
+        @settings.ignore_branches = ['straight_match', 'regexp/.*']
         unfiltered_branch_list = [
             create_test_branch(name: 'straight_match'),
-            create_test_branch(name: 'regex/match'),
+            create_test_branch(name: 'regexp/match'),
             create_test_branch(name: 'no_match')]
         expect_filter_branch_list_equals([unfiltered_branch_list[2]])
       end
@@ -37,10 +37,10 @@ describe 'BranchManager' do
       end
 
       it 'should include branches on the list when the "only branch" list is NOT empty' do
-        @settings.only_branches = ['straight_match', 'regex/.*']
+        @settings.only_branches = ['straight_match', 'regexp/.*']
         unfiltered_branch_list = [
             create_test_branch(name: 'straight_match'),
-            create_test_branch(name: 'regex/match'),
+            create_test_branch(name: 'regexp/match'),
             create_test_branch(name: 'no_match')]
         expect_filter_branch_list_equals([unfiltered_branch_list[0], unfiltered_branch_list[1]])
       end

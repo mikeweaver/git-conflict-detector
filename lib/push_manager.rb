@@ -36,7 +36,7 @@ class PushManager
       GlobalSettings.jira.ancestor_branches[branch_name] || GlobalSettings.jira.ancestor_branches['default']
     end
 
-    def jira_issue_regex
+    def jira_issue_regexp
       /(?:^|\s|\/|_|-)((?:#{GlobalSettings.jira.project_keys.join('|')})[- _]\d+)/i
     end
 
@@ -51,14 +51,14 @@ class PushManager
     end
 
     def extract_jira_issue_key(commit)
-      if match = commit.message.match(jira_issue_regex)
+      if match = commit.message.match(jira_issue_regexp)
         match.captures[0].upcase
       end
     end
 
     def commits_without_a_jira_issue_key!(commits)
       commits.collect do |commit|
-        unless commit.message.match(jira_issue_regex)
+        unless commit.message.match(jira_issue_regexp)
           Commit.create_from_git_commit!(commit)
         end
       end.compact
@@ -133,7 +133,7 @@ class PushManager
     def detect_errors_for_commit(commit)
       errors = []
       unless commit.jira_issue
-        if commit.message.match(jira_issue_regex)
+        if commit.message.match(jira_issue_regexp)
           errors << CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND
         else
           errors << CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER
@@ -144,7 +144,7 @@ class PushManager
     def get_commits_from_push(push)
       git = Git::Git.new(push.branch.repository.name)
       git.commit_diff_refs(push.head_commit.sha, ancestor_branch_name(push.branch.name), fetch: true).collect do |git_commit|
-        unless GlobalSettings.jira.ignore_commits_with_messages.include_regex?(git_commit.message)
+        unless GlobalSettings.jira.ignore_commits_with_messages.include_regexp?(git_commit.message)
           Commit.create_from_git_commit!(git_commit)
         end
       end.compact

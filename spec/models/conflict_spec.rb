@@ -109,7 +109,7 @@ describe 'Conflict' do
       expect(@conflict.conflicting_files_excluding(['file2.txt'])).to eq(['file1.txt', 'subfolder/file1.txt'])
     end
 
-    it 'can return a excluded filtered list of files by regex match' do
+    it 'can return a excluded filtered list of files by regexp match' do
       expect(@conflict.conflicting_files_excluding(['.*file1.txt'])).to eq(['file2.txt'])
     end
 
@@ -121,7 +121,7 @@ describe 'Conflict' do
       expect(@conflict.conflicting_files_including(['file1.txt', 'subfolder/file1.txt'])).to eq(['file1.txt', 'subfolder/file1.txt'])
     end
 
-    it 'can return a included filtered list of files by regex match' do
+    it 'can return a included filtered list of files by regexp match' do
       expect(@conflict.conflicting_files_including(['.*file1.txt'])).to eq(['file1.txt', 'subfolder/file1.txt'])
     end
 

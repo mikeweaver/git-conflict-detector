@@ -46,7 +46,7 @@ class BranchManager
   private
 
   def should_ignore_branch_by_list?(branch)
-    @settings.ignore_branches.include_regex?(branch)
+    @settings.ignore_branches.include_regexp?(branch)
   end
 
   def should_ignore_branch_by_date?(branch)
@@ -56,7 +56,7 @@ class BranchManager
 
   def should_include_branch?(branch)
     !@settings.only_branches.empty? or return true
-    @settings.only_branches.include_regex?(branch)
+    @settings.only_branches.include_regexp?(branch)
   end
 end
 
