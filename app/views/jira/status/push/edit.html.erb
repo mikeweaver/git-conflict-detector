@@ -12,7 +12,11 @@
     </div>
   <%when Github::Api::Status::STATE_SUCCESS.to_s%>
     <div class="alert alert-success">
+      <%if @push.has_errors? %>
+      Push failed some checks, but all of them have been ignored
+      <%else%>
       Push passed all checks
+      <%end%>
     </div>
   <%when Github::Api::Status::STATE_FAILED.to_s%>
     <div class="alert alert-danger">
@@ -81,7 +85,7 @@
       </tr>
       </thead>
       <tbody>
-      <%@push.commits_and_pushes.each do |commit_and_push|%>
+      <%@push.commits_and_pushes.with_errors.each do |commit_and_push|%>
         <%
           commit = commit_and_push.commit
           row_class = if commit_and_push.has_unignored_errors?
