@@ -91,6 +91,11 @@ module Jira
       end
       helper_method :get_commit_error_messages
 
+      def get_ancestor_branch()
+        PushManager.ancestor_branch_name(@push.branch.name)
+      end
+      helper_method :get_ancestor_branch
+
       private
 
       def find_resources

@@ -141,6 +141,9 @@
   <%end%>
   <%= form.submit('Save Changes', :name => 'save') %>
   <%= form.submit('Refresh JIRA and Git data', :name => 'refresh') %>
+  <div style="margin-top: 15px">
+    '<%=@push.branch.name%>' branch compared with '<%=get_ancestor_branch%>' branch on <%=@push.updated_at%>
+  </div>
   <!--
   TODO:
   Copy/Paste deploy list
