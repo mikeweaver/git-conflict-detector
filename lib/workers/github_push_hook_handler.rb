@@ -12,9 +12,17 @@ class GithubPushHookHandler
     Rails.logger.info('Queueing request')
     payload = Github::Api::PushHookPayload.new(push_hook_payload)
     Rails.logger.info(payload)
-    push = Push.create_from_github_data!(payload)
-    set_status_for_push!(push)
-    submit_push_for_processing!(push)
+
+    if should_ignore_push?(payload)
+      Rails.logger.info("Ignoring branch #{payload.branch_name} because it is in the ignore list")
+    elsif should_include_push?(payload)
+      Rails.logger.info("Queueing branch #{payload.branch_name}")
+      push = Push.create_from_github_data!(payload)
+      set_status_for_push!(push)
+      submit_push_for_processing!(push)
+    else
+      Rails.logger.info("Ignoring branch #{payload.branch_name} because it is not in the include list")
+    end
   end
   handle_asynchronously(:queue!, queue: PENDING_QUEUE)
 
@@ -42,5 +50,17 @@ class GithubPushHookHandler
                    push.status,
                    STATE_DESCRIPTIONS[push.status.to_sym],
                    'http://moreinfohere.com')
+  end
+
+  def should_ignore_push?(payload)
+    GlobalSettings.jira.ignore_branches.include_regexp?(payload.branch_name, regexp_options=Regexp::IGNORECASE)
+  end
+
+  def should_include_push?(payload)
+    if GlobalSettings.jira.only_branches.any?
+      GlobalSettings.jira.only_branches.include_regexp?(payload.branch_name, regexp_options=Regexp::IGNORECASE)
+    else
+      true
+    end
   end
 end
