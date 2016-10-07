@@ -23,6 +23,12 @@ describe 'CoreExtensions::Array' do
       expect(array.include_regex?('hello_moon')).to be_truthy
       expect(array.include_regex?('hello_space')).to be_falsey
     end
+
+    it 'can accept regex options for array of regular expression strings' do
+      array = ['.*world', '.*moon']
+
+      expect(array.include_regex?('hello_WORLD', regexp_options=Regexp::IGNORECASE)).to be_truthy
+    end
   end
 
   describe 'reject_regex' do
@@ -52,6 +58,12 @@ describe 'CoreExtensions::Array' do
       expect(array.reject_regex(['hello.*'])).to match_array([])
       expect(array.reject_regex(['nomatch.*'])).to match_array(['hello_world', 'hello_moon'])
     end
+
+    it 'can reject regex options for array of regular expression strings' do
+      array = ['hello_WORLD', 'hello_moon']
+
+      expect(array.reject_regex(['.*world'], regexp_options=Regexp::IGNORECASE)).to match_array(['hello_moon'])
+    end
   end
 
   describe 'select_regex' do
@@ -80,6 +92,12 @@ describe 'CoreExtensions::Array' do
       expect(array.select_regex(['.*world', '.*moon'])).to match_array(['hello_world', 'hello_moon'])
       expect(array.select_regex(['hello.*'])).to match_array(['hello_world', 'hello_moon'])
       expect(array.select_regex(['nomatch.*'])).to match_array([])
+    end
+
+    it 'can accept regex options for array of regular expression strings' do
+      array = ['hello_WORLD', 'hello_moon']
+
+      expect(array.select_regex(['.*world'], regexp_options=Regexp::IGNORECASE)).to match_array(['hello_WORLD'])
     end
   end
 end
