@@ -49,6 +49,10 @@ def create_test_git_conflict(repository_name: 'repository_name', branch_a_name: 
   Git::GitConflict.new(repository_name, branch_a_name, branch_b_name, file_list)
 end
 
+def create_test_git_commit(sha: '1234567890123456789012345678901234567890', message: 'Commit message', author_name: 'Author Name', author_email: 'author@email.com', commit_date: Time.now)
+  Git::GitCommit.new(sha, message, commit_date, author_name, author_email)
+end
+
 def create_test_branch(repository_name: 'repository_name', name: 'path/branch', last_modified_date: Time.now, author_name: 'Author Name', author_email: 'author@email.com')
   git_data = create_test_git_branch(
       repository_name: repository_name,
@@ -108,12 +112,26 @@ def create_test_push(sha: nil)
   Push.create_from_github_data!(Github::Api::PushHookPayload.new(json))
 end
 
-def create_test_jira_issue(key: nil)
-  json = load_json_fixture('jira_issue_response')
+def create_test_jira_issue_json(key: nil, status: nil, targeted_deploy_date: Time.now.tomorrow)
+  json = load_json_fixture('jira_issue_response').clone
   if key
     json['key'] = key
   end
-  JiraIssue.create_from_jira_data!(JIRA::Resource::IssueFactory.new(nil).build(json))
+  if status
+    json['fields']['status']['name'] = status
+  end
+  if targeted_deploy_date
+    json['fields']['customfield_10600'] = targeted_deploy_date.to_time.iso8601
+  else
+    json['fields'].except!('customfield_10600')
+  end
+  json
+end
+
+def create_test_jira_issue(key: nil, status: nil, targeted_deploy_date: Time.now.tomorrow)
+  JiraIssue.create_from_jira_data!(
+      JIRA::Resource::IssueFactory.new(nil).build(
+          create_test_jira_issue_json(key: key, status: status, targeted_deploy_date: targeted_deploy_date)))
 end
 
 def create_test_sha
