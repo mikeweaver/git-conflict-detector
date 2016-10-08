@@ -85,6 +85,45 @@ describe 'PushManager' do
     expect(push.commits.first.sha).to eq(commits[2].sha)
   end
 
+  it 'can handle commits with multiple issue numbers' do
+    mock_jira_response('STORY-1234')
+    expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 description STORY-5678')])
+    push = PushManager.process_push!(Push.create_from_github_data!(payload))
+    expect(push.jira_issues.count).to eq(1)
+    expect(push.jira_issues.first.key).to eq('STORY-1234')
+  end
+
+  it 'can handle unclean issue numbers' do
+    mock_jira_response('STORY-1234')
+    messages = [
+        'STORY-1234',
+        'STORY_1234',
+        'STORY 1234',
+        'story-1234',
+        'Story-1234',
+        '/STORY-1234',
+        '/STORY-1234/',
+        'STORY-1234/',
+        ' STORY-1234',
+        'STORY-1234 ',
+        ' STORY-1234 ',
+        '-STORY-1234',
+        'STORY-1234-',
+        '-STORY-1234-',
+        '_STORY-1234',
+        'STORY-1234_',
+        '_STORY-1234_']
+    commits = messages.collect do |message|
+      create_test_git_commit(sha: create_test_sha, message: message)
+    end
+    expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return(commits)
+    push = PushManager.process_push!(Push.create_from_github_data!(payload))
+    expect(push.commits.count).to eq(17)
+    push.commits.each do |commit|
+      expect(commit.jira_issue.key).to eq('STORY-1234')
+    end
+  end
+
   context 'status' do
     before do
       allow_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])

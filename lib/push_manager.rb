@@ -54,7 +54,7 @@ class PushManager
 
     def extract_jira_issue_key(commit)
       if match = commit.message.match(jira_issue_regexp)
-        match.captures[0].upcase
+        match.captures[0].upcase.sub(/[ _]/,'-')
       end
     end
 
