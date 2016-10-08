@@ -58,32 +58,11 @@ class PushManager
       end
     end
 
-    def commits_without_a_jira_issue_key!(commits)
-      commits.collect do |commit|
-        unless commit.message.match(jira_issue_regexp)
-          Commit.create_from_git_commit!(commit)
-        end
-      end.compact
-    end
-
     def get_jira_issues!(ticket_numbers)
       jira_client = JIRA::ClientWrapper.new(GlobalSettings.jira)
       ticket_numbers.collect do |ticket_number|
         JiraIssue.create_from_jira_data!(jira_client.find_issue(ticket_number))
       end.compact
-    end
-
-    def jira_issues_with_invalid_statuses(jira_issues)
-      jira_issues.reject do |jira_issue|
-        is_a_valid_jira_status(jira_issue.status)
-      end
-    end
-
-    def ticket_numbers_not_in_jira_issue_list(ticket_numbers, jira_issues)
-      jira_issue_numbers = jira_issues.collect do |jira_issue|
-        jira_issue.key
-      end
-      ticket_numbers - jira_issue_numbers
     end
 
     def link_commits_to_jira_issues(jira_issues, commits)
