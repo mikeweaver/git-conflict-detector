@@ -44,6 +44,36 @@ describe 'GithubPushHookHandler' do
     expect(Delayed::Job.count).to eq(1)
   end
 
+  it 'does not process pushes for branches in the ignore list' do
+    expect_any_instance_of(Github::Api::Status).not_to receive(:set_status)
+    GlobalSettings.jira.ignore_branches << '.*branch_name'
+    GithubPushHookHandler.new().queue!(payload)
+
+    # a job should be queued
+    expect(Delayed::Job.count).to eq(1)
+
+    # process the job
+    expect(Delayed::Worker.new.work_off(1)).to eq([1, 0])
+
+    # it should not have queued another job
+    expect(Delayed::Job.count).to eq(0)
+  end
+
+  it 'does not process pushes for branches not in the only list' do
+    expect_any_instance_of(Github::Api::Status).not_to receive(:set_status)
+    GlobalSettings.jira.only_branches << 'not_a_match'
+    GithubPushHookHandler.new().queue!(payload)
+
+    # a job should be queued
+    expect(Delayed::Job.count).to eq(1)
+
+    # process the job
+    expect(Delayed::Worker.new.work_off(1)).to eq([1, 0])
+
+    # it should not have queued another job
+    expect(Delayed::Job.count).to eq(0)
+  end
+
   it 'sets GitHub push status after processing' do
     mock_status_request(
         Github::Api::Status::STATE_SUCCESS,
