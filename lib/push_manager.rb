@@ -65,7 +65,7 @@ class PushManager
     def get_jira_issues!(ticket_numbers)
       jira_client = JIRA::ClientWrapper.new(GlobalSettings.jira)
       ticket_numbers.collect do |ticket_number|
-        if issue = jira_client.find_issue(ticket_number)
+        if issue = jira_client.find_issue_by_key(ticket_number)
           JiraIssue.create_from_jira_data!(issue)
         end
       end.compact
