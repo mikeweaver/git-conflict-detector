@@ -139,7 +139,7 @@ module Git
       ref_prefix = 'origin/' unless self.class.is_git_sha?(ref)
       ancestor_ref_prefix = 'origin/' unless self.class.is_git_sha?(ancestor_ref)
 
-      raw_output = execute("log --format=$'%H\t%an\t%ae\t%aI\t%s' --no-color #{ancestor_ref_prefix}#{Shellwords.escape(ancestor_ref)}..#{ref_prefix}#{Shellwords.escape(ref)}")
+      raw_output = execute("log --format='%H\t%an\t%ae\t%aI\t%s' --no-color #{ancestor_ref_prefix}#{Shellwords.escape(ancestor_ref)}..#{ref_prefix}#{Shellwords.escape(ref)}")
       raw_output.split("\n").map do |row|
         commit_data = row.split("\t")
         GitCommit.new(commit_data[0], commit_data[4], DateTime::parse(commit_data[3]), commit_data[1], commit_data[2])
