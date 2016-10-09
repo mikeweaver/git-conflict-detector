@@ -6,6 +6,7 @@ class JiraIssue < ActiveRecord::Base
     status :text, limit: 255, null: false
     targeted_deploy_date :date, null: true
     post_deploy_check_status :text, limit: 255, null: true
+    deploy_type :text, limit: 255, null: true
     timestamps
   end
 
@@ -31,6 +32,11 @@ class JiraIssue < ActiveRecord::Base
     issue.post_deploy_check_status = if jira_data.fields['customfield_12202']
                                        jira_data.fields['customfield_12202']['value']
                                      end
+    issue.deploy_type = if jira_data.fields['customfield_12501']
+                          jira_data.fields['customfield_12501'].collect do |value|
+                            value['value']
+                          end.join ', '
+                        end
 
     if jira_data.assignee
       issue.assignee = User.create_from_jira_data!(jira_data.assignee)

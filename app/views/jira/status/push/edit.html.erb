@@ -38,6 +38,7 @@
         <th>Key</th>
         <th>Last SHA</th>
         <th>Assignee</th>
+        <th>Deploy Type</th>
         <th>Status</th>
         <th>Post Deploy</br>Check Status</th>
         <th>Deploy Date</th>
@@ -64,6 +65,7 @@
           </td>
           <td><%=link_to(jira_issue.latest_commit.short_sha, github_url_for_commit(jira_issue.latest_commit), target: '_blank')%></td>
           <td nowrap><%=jira_issue.assignee.name%></td>
+          <td nowrap><%-jira_issue.deploy_type%></td>
           <td nowrap><%=jira_issue.status%></td>
           <td nowrap><%=jira_issue.post_deploy_check_status%></td>
           <td nowrap><%=jira_issue.targeted_deploy_date || '-'%></td>

@@ -417,6 +417,11 @@
         "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/customFieldOption\/11104",
         "value": "Web",
         "id": "11104"
+      },
+      {
+        "self": "https:\/\/ringrevenue.atlassian.net\/rest\/api\/2\/customFieldOption\/11105",
+        "value": "PNAPI",
+        "id": "11105"
       }
     ],
     "customfield_10004": null,
