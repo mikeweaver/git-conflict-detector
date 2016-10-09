@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161004202614) do
+ActiveRecord::Schema.define(version: 20161009195730) do
 
   create_table "branches", force: :cascade do |t|
     t.datetime "git_tested_at"
@@ -78,15 +78,16 @@ ActiveRecord::Schema.define(version: 20161004202614) do
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority"
 
   create_table "jira_issues", force: :cascade do |t|
-    t.text     "key",                  limit: 255,  null: false
-    t.text     "issue_type",           limit: 255,  null: false
-    t.text     "summary",              limit: 1024, null: false
-    t.text     "status",               limit: 255,  null: false
+    t.text     "key",                      limit: 255,  null: false
+    t.text     "issue_type",               limit: 255,  null: false
+    t.text     "summary",                  limit: 1024, null: false
+    t.text     "status",                   limit: 255,  null: false
     t.date     "targeted_deploy_date"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "assignee_id"
     t.integer  "parent_issue_id"
+    t.text     "post_deploy_check_status", limit: 255
   end
 
   add_index "jira_issues", ["assignee_id"], name: "index_jira_issues_on_assignee_id"

@@ -17,6 +17,8 @@ describe 'JiraIssue' do
     expect(issue.issue_type).to eq('Story')
     expect(issue.status).to eq('Code Review')
     expect(issue.targeted_deploy_date).to eq(Date.parse('2016-09-21'))
+    expect(issue.post_deploy_check_status).to eq('Ready to Run')
+
     expect(issue.parent_issue).to be_nil
     expect(issue.pushes).to eq([])
     expect(issue.assignee.name).to eq('Author Name')

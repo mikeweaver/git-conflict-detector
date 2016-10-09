@@ -112,7 +112,7 @@ def create_test_push(sha: nil)
   Push.create_from_github_data!(Github::Api::PushHookPayload.new(json))
 end
 
-def create_test_jira_issue_json(key: nil, status: nil, targeted_deploy_date: Time.now.tomorrow)
+def create_test_jira_issue_json(key: nil, status: nil, targeted_deploy_date: Time.now.tomorrow, post_deploy_check_status: nil)
   json = load_json_fixture('jira_issue_response').clone
   if key
     json['key'] = key
@@ -125,13 +125,16 @@ def create_test_jira_issue_json(key: nil, status: nil, targeted_deploy_date: Tim
   else
     json['fields'].except!('customfield_10600')
   end
+  if post_deploy_check_status
+    json['fields']['customfield_12202']['value'] = post_deploy_check_status
+  end
   json
 end
 
-def create_test_jira_issue(key: nil, status: nil, targeted_deploy_date: Time.now.tomorrow)
+def create_test_jira_issue(key: nil, status: nil, targeted_deploy_date: Time.now.tomorrow, post_deploy_check_status: nil)
   JiraIssue.create_from_jira_data!(
       JIRA::Resource::IssueFactory.new(nil).build(
-          create_test_jira_issue_json(key: key, status: status, targeted_deploy_date: targeted_deploy_date)))
+          create_test_jira_issue_json(key: key, status: status, targeted_deploy_date: targeted_deploy_date, post_deploy_check_status: post_deploy_check_status)))
 end
 
 def create_test_sha

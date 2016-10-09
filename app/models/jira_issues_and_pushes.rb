@@ -2,6 +2,7 @@ class JiraIssuesAndPushes < ActiveRecord::Base
   include ErrorsJson
 
   ERROR_WRONG_STATE = 'wrong_state'
+  ERROR_POST_DEPLOY_CHECK_STATUS = 'wrong_post_deploy_status'
   ERROR_NO_COMMITS = 'no_commits'
   ERROR_WRONG_DEPLOY_DATE = 'wrong_deploy_date'
   ERROR_NO_DEPLOY_DATE = 'no_deploy_date'

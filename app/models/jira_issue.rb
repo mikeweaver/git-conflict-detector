@@ -5,6 +5,7 @@ class JiraIssue < ActiveRecord::Base
     summary :text, limit: 1024, null: false
     status :text, limit: 255, null: false
     targeted_deploy_date :date, null: true
+    post_deploy_check_status :text, limit: 255, null: true
     timestamps
   end
 
@@ -23,10 +24,13 @@ class JiraIssue < ActiveRecord::Base
     issue.summary = jira_data.summary.truncate(1024)
     issue.issue_type = jira_data.issuetype.name
     issue.status = jira_data.fields['status']['name']
-    # TODO extract to setting?
+    # TODO extract to settings?
     issue.targeted_deploy_date = if jira_data.fields['customfield_10600']
-      Date.parse(jira_data.fields['customfield_10600'])
-    end
+                                   Date.parse(jira_data.fields['customfield_10600'])
+                                 end
+    issue.post_deploy_check_status = if jira_data.fields['customfield_12202']
+                                       jira_data.fields['customfield_12202']['value']
+                                     end
 
     if jira_data.assignee
       issue.assignee = User.create_from_jira_data!(jira_data.assignee)

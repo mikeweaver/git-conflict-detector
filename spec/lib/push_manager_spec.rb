@@ -5,8 +5,8 @@ describe 'PushManager' do
     @payload ||= Github::Api::PushHookPayload.new(load_json_fixture('github_push_payload'))
   end
 
-  def mock_jira_response(key, status: 'Ready to Deploy', targeted_deploy_date: Time.now.tomorrow)
-    response = create_test_jira_issue_json(key: key, status: status, targeted_deploy_date: targeted_deploy_date)
+  def mock_jira_response(key, status: 'Ready to Deploy', targeted_deploy_date: Time.now.tomorrow, post_deploy_check_status: 'Ready to Run')
+    response = create_test_jira_issue_json(key: key, status: status, targeted_deploy_date: targeted_deploy_date, post_deploy_check_status: post_deploy_check_status)
     stub_request(:get, /.*#{key}/).to_return(status: 200, body: response.to_json)
   end
 
@@ -41,9 +41,15 @@ describe 'PushManager' do
     end
 
     it 'in the wrong state' do
-      mock_jira_response('STORY-1234', status: 'Wrong Status')
+      mock_jira_response('STORY-1234', status: 'Wrong State')
       push = PushManager.process_push!(Push.create_from_github_data!(payload))
       expect(push.jira_issues_and_pushes.first.error_list).to match_array([JiraIssuesAndPushes::ERROR_WRONG_STATE])
+    end
+
+    it 'with the wrong post deploy check status' do
+      mock_jira_response('STORY-1234', post_deploy_check_status: 'Wrong Status')
+      push = PushManager.process_push!(Push.create_from_github_data!(payload))
+      expect(push.jira_issues_and_pushes.first.error_list).to match_array([JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS])
     end
 
     it 'without a deploy date' do

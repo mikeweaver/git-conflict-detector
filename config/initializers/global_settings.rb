@@ -45,6 +45,7 @@ DEFAULT_JIRA_SETTINGS = {
   private_key_file: './rsakey.pem',
   project_keys: [],
   valid_statuses: [],
+  valid_post_deploy_check_statuses: [],
   ignore_commits_with_messages: [],
   ignore_branches: [],
   only_branches: [],

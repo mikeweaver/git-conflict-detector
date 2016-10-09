@@ -42,8 +42,12 @@ class PushManager
       /(?:^|\s|\/|_|-)((?:#{GlobalSettings.jira.project_keys.join('|')})[- _]\d+)/i
     end
 
-    def is_a_valid_jira_status(status)
+    def is_a_valid_jira_state(status)
       GlobalSettings.jira.valid_statuses.any? { |valid_status| valid_status.casecmp(status) == 0 }
+    end
+
+    def is_a_valid_post_deploy_check_status(status)
+      GlobalSettings.jira.valid_post_deploy_check_statuses.any? { |valid_status| valid_status.casecmp(status) == 0 }
     end
 
     def extract_jira_issue_keys(commits)
@@ -86,8 +90,12 @@ class PushManager
 
     def detect_errors_for_jira_issue(jira_issue)
       errors = []
-      unless is_a_valid_jira_status(jira_issue.status)
+      unless is_a_valid_jira_state(jira_issue.status)
         errors << JiraIssuesAndPushes::ERROR_WRONG_STATE
+      end
+      
+      unless is_a_valid_post_deploy_check_status(jira_issue.post_deploy_check_status)
+        errors << JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS
       end
 
       if jira_issue.commits.empty?

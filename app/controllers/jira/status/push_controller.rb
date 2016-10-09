@@ -10,7 +10,8 @@ module Jira
               JiraIssuesAndPushes::ERROR_WRONG_STATE.to_s => "JIRA issue(s) in the wrong state",
               JiraIssuesAndPushes::ERROR_NO_COMMITS.to_s => "JIRA issue(s) with no commits",
               JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE.to_s => "JIRA issue(s) with a deploy date in the past",
-              JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE.to_s => "JIRA issue(s) with no deploy date"
+              JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE.to_s => "JIRA issue(s) with no deploy date",
+              JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS.to_s => "JIRA issue(s) with the wrong post deploy check status",
           }
       }
       ERROR_CODE_SINGULAR_MAP = {
@@ -22,7 +23,8 @@ module Jira
               JiraIssuesAndPushes::ERROR_WRONG_STATE.to_s => "In the wrong state",
               JiraIssuesAndPushes::ERROR_NO_COMMITS.to_s => "Has no commits",
               JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE.to_s => "The deploy date in the past",
-              JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE.to_s => "Has no deploy date"
+              JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE.to_s => "Has no deploy date",
+              JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS.to_s => "Wrong post deploy check status",
           }
       }
 
