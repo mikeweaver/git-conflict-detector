@@ -20,7 +20,7 @@ services:
     command: ./script/docker_entry_points/unicorn.sh
     volumes:
       - ./tmp/cache/git:/tmp/git
-      - ./db/production:/usr/src/pre_deploy_checker/db/production
+      - ./db/sqlite:/usr/src/pre_deploy_checker/db/sqlite
       - ./log/docker:/usr/src/pre_deploy_checker/log
   post_deploy_checker_delayed_job:
     build:
