@@ -6,11 +6,14 @@ class PushManager
 
       commits = get_commits_from_push(push)
 
-      # get ticket numbers from commits
-      ticket_numbers = extract_jira_issue_keys(commits)
+      # get issue keys from commits
+      issue_keys = extract_jira_issue_keys(commits)
 
-      # lookup tickets in JIRA
-      jira_issues = get_jira_issues!(ticket_numbers)
+      # lookup issues in JIRA
+      jira_issues = get_jira_issues!(issue_keys)
+
+      # get issues from JIRA that should have been in the commits, but were not
+      jira_issues += get_other_jira_issues_in_valid_states(issue_keys)
 
       link_commits_to_jira_issues(jira_issues, commits)
 
@@ -47,7 +50,11 @@ class PushManager
     end
 
     def is_a_valid_post_deploy_check_status(status)
-      GlobalSettings.jira.valid_post_deploy_check_statuses.any? { |valid_status| valid_status.casecmp(status) == 0 }
+      if status
+        GlobalSettings.jira.valid_post_deploy_check_statuses.any? { |valid_status| valid_status.casecmp(status) == 0 }
+      else
+        false
+      end
     end
 
     def extract_jira_issue_keys(commits)
@@ -62,12 +69,26 @@ class PushManager
       end
     end
 
-    def get_jira_issues!(ticket_numbers)
+    def get_jira_issues!(issue_keys)
       jira_client = JIRA::ClientWrapper.new(GlobalSettings.jira)
-      ticket_numbers.collect do |ticket_number|
+      issue_keys.collect do |ticket_number|
         if issue = jira_client.find_issue_by_key(ticket_number)
           JiraIssue.create_from_jira_data!(issue)
         end
+      end.compact
+    end
+
+    def get_other_jira_issues_in_valid_states(issue_keys)
+      quoted_statuses = GlobalSettings.jira.valid_statuses.map do |status|
+        "\"#{status}\""
+      end
+      jql = "status IN (#{quoted_statuses.join(', ')}) AND project IN (#{GlobalSettings.jira.project_keys.join(', ').upcase})"
+      if issue_keys.any?
+        jql += " AND key NOT IN (#{issue_keys.join(', ')})"
+      end
+      jira_client = JIRA::ClientWrapper.new(GlobalSettings.jira)
+      jira_client.find_issues_by_jql(jql).collect do |issue|
+        JiraIssue.create_from_jira_data!(issue)
       end.compact
     end
 

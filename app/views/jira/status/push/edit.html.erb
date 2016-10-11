@@ -37,6 +37,7 @@
         <th>Approve</th>
         <th>Key</th>
         <th>Last SHA</th>
+        <th>Commits</th>
         <th>Assignee</th>
         <th>Deploy Type</th>
         <th>Status</th>
@@ -63,12 +64,19 @@
             <%end%>
             <%=link_to(jira_issue.key, jira_url_for_issue(jira_issue), target: '_blank')%>
           </td>
-          <td><%=link_to(jira_issue.latest_commit.short_sha, github_url_for_commit(jira_issue.latest_commit), target: '_blank')%></td>
+          <td>
+          <%if jira_issue.latest_commit%>
+            <%=link_to(jira_issue.latest_commit.short_sha, github_url_for_commit(jira_issue.latest_commit), target: '_blank')%>
+          <%else%>
+            &mdash;
+          <%end%>
+          </td>
+          <td><%=jira_issue.commits.count%></td>
           <td nowrap><%=jira_issue.assignee.name%></td>
           <td nowrap><%=jira_issue.deploy_type%></td>
           <td nowrap><%=jira_issue.status%></td>
-          <td nowrap><%=jira_issue.post_deploy_check_status%></td>
-          <td nowrap><%=jira_issue.targeted_deploy_date || '-'%></td>
+          <td nowrap><%=jira_issue.post_deploy_check_status || '&mdash;'.html_safe%></td>
+          <td nowrap><%=jira_issue.targeted_deploy_date || '&mdash;'.html_safe%></td>
           <td><%=jira_issue.summary%></td>
         </tr>
       <%end%>

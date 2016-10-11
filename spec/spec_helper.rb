@@ -136,9 +136,10 @@ end
 def create_test_jira_issue_json(key: nil,
                                 status: nil,
                                 targeted_deploy_date: Time.now.tomorrow,
-                                post_deploy_check_status: nil,
+                                post_deploy_check_status: 'Ready to Run',
                                 deploy_type: nil)
-  json = load_json_fixture('jira_issue_response').clone
+  json = load_json_fixture('jira_issue_response')
+  json['id'] = "#{SecureRandom.random_number(100000)}"
   if key
     json['key'] = key
   end
@@ -152,6 +153,8 @@ def create_test_jira_issue_json(key: nil,
   end
   if post_deploy_check_status
     json['fields']['customfield_12202']['value'] = post_deploy_check_status
+  else
+    json['fields'].except!('customfield_12202')
   end
   if deploy_type
     json['fields']['customfield_12501']['value'] = deploy_type
