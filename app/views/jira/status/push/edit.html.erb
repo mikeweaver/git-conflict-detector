@@ -1,5 +1,7 @@
 <%= form_for @push, url: "/jira/status/push/#{@push.head_commit.sha}.html" do |form| %>
-
+<style>
+.error {color: red; font-weight: bold;}
+</style>
 <div class="container">
   <% if flash[:alert] %>
     <div class="alert alert-success"><%= flash[:alert] %></div>
@@ -71,12 +73,12 @@
             &mdash;
           <%end%>
           </td>
-          <td><%=jira_issue.commits.count%></td>
+          <td class="<%=error_class_if_error_present(jira_issue_and_push, [JiraIssuesAndPushes::ERROR_NO_COMMITS])%>"><%=jira_issue.commits.count%></td>
           <td nowrap><%=jira_issue.assignee.name%></td>
           <td nowrap><%=jira_issue.deploy_type%></td>
-          <td nowrap><%=jira_issue.status%></td>
-          <td nowrap><%=jira_issue.post_deploy_check_status || '&mdash;'.html_safe%></td>
-          <td nowrap><%=jira_issue.targeted_deploy_date || '&mdash;'.html_safe%></td>
+          <td nowrap class="<%=error_class_if_error_present(jira_issue_and_push, [JiraIssuesAndPushes::ERROR_WRONG_STATE])%>"><%=jira_issue.status%></td>
+          <td nowrap class="<%=error_class_if_error_present(jira_issue_and_push, [JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS])%>"><%=jira_issue.post_deploy_check_status || '&mdash;'.html_safe%></td>
+          <td nowrap class="<%=error_class_if_error_present(jira_issue_and_push, [JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE, JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE])%>"><%=jira_issue.targeted_deploy_date || '&mdash;'.html_safe%></td>
           <td><%=jira_issue.summary%></td>
         </tr>
       <%end%>

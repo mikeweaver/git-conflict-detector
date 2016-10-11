@@ -98,6 +98,14 @@ module Jira
       end
       helper_method :get_ancestor_branch
 
+      def error_class_if_error_present(error_object, error_codes)
+        has_error = error_codes.any? do |error_code|
+          error_object.has_error?(error_code)
+        end
+        'error' if has_error
+      end
+      helper_method :error_class_if_error_present
+
       private
 
       def find_resources

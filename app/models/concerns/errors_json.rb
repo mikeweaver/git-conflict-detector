@@ -50,5 +50,9 @@ module ErrorsJson
     def has_ignored_errors?
       has_errors? && ignore_errors
     end
+
+    def has_error?(error)
+      error_list.include?(error)
+    end
   end
 end
