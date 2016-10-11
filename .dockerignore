@@ -10,6 +10,7 @@ test/tmp/
 test/version_tmp/
 .git
 shared/
+docker-secrets.env
 
 ## Specific to RubyMotion:
 .dat*

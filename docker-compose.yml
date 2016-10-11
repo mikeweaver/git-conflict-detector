@@ -9,12 +9,14 @@ services:
     image: invocaops/post_deploy_checker
     ports:
        - "3000:3000"
+    env_file: docker-secrets.env
+    # Must define the following the docker-secrets.env file
+    # SECRET_KEY_BASE - Rails secret key
+    # SMTP_USER_NAME
+    # SMTP_PASSWORD
+    # SMTP_ADDRESS
     environment:
-      SECRET_KEY_BASE: CHANGEME
       RAILS_ENV: production
-      SMTP_USER_NAME: CHANGEME
-      SMTP_PASSWORD: CHANGEME
-      SMTP_ADDRESS: CHANGEME
     command: ./script/docker_entry_points/unicorn.sh
     volumes:
       - ./tmp/cache/git:/tmp/git
@@ -26,14 +28,15 @@ services:
       args:
         RAILS_ENV: production
     image: invocaops/post_deploy_checker
+    env_file: docker-secrets.env
+    # Must define the following the docker-secrets.env file
+    # SECRET_KEY_BASE - Rails secret key
+    # GITHUB_USER_NAME
+    # GITHUB_PASSWORD
+    # GITHUB_PRIVATE_KEY - Private key that can clone the repos you want to process
+    # JIRA_PRIVATE_KEY - Private key used to read from JIRA via OAuth
     environment:
-      SECRET_KEY_BASE: CHANGEME
       RAILS_ENV: production
-      GITHUB_USER_NAME: CHANGEME
-      GITHUB_PASSWORD: CHANGEME
-      GITHUB_PRIVATE_KEY: CHANGEME
-      GITHUB_PUBLIC_KEY: CHANGEME
-      JIRA_PRIVATE_KEY: CHANGEME
     command: ./script/docker_entry_points/delayed_job.sh
     volumes_from:
        - post_deploy_checker_web
