@@ -1,5 +1,3 @@
-Rails.application.routes.default_url_options[:host] = GlobalSettings.web_server_url
-
 Rails.application.routes.draw do
   get "/400" => "errors#bad_request"
 

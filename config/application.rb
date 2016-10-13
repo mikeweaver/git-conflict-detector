@@ -39,6 +39,11 @@ module GitConflictDetector
     config.exceptions_app = self.routes
 
     config.after_initialize do
+      #TODO: Cleanup the creation of the GlobalSettings global variable
+      #It currently relies on this line being the first time the application references it
+      #Earlier references could cause the validation to fail because the ENV is not loaded yet
+      Rails.application.routes.default_url_options[:host] = GlobalSettings.web_server_url
+
       # disable logging of SQL statements
       ActiveRecord::Base.logger = nil
 

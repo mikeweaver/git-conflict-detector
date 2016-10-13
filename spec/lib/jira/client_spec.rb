@@ -12,26 +12,26 @@ describe 'JIRA::ClientWrapper' do
 
   it 'can be created' do
     settings = {
-        site: 'https://www.jira.com',
-        consumer_key: 'fake_key',
-        access_token: 'fake_access_token',
-        access_key: 'fake_access_key',
-        private_key_file: Rails.root.join('spec/fixtures/rsakey.pem')
+        'site' => 'https://www.jira.com',
+        'consumer_key' => 'fake_key',
+        'access_token' => 'fake_access_token',
+        'access_key' => 'fake_access_key',
+        'private_key_file' => Rails.root.join('spec/fixtures/rsakey.pem')
     }
-    client = JIRA::ClientWrapper.new(OpenStruct.new(settings))
+    client = JIRA::ClientWrapper.new(settings)
     expect(client).to_not be_nil
   end
 
   context 'issues' do
     before do
       settings = {
-          site: 'https://www.jira.com',
-          consumer_key: 'fake_key',
-          access_token: 'fake_access_token',
-          access_key: 'fake_access_key',
-          private_key_file: Rails.root.join('spec/fixtures/rsakey.pem')
+          'site' => 'https://www.jira.com',
+          'consumer_key' => 'fake_key',
+          'access_token' => 'fake_access_token',
+          'access_key' => 'fake_access_key',
+          'private_key_file' => Rails.root.join('spec/fixtures/rsakey.pem')
       }
-      @client = JIRA::ClientWrapper.new(OpenStruct.new(settings))
+      @client = JIRA::ClientWrapper.new(settings)
     end
 
     context 'find_issue_by_key' do

@@ -111,11 +111,7 @@ describe 'GlobalSettings' do
       @required_settings = DEFAULT_SETTINGS.merge(
           {'web_server_url' => 'http://myserver.com',
            'jira' => DEFAULT_JIRA_SETTINGS.merge(
-               {'site' => 'https://test.atlassian.net',
-                'consumer_key' => 'test_consumer_key',
-                'access_token' => 'test_access_token',
-                'access_key' => 'test_access_key',
-                'ancestor_branches' => { 'default' => 'master' },
+               {'ancestor_branches' => { 'default' => 'master' },
                 'project_keys' => ['STORY'],
                 'valid_statuses' => ['Ready to Deploy']})})
     end
@@ -129,32 +125,49 @@ describe 'GlobalSettings' do
       expect(load_global_settings).to eq(expected_settings)
     end
 
-    it 'site is required' do
-      @required_settings['jira'].except!('site')
+    def with_jira_secrets_except(key)
+      value = Rails.application.secrets.jira[key]
+      Rails.application.secrets.jira.except!(key)
+      begin
+        yield
+      ensure
+        Rails.application.secrets.jira[key] = value
+      end
+    end
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
-      expect { load_global_settings }.to raise_exception(InvalidSettings, /site/)
+    it 'site is required' do
+      with_jira_secrets_except('site') do
+        File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+        expect { load_global_settings }.to raise_exception(InvalidSettings, /site/)
+      end
     end
 
     it 'consumer_key is required' do
-      @required_settings['jira'].except!('consumer_key')
-
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
-      expect { load_global_settings }.to raise_exception(InvalidSettings, /consumer/)
+      with_jira_secrets_except('consumer_key') do
+        File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+        expect { load_global_settings }.to raise_exception(InvalidSettings, /consumer/)
+      end
     end
 
     it 'access_token is required' do
-      @required_settings['jira'].except!('access_token')
-
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
-      expect { load_global_settings }.to raise_exception(InvalidSettings, /access token/)
+      with_jira_secrets_except('access_token') do
+        File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+        expect { load_global_settings }.to raise_exception(InvalidSettings, /access token/)
+      end
     end
 
     it 'access_key is required' do
-      @required_settings['jira'].except!('access_key')
+      with_jira_secrets_except('access_key') do
+        File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+        expect { load_global_settings }.to raise_exception(InvalidSettings, /access key/)
+      end
+    end
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
-      expect { load_global_settings }.to raise_exception(InvalidSettings, /access key/)
+    it 'private_key_file is required' do
+      with_jira_secrets_except('private_key_file') do
+        File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+        expect { load_global_settings }.to raise_exception(InvalidSettings, /private key/)
+      end
     end
 
     it 'ancestor_branches is required' do
