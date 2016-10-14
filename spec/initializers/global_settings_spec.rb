@@ -17,7 +17,7 @@ describe 'GlobalSettings' do
   end
 
   it 'skips all validations if VALIDATE_SETTINGS is false' do
-    ENV['VALIDATE_SETTINGS'] = 'false'
+    stub_env('VALIDATE_SETTINGS', 'false')
     File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", '')
     load_global_settings
     expect(load_global_settings).to eq(OpenStruct.new(DEFAULT_SETTINGS))

@@ -19,6 +19,7 @@ require 'securerandom'
 GitConflictDetector::Application.load_tasks
 
 RSpec.configure do |config|
+  config.include StubEnv::Helpers
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
