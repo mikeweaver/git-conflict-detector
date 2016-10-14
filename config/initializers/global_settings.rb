@@ -50,8 +50,26 @@ DEFAULT_JIRA_SETTINGS = {
 
 class InvalidSettings < StandardError; end
 
+def skip_validations
+  ENV["VALIDATE_SETTINGS"] && (ENV["VALIDATE_SETTINGS"].downcase == 'false')
+end
+
+def validate_common_settings(settings)
+  return if skip_validations
+
+  if settings.repositories_to_check_for_conflicts.empty? && settings.branches_to_merge.empty? && settings.jira.empty?
+    raise InvalidSettings.new('Must specify at least one repository to check for conflicts, or one branch to merge, or jira settings')
+  end
+
+  if settings.web_server_url.blank?
+    raise InvalidSettings.new('Must specify the web server URL')
+  end
+end
+
 
 def validate_repository_settings(name, settings)
+  return if skip_validations
+
   if settings.repository_name.blank?
     raise InvalidSettings.new("Must specify repository name for #{name}")
   end
@@ -61,6 +79,8 @@ def validate_repository_settings(name, settings)
 end
 
 def validate_jira_settings(settings)
+  return if skip_validations
+
   if Rails.application.secrets.jira['site'].blank?
     raise InvalidSettings.new("Must specify JIRA site URL")
   end
@@ -107,14 +127,7 @@ def load_global_settings
   # convert to open struct
   settings_object = OpenStruct.new(DEFAULT_SETTINGS.merge(settings_hash))
 
-  # validate required args are present
-  if settings_object.repositories_to_check_for_conflicts.empty? && settings_object.branches_to_merge.empty? && settings_object.jira.empty?
-    raise InvalidSettings.new('Must specify at least one repository to check for conflicts, or one branch to merge, or jira settings')
-  end
-
-  if settings_object.web_server_url.blank?
-    raise InvalidSettings.new('Must specify the web server URL')
-  end
+  validate_common_settings(settings_object)
 
   # convert nested conflict hashes to open struct and validate them
   settings_object.repositories_to_check_for_conflicts.each do |repository_name, repository_settings|

@@ -36,4 +36,4 @@ RUN bundle install
 
 COPY . .
 
-RUN bundle exec rake db:migrate RAILS_ENV=$RAILS_ENV
+RUN bundle exec rake db:migrate RAILS_ENV=$RAILS_ENV VALIDATE_SETTINGS=false
