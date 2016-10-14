@@ -5,16 +5,16 @@ module JIRA
     def initialize(settings)
       client_options = {
           signature_method: 'RSA-SHA1',
-          consumer_key: settings.consumer_key,
-          site: settings.site,
+          consumer_key: settings['consumer_key'],
+          site: settings['site'],
           context_path: '',
           use_ssl: true,
-          private_key_file: settings.private_key_file
+          private_key_file: settings['private_key_file']
       }
 
       super(client_options)
 
-      @request_client.set_access_token(settings.access_token, settings.access_key)
+      @request_client.set_access_token(settings['access_token'], settings['access_key'])
     end
 
     def find_issue_by_key(key)

@@ -38,10 +38,6 @@ DEFAULT_AUTO_MERGE_SETTINGS = {
 }.merge(DEFAULT_BRANCH_FILTERS).merge(DEFAULT_REPOSITORY_SETTINGS).freeze
 
 DEFAULT_JIRA_SETTINGS = {
-  site: '',
-  consumer_key: '',
-  access_token: '',
-  access_key: '',
   private_key_file: './rsakey.pem',
   project_keys: [],
   valid_statuses: [],
@@ -65,17 +61,20 @@ def validate_repository_settings(name, settings)
 end
 
 def validate_jira_settings(settings)
-  if settings.site.blank?
+  if Rails.application.secrets.jira['site'].blank?
     raise InvalidSettings.new("Must specify JIRA site URL")
   end
-  if settings.consumer_key.blank?
+  if Rails.application.secrets.jira['consumer_key'].blank?
     raise InvalidSettings.new("Must specify JIRA consumer key")
   end
-  if settings.access_token.blank?
+  if Rails.application.secrets.jira['access_token'].blank?
     raise InvalidSettings.new("Must specify JIRA access token")
   end
-  if settings.access_key.blank?
+  if Rails.application.secrets.jira['access_key'].blank?
     raise InvalidSettings.new("Must specify JIRA access key")
+  end
+  if Rails.application.secrets.jira['private_key_file'].blank?
+    raise InvalidSettings.new("Must specify JIRA private key file name")
   end
   if settings.project_keys.empty?
     raise InvalidSettings.new("Must specify at least one JIRA project key")

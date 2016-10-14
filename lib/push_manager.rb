@@ -70,7 +70,7 @@ class PushManager
     end
 
     def get_jira_issues!(issue_keys)
-      jira_client = JIRA::ClientWrapper.new(GlobalSettings.jira)
+      jira_client = JIRA::ClientWrapper.new(Rails.application.secrets.jira)
       issue_keys.collect do |ticket_number|
         if issue = jira_client.find_issue_by_key(ticket_number)
           JiraIssue.create_from_jira_data!(issue)
@@ -86,7 +86,7 @@ class PushManager
       if issue_keys.any?
         jql += " AND key NOT IN (#{issue_keys.join(', ')})"
       end
-      jira_client = JIRA::ClientWrapper.new(GlobalSettings.jira)
+      jira_client = JIRA::ClientWrapper.new(Rails.application.secrets.jira)
       jira_client.find_issues_by_jql(jql).collect do |issue|
         JiraIssue.create_from_jira_data!(issue)
       end.compact

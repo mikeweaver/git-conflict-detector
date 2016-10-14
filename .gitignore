@@ -9,6 +9,8 @@
 /test/tmp/
 /test/version_tmp/
 /tmp/
+*secrets*
+/shared/
 docker-secrets.env
 
 ## Specific to RubyMotion:
