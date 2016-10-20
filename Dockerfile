@@ -28,7 +28,8 @@ RUN cd .. && \
     cd ../pre_deploy_checker
 
 RUN mkdir -p shared/pids && \
-    mkdir -p log
+    mkdir -p log && \
+    mkdir -p data/db
 
 COPY Gemfile .
 COPY Gemfile.lock .

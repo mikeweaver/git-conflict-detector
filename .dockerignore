@@ -43,15 +43,10 @@ lib/bundler/man/
 # project specific
 .cache/
 .logs/
-# TODO - How are we going to get production settings into the container?
-config/settings.development.yml
+data/
 
 # mac
 .DS_Store
-
-# Ignore the default SQLite database.
-db/sqlite/*.sqlite3
-db/sqlite/*.sqlite3-journal
 
 # Ignore all logfiles and tempfiles.
 log/*

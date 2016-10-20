@@ -113,7 +113,7 @@ def validate_jira_settings(settings)
 end
 
 def load_global_settings
-  settings_path = "#{Rails.root}/config/settings.#{Rails.env}.yml"
+  settings_path = "#{Rails.root}/data/config/settings.#{Rails.env}.yml"
   settings_hash = if File.exists?(settings_path)
      YAML.load_file(settings_path) || {}
   else

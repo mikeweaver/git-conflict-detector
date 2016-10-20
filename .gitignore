@@ -45,15 +45,13 @@ shared/
 # project specific
 /.cache/
 /.logs/
-/config/settings.development.yml
-/config/settings.production.yml
+/data/db/
+/data/git/
+/data/config/settings.development.yml
+/data/config/settings.production.yml
 
 # mac
 .DS_Store
-
-# Ignore the default SQLite database.
-/db/sqlite/*.sqlite3
-/db/sqlite/*.sqlite3-journal
 
 # Ignore all logfiles and tempfiles.
 /log/*

@@ -19,8 +19,7 @@ services:
       RAILS_ENV: production
     command: ./script/docker_entry_points/unicorn.sh
     volumes:
-      - ./tmp/cache/git:/tmp/git
-      - ./db/sqlite:/usr/src/pre_deploy_checker/db/sqlite
+      - ./data:/usr/src/pre_deploy_checker/data
       - ./log/docker:/usr/src/pre_deploy_checker/log
   post_deploy_checker_delayed_job:
     build:
