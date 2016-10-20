@@ -4,11 +4,11 @@ describe 'GlobalSettings' do
   include FakeFS::SpecHelpers
 
   before do
-    FileUtils.mkdir_p("#{Rails.root}/config")
+    FileUtils.mkdir_p("#{Rails.root}/data/config")
   end
 
   it 'repositories_to_check_for_conflicts or branches_to_merge are required or jira (file empty)' do
-    File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", '')
+    File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", '')
     expect { load_global_settings }.to raise_exception(InvalidSettings, /repository.*merge.*jira/)
   end
 
@@ -18,7 +18,7 @@ describe 'GlobalSettings' do
 
   it 'skips all validations if VALIDATE_SETTINGS is false' do
     stub_env('VALIDATE_SETTINGS', 'false')
-    File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", '')
+    File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", '')
     load_global_settings
     expect(load_global_settings).to eq(OpenStruct.new(DEFAULT_SETTINGS))
   end
@@ -34,7 +34,7 @@ describe 'GlobalSettings' do
     end
 
     it 'uses default settings for all but required values' do
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
 
       expected_settings = OpenStruct.new(@required_settings)
       expected_settings.repositories_to_check_for_conflicts['MyRepo'] = OpenStruct.new(@required_settings['repositories_to_check_for_conflicts']['MyRepo'])
@@ -45,21 +45,21 @@ describe 'GlobalSettings' do
     it 'repository_name is required' do
       @required_settings['repositories_to_check_for_conflicts']['MyRepo'].except!('repository_name')
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
       expect { load_global_settings }.to raise_exception(InvalidSettings, /repository name/)
     end
 
     it 'default_branch_name is required' do
       @required_settings['repositories_to_check_for_conflicts']['MyRepo'].except!('default_branch_name')
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
       expect { load_global_settings }.to raise_exception(InvalidSettings, /default branch/)
     end
 
     it 'web_server_url is required' do
       @required_settings.except!('web_server_url')
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
       expect { load_global_settings }.to raise_exception(InvalidSettings, /web server/)
     end
   end
@@ -76,7 +76,7 @@ describe 'GlobalSettings' do
     end
 
     it 'uses default settings for all but required values' do
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
 
       expected_settings = OpenStruct.new(@required_settings)
       expected_settings.branches_to_merge['MyRepo-branch'] = OpenStruct.new(@required_settings['branches_to_merge']['MyRepo-branch'])
@@ -87,28 +87,28 @@ describe 'GlobalSettings' do
     it 'repository_name is required' do
       @required_settings['branches_to_merge']['MyRepo-branch'].except!('repository_name')
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
       expect { load_global_settings }.to raise_exception(InvalidSettings, /repository name/)
     end
 
     it 'default_branch_name is required' do
       @required_settings['branches_to_merge']['MyRepo-branch'].except!('default_branch_name')
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
       expect { load_global_settings }.to raise_exception(InvalidSettings, /default branch/)
     end
 
     it 'source_branch_name is required' do
       @required_settings['branches_to_merge']['MyRepo-branch'].except!('source_branch_name')
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
       expect { load_global_settings }.to raise_exception(InvalidSettings, /source branch/)
     end
 
     it 'web_server_url is required' do
       @required_settings.except!('web_server_url')
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
       expect { load_global_settings }.to raise_exception(InvalidSettings, /web server/)
     end
   end
@@ -124,7 +124,7 @@ describe 'GlobalSettings' do
     end
 
     it 'uses default settings for all but required values' do
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
 
       expected_settings = OpenStruct.new(@required_settings)
       expected_settings.jira = OpenStruct.new(@required_settings['jira'])
@@ -144,35 +144,35 @@ describe 'GlobalSettings' do
 
     it 'site is required' do
       with_jira_secrets_except('site') do
-        File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+        File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
         expect { load_global_settings }.to raise_exception(InvalidSettings, /site/)
       end
     end
 
     it 'consumer_key is required' do
       with_jira_secrets_except('consumer_key') do
-        File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+        File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
         expect { load_global_settings }.to raise_exception(InvalidSettings, /consumer/)
       end
     end
 
     it 'access_token is required' do
       with_jira_secrets_except('access_token') do
-        File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+        File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
         expect { load_global_settings }.to raise_exception(InvalidSettings, /access token/)
       end
     end
 
     it 'access_key is required' do
       with_jira_secrets_except('access_key') do
-        File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+        File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
         expect { load_global_settings }.to raise_exception(InvalidSettings, /access key/)
       end
     end
 
     it 'private_key_file is required' do
       with_jira_secrets_except('private_key_file') do
-        File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+        File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
         expect { load_global_settings }.to raise_exception(InvalidSettings, /private key/)
       end
     end
@@ -180,28 +180,28 @@ describe 'GlobalSettings' do
     it 'ancestor_branches is required' do
       @required_settings['jira'].except!('ancestor_branches')
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
       expect { load_global_settings }.to raise_exception(InvalidSettings, /ancestor/)
     end
 
     it 'project_keys is required' do
       @required_settings['jira'].except!('project_keys')
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
       expect { load_global_settings }.to raise_exception(InvalidSettings, /project/)
     end
 
     it 'valid_statuses is required' do
       @required_settings['jira'].except!('valid_statuses')
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
       expect { load_global_settings }.to raise_exception(InvalidSettings, /status/)
     end
 
     it 'web_server_url is required' do
       @required_settings.except!('web_server_url')
 
-      File.write("#{Rails.root}/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
+      File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
       expect { load_global_settings }.to raise_exception(InvalidSettings, /web server/)
     end
   end
