@@ -49,12 +49,8 @@ echo "Promoting staging to current"
 mv "$STAGING_PATH" "$DEPLOY_PATH"
 cd "$DEPLOY_PATH"
 
-echo "Restoring current DB and settings"
-mkdir "$DEPLOY_PATH/db/sqlite/"
-cp "$BACKUP_PATH/db/sqlite/production.sqlite3" "$DEPLOY_PATH/db/sqlite/"
-cp "$BACKUP_PATH/config/settings.production.yml" "$DEPLOY_PATH/config/"
-cp "$BACKUP_PATH/config/database.yml" "$DEPLOY_PATH/config/"
-cp "$BACKUP_PATH/rsakey.pem" "$DEPLOY_PATH/rsakey.pem"
+echo "Creating symlink to DB and settings"
+sudo ln -s "$DEPLOY_PATH/data/" "$DEPLOY_PATH/../data/"
 
 echo "Bundling"
 bundle install
