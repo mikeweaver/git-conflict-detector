@@ -50,7 +50,11 @@ mv "$STAGING_PATH" "$DEPLOY_PATH"
 cd "$DEPLOY_PATH"
 
 echo "Creating symlink to DB and settings"
-sudo ln -s "$DEPLOY_PATH/data/" "$DEPLOY_PATH/../data/"
+# We don't want to delete the data dir if it contains anything other than the test file
+rm data/config/settings.test.yml
+rm -d ata/config
+rm -d data
+sudo ln -s "$DEPLOY_PATH/../data/" "$DEPLOY_PATH/"
 
 echo "Bundling"
 bundle install
