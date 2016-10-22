@@ -42,6 +42,7 @@ group :test do
   gem 'rspec-rails'
   gem 'database_cleaner'
   gem 'stub_env'
+  gem "brakeman", :require => false
 end
 
 group :development do
