@@ -11,7 +11,7 @@ class JiraIssue < ActiveRecord::Base
   end
 
   validates :key, uniqueness: { message: "Keys must be globally unique" }
-  validates :key, format: { with: /.+-[0-9]+/ }
+  validates :key, format: { with: /\A.+-[0-9]+\z/ }
 
   belongs_to :assignee, class_name: User, inverse_of: :commits, required: false
   belongs_to :parent_issue, class_name: JiraIssue, inverse_of: :sub_tasks, required: false
