@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'Status' do
-  EXPECTED_URL = 'https://test_user:test_password@api.github.com/repos/owner/repo/statuses/9999b61a5393432301de18960686226379d76999'
+  EXPECTED_URL = 'https://api.github.com/repos/owner/repo/statuses/9999b61a5393432301de18960686226379d76999'
   
   def mock_sucess_response_body(state)
     {
@@ -54,14 +54,14 @@ describe 'Status' do
 
   Github::Api::Status::STATES.each do |state|
     it "can set status to #{state}" do
-      stub_request(:post, EXPECTED_URL).to_return(:status => 201, :body => mock_sucess_response_body(state))
+      stub_request(:post, EXPECTED_URL).with(basic_auth: ['test_user', 'test_password']).to_return(:status => 201, :body => mock_sucess_response_body(state))
 
       send_set_status_request(state)
     end
   end
 
   it 'raises for non 201 responses' do
-    stub_request(:post, EXPECTED_URL).to_return(:status => 422, :body => mock_error_response)
+    stub_request(:post, EXPECTED_URL).with(basic_auth: ['test_user', 'test_password']).to_return(:status => 422, :body => mock_error_response)
 
     expect { send_set_status_request(Github::Api::Status::STATE_SUCCESS) }.to raise_exception(Net::HTTPServerException)
   end
