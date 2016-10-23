@@ -49,7 +49,7 @@
       </tr>
       </thead>
       <tbody>
-      <%@push.jira_issues_and_pushes.each do |jira_issue_and_push|%>
+      <%@push.jira_issues_and_pushes.sort.each do |jira_issue_and_push|%>
         <%
           jira_issue = jira_issue_and_push.jira_issue
           row_class = if jira_issue_and_push.has_unignored_errors?

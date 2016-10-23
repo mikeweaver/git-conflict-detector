@@ -155,5 +155,69 @@ describe 'JiraIssue' do
       expect(updated_issue.parent_issue.key = 'STORY-9999')
     end
   end
+  
+  context 'sorting' do
+    context 'with parents' do
+      before do
+        # intentionally creating the issues out of order to verify we are not sorting by id
+        @issue_2 = create_test_jira_issue(key: 'WEB-1234')
+        @issue_2_child_2 = create_test_jira_issue(key: 'WEB-9000', parent_key: 'WEB-1234')
+        @issue_1 = create_test_jira_issue(key: 'WEB-1000')
+        @issue_3 = create_test_jira_issue(key: 'WEB-5678')
+        @issue_3_child_1 = create_test_jira_issue(key: 'WEB-4000', parent_key: 'WEB-5678')
+        @issue_2_child_1 = create_test_jira_issue(key: 'WEB-3000', parent_key: 'WEB-1234')
+      end
+
+      it 'comparison' do
+        expect(@issue_2 <=> @issue_2_child_2).to eq(0)
+        expect(@issue_2 <=> @issue_2_child_1).to eq(0)
+        expect(@issue_2_child_1 <=> @issue_2_child_2).to eq(-1)
+        expect(@issue_3 <=> @issue_2_child_2).to eq(1)
+        expect(@issue_1 <=> @issue_2_child_2).to eq(-1)
+        expect(@issue_2_child_2 <=> @issue_3_child_1).to eq(-1)
+      end
+
+      it 'can be sorted' do
+        expected_issues = [
+            @issue_1,
+            @issue_2,
+            @issue_2_child_1,
+            @issue_2_child_2,
+            @issue_3,
+            @issue_3_child_1
+        ]
+        expect(JiraIssue.all.sort).to match_array(expected_issues)
+      end
+    end
+    
+    context 'with no parents' do
+      before do
+        # intentionally creating the issues out of order to verify we are not sorting by id
+        @issue_2 = create_test_jira_issue(key: 'WEB-1234')
+        @issue_1 = create_test_jira_issue(key: 'WEB-1000')
+        @issue_3 = create_test_jira_issue(key: 'WEB-5678')
+        @issue_4 = create_test_jira_issue(key: 'WEB-200')
+      end
+
+      it 'comparison' do
+        expect(@issue_2 <=> @issue_2).to eq(0)
+        expect(@issue_1 <=> @issue_2).to eq(-1)
+        expect(@issue_3 <=> @issue_2).to eq(1)
+        expect(@issue_4 <=> @issue_1).to eq(-1)
+        expect(@issue_4 <=> @issue_2).to eq(-1)
+        expect(@issue_4 <=> @issue_3).to eq(-1)
+      end
+
+      it 'can be sorted' do
+        expected_issues = [
+            @issue_4,
+            @issue_1,
+            @issue_2,
+            @issue_3
+        ]
+        expect(JiraIssue.all.sort).to match_array(expected_issues)
+      end
+    end
+  end
 end
 

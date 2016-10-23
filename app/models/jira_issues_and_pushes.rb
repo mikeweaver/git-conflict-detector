@@ -43,4 +43,12 @@ class JiraIssuesAndPushes < ActiveRecord::Base
       self.ignore_errors = previous_record.ignore_errors
     end
   end
+
+  def <=> (other)
+    if self.push == other.push
+      self.jira_issue <=> other.jira_issue
+    else
+      self.push <=> other.push
+    end
+  end
 end

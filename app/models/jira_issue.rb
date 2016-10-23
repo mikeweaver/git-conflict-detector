@@ -1,4 +1,6 @@
 class JiraIssue < ActiveRecord::Base
+  KEY_PROJECT_NUMBER_SEPARATOR = '-'.freeze
+
   fields do
     key :text, limit: 255, null: false
     issue_type :text, limit: 255, null: false
@@ -47,6 +49,38 @@ class JiraIssue < ActiveRecord::Base
     end
     issue.save!
     issue
+  end
+
+  def <=> (other)
+    if self.parent_issue && other.parent_issue
+      if self.parent_issue.key == other.parent_issue.key
+        compare_keys(other)
+      else
+        self.parent_issue <=> other.parent_issue
+      end
+    elsif self.parent_issue
+      self.parent_issue <=> other
+    elsif other.parent_issue
+      self <=> other.parent_issue
+    else
+      compare_keys(other)
+    end
+  end
+
+  def project
+    self.key.split(KEY_PROJECT_NUMBER_SEPARATOR)[0]
+  end
+
+  def number
+    self.key.split(KEY_PROJECT_NUMBER_SEPARATOR)[1].to_i
+  end
+
+  def compare_keys(other)
+    if self.project == other.project
+      self.number <=> other.number
+    else
+      self.project <=> other.project
+    end
   end
 
   def latest_commit

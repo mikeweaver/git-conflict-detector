@@ -138,8 +138,13 @@ def create_test_jira_issue_json(key: nil,
                                 status: nil,
                                 targeted_deploy_date: Time.now.tomorrow,
                                 post_deploy_check_status: 'Ready to Run',
-                                deploy_type: nil)
-  json = load_json_fixture('jira_issue_response')
+                                deploy_type: nil,
+                                parent_key: nil)
+  json = if parent_key
+           load_json_fixture('jira_sub_task_response')
+         else
+           load_json_fixture('jira_issue_response')
+         end
   json['id'] = "#{SecureRandom.random_number(100000)}"
   if key
     json['key'] = key
@@ -160,7 +165,9 @@ def create_test_jira_issue_json(key: nil,
   if deploy_type
     json['fields']['customfield_12501']['value'] = deploy_type
   end
-
+  if parent_key
+    json['fields']['parent']['key'] = parent_key
+  end
   json
 end
 
@@ -168,10 +175,16 @@ def create_test_jira_issue(key: nil,
                            status: nil,
                            targeted_deploy_date: Time.now.tomorrow,
                            post_deploy_check_status: nil,
-                           deploy_type: nil)
+                           deploy_type: nil,
+                           parent_key: nil)
   JiraIssue.create_from_jira_data!(
       JIRA::Resource::IssueFactory.new(nil).build(
-          create_test_jira_issue_json(key: key, status: status, targeted_deploy_date: targeted_deploy_date, post_deploy_check_status: post_deploy_check_status)))
+          create_test_jira_issue_json(key: key,
+                                      status: status,
+                                      targeted_deploy_date: targeted_deploy_date,
+                                      post_deploy_check_status: post_deploy_check_status,
+                                      deploy_type: deploy_type,
+                                      parent_key: parent_key)))
 end
 
 def create_test_sha

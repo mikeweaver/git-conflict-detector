@@ -135,5 +135,45 @@ describe 'JiraIssuesAndPushes' do
       end
     end
   end
+
+  context 'sorting' do
+    before do
+      # intentionally creating the issues out of order to verify we are not sorting by id
+      @push_1_issue_2 = JiraIssuesAndPushes.create_or_update!(create_test_jira_issue(key: 'WEB-1234'), @push)
+      @push_1_issue_1 = JiraIssuesAndPushes.create_or_update!(create_test_jira_issue(key: 'WEB-1000'), @push)
+      @push_1_issue_3 = JiraIssuesAndPushes.create_or_update!(create_test_jira_issue(key: 'WEB-5678'), @push)
+
+      second_push = create_test_push(sha: '8888888888')
+      @push_2_issue_1 = JiraIssuesAndPushes.create_or_update!(create_test_jira_issue(key: 'WEB-9012'), second_push)
+
+      third_push = create_test_push(sha: '9999999999')
+      @push_3_issue_1 = JiraIssuesAndPushes.create_or_update!(create_test_jira_issue(key: 'WEB-0000'), third_push)
+    end
+
+    it 'by push first' do
+      expect(@push_2_issue_1 <=> @push_2_issue_1).to eq(0)
+      expect(@push_1_issue_1 <=> @push_2_issue_1).to eq(-1)
+      expect(@push_1_issue_2 <=> @push_2_issue_1).to eq(-1)
+      expect(@push_1_issue_3 <=> @push_2_issue_1).to eq(-1)
+      expect(@push_3_issue_1 <=> @push_2_issue_1).to eq(1)
+    end
+
+    it 'by jira issue second' do
+      expect(@push_1_issue_2 <=> @push_1_issue_2).to eq(0)
+      expect(@push_1_issue_1 <=> @push_1_issue_2).to eq(-1)
+      expect(@push_1_issue_3 <=> @push_1_issue_2).to eq(1)
+    end
+
+    it 'can be sorted' do
+      expected_issues_and_pushes = [
+          @push_1_issue_1,
+          @push_1_issue_2,
+          @push_1_issue_3,
+          @push_2_issue_1,
+          @push_3_issue_1
+      ]
+      expect(JiraIssuesAndPushes.all.sort).to match_array(expected_issues_and_pushes)
+    end
+  end
 end
 
