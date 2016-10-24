@@ -37,7 +37,7 @@
     <div>
       <h4><%=@push.jira_issues.count%> JIRA issues(s) in this branch
       <button class="btn btn-default" type="button" data-clipboard-target="#jira_issues_clipboard">
-        <img src="/assets/clippy.svg" width="13" alt="Copy to clipboard">
+        <%= image_tag('clippy.svg', width: "13", alt: "Copy to clipboard") %>
       </button>
       </h4>
     </div>
