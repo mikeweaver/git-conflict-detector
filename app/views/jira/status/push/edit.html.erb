@@ -1,3 +1,5 @@
+
+
 <%= form_for @push, url: "/jira/status/push/#{@push.head_commit.sha}.html" do |form| %>
 <style>
 .error {color: red; font-weight: bold;}
@@ -32,8 +34,14 @@
     </div>
   <%end%>
   <%if @push.has_jira_issues%>
-    <h4><%=@push.jira_issues.count%> JIRA issues(s) in this branch</h4>
-    <table class="table table-striped">
+    <div>
+      <h4><%=@push.jira_issues.count%> JIRA issues(s) in this branch
+      <button class="btn btn-default" type="button" data-clipboard-target="#jira_issues_clipboard">
+        <img src="/assets/clippy.svg" width="13" alt="Copy to clipboard">
+      </button>
+      </h4>
+    </div>
+    <table class="table table-striped" id="jira_issues">
       <thead>
       <tr>
         <th>Approve</th>
@@ -60,7 +68,7 @@
         %>
         <tr class="<%=row_class%>" title="<%=get_jira_error_messages(jira_issue_and_push.error_list)%>">
           <td align="center" style="width: 50px;"><%= check_box_tag "push[jira_issue_keys_to_ignore][]", jira_issue.key, jira_issue_and_push.has_ignored_errors?, disabled: !jira_issue_and_push.has_errors? %></td>
-          <td nowrap>
+          <td nowrap class="issue_key">
             <%if jira_issue.parent_issue %>
               <%=link_to(jira_issue.parent_issue.key, jira_url_for_issue(jira_issue.parent_issue), target: '_blank')%><br/>&#8627;
             <%end%>
@@ -79,7 +87,7 @@
           <td nowrap class="<%=error_class_if_error_present(jira_issue_and_push, [JiraIssuesAndPushes::ERROR_WRONG_STATE])%>"><%=jira_issue.status%></td>
           <td nowrap class="<%=error_class_if_error_present(jira_issue_and_push, [JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS])%>"><%=jira_issue.post_deploy_check_status || '&mdash;'.html_safe%></td>
           <td nowrap class="<%=error_class_if_error_present(jira_issue_and_push, [JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE, JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE])%>"><%=jira_issue.targeted_deploy_date || '&mdash;'.html_safe%></td>
-          <td><%=jira_issue.summary%></td>
+          <td class="issue_summary"><%=jira_issue.summary%></td>
         </tr>
       <%end%>
       </tbody>
@@ -87,6 +95,20 @@
   <%else%>
     <h4>No JIRA issues in this branch</h4><br/>
   <%end%>
+
+  <div style="position:absolute; left:-9999px; top:0px;">
+  <table class="table table-striped" id="jira_issues_clipboard" style="font-size: 13px;">
+    <thead>
+    <tr>
+      <th>Key</th>
+      <th>Summary</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  </div>
+
 
   <%if @push.has_commits_with_errors? %>
     <h4><%=@push.commits_with_errors.count%> Commit(s) with errors</h4>
@@ -157,8 +179,8 @@
       </tbody>
     </table>
   <%end%>
-  <%= form.submit('Save Approvals', :name => 'save') %>
-  <%= form.submit('Refresh JIRA and Git data', :name => 'refresh') %>
+  <%= form.submit('Save Approvals', name: 'save', class: 'btn btn-default') %>
+  <%= form.submit('Refresh JIRA and Git data', name: 'refresh', class: 'btn btn-default') %>
   <div style="margin-top: 15px">
     '<%=@push.branch.name%>' branch compared with '<%=get_ancestor_branch%>' branch on <%=@push.updated_at%>
   </div>
