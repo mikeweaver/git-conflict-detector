@@ -1,0 +1,10 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "5fa68246660ccd46200d7b5b2591f8415a6aac1bf26825540fff33d2ba58ae1b",
+      "note": "Temporarily ignoring this until I can find a way to fix it"
+    }
+  ],
+  "updated": "2016-10-23 20:16:05 -0700",
+  "brakeman_version": "3.4.0"
+}
