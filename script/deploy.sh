@@ -62,6 +62,9 @@ bundle install
 echo "Migrating DB"
 bundle exec rake db:migrate
 
+echo "Building assets"
+bundle exec rake assets:precompile
+
 echo "Starting services"
 mkdir -p $DEPLOY_PATH/shared/pids $DEPLOY_PATH/shared/sockets
 sudo service nginx start

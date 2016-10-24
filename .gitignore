@@ -49,6 +49,7 @@ shared/
 /data/git/
 /data/config/settings.development.yml
 /data/config/settings.production.yml
+/public/
 
 # mac
 .DS_Store
