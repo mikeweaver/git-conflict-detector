@@ -1,5 +1,4 @@
 class BranchManager
-
   def initialize(settings)
     @settings = settings
     @git = Git::Git.new(@settings.repository_name)
@@ -10,15 +9,19 @@ class BranchManager
   def update_branch_list!
     # note when we started so we can tell which branches in our DB have/have not been updated
     # by the data we got from git
-    start_time = Time.now
+    start_time = Time.current
 
     # make sure we have the latest copy of the repository
     @git.clone_repository(@settings.default_branch_name)
 
     # get a list of branches and add them to the DB
-    @git.get_branch_list.each do |branch|
-      raise "Branch repository name #{branch.respository_name} does not match settings repository name #{@settings.repository_name}" if @settings.repository_name != branch.repository_name
-      Branch.create_from_git_data!(branch)
+    @git.branch_list.each do |branch|
+      if @settings.repository_name == branch.repository_name
+        Branch.create_from_git_data!(branch)
+      else
+        raise "Branch repository name #{branch.respository_name} does not match " \
+              "settings repository name #{@settings.repository_name}"
+      end
     end
 
     # delete branches that were not updated by the git data
@@ -35,7 +38,10 @@ class BranchManager
         Rails.logger.info("Skipping branch #{branch.name}, it is not on the include list")
         true
       elsif should_ignore_branch_by_date?(branch)
-        Rails.logger.info("Skipping branch #{branch.name}, it has not been modified in over #{@settings.ignore_branches_modified_days_ago} days")
+        Rails.logger.info(
+          "Skipping branch #{branch.name}, it has not been modified in over " \
+          "#{@settings.ignore_branches_modified_days_ago} days"
+        )
         true
       else
         false
@@ -50,13 +56,12 @@ class BranchManager
   end
 
   def should_ignore_branch_by_date?(branch)
-    @settings.ignore_branches_modified_days_ago > 0 or return
-    branch.git_updated_at < (Time.now - @settings.ignore_branches_modified_days_ago.days)
+    @settings.ignore_branches_modified_days_ago > 0 || return
+    branch.git_updated_at < (Time.current - @settings.ignore_branches_modified_days_ago.days)
   end
 
   def should_include_branch?(branch)
-    !@settings.only_branches.empty? or return true
+    !@settings.only_branches.empty? || (return true)
     @settings.only_branches.include_regexp?(branch)
   end
 end
-

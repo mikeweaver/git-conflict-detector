@@ -26,18 +26,22 @@ describe 'GlobalSettings' do
   context 'with repositories_to_check_for_conflicts' do
     before do
       @required_settings = DEFAULT_SETTINGS.merge(
-          {'web_server_url' => 'http://myserver.com',
-           'repositories_to_check_for_conflicts' => {
-               'MyRepo' => DEFAULT_CONFLICT_DETECTION_SETTINGS.merge(
-                   {'repository_name' => 'Organization/repository',
-                    'default_branch_name' => 'master'})}})
+        'web_server_url' => 'http://myserver.com',
+        'repositories_to_check_for_conflicts' => {
+          'MyRepo' => DEFAULT_CONFLICT_DETECTION_SETTINGS.merge(
+            'repository_name' => 'Organization/repository',
+            'default_branch_name' => 'master'
+          )
+        }
+      )
     end
 
     it 'uses default settings for all but required values' do
       File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
 
       expected_settings = OpenStruct.new(@required_settings)
-      expected_settings.repositories_to_check_for_conflicts['MyRepo'] = OpenStruct.new(@required_settings['repositories_to_check_for_conflicts']['MyRepo'])
+      expected_settings.repositories_to_check_for_conflicts['MyRepo'] = \
+        OpenStruct.new(@required_settings['repositories_to_check_for_conflicts']['MyRepo'])
 
       expect(load_global_settings).to eq(expected_settings)
     end
@@ -67,19 +71,23 @@ describe 'GlobalSettings' do
   context 'with branches_to_merge' do
     before do
       @required_settings = DEFAULT_SETTINGS.merge(
-          {'web_server_url' => 'http://myserver.com',
-           'branches_to_merge' => {
-               'MyRepo-branch' => DEFAULT_AUTO_MERGE_SETTINGS.merge(
-               {'repository_name' => 'Organization/repository',
-                'default_branch_name' => 'master',
-                'source_branch_name' => 'source'})}})
+        'web_server_url' => 'http://myserver.com',
+        'branches_to_merge' => {
+          'MyRepo-branch' => DEFAULT_AUTO_MERGE_SETTINGS.merge(
+            'repository_name' => 'Organization/repository',
+            'default_branch_name' => 'master',
+            'source_branch_name' => 'source'
+          )
+        }
+      )
     end
 
     it 'uses default settings for all but required values' do
       File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", @required_settings.to_yaml)
 
       expected_settings = OpenStruct.new(@required_settings)
-      expected_settings.branches_to_merge['MyRepo-branch'] = OpenStruct.new(@required_settings['branches_to_merge']['MyRepo-branch'])
+      expected_settings.branches_to_merge['MyRepo-branch'] = \
+        OpenStruct.new(@required_settings['branches_to_merge']['MyRepo-branch'])
 
       expect(load_global_settings).to eq(expected_settings)
     end
@@ -116,11 +124,13 @@ describe 'GlobalSettings' do
   context 'with jira' do
     before do
       @required_settings = DEFAULT_SETTINGS.merge(
-          {'web_server_url' => 'http://myserver.com',
-           'jira' => DEFAULT_JIRA_SETTINGS.merge(
-               {'ancestor_branches' => { 'default' => 'master' },
-                'project_keys' => ['STORY'],
-                'valid_statuses' => ['Ready to Deploy']})})
+        'web_server_url' => 'http://myserver.com',
+        'jira' => DEFAULT_JIRA_SETTINGS.merge(
+          'ancestor_branches' => { 'default' => 'master' },
+          'project_keys' => ['STORY'],
+          'valid_statuses' => ['Ready to Deploy']
+        )
+      )
     end
 
     it 'uses default settings for all but required values' do

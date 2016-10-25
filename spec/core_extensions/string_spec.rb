@@ -1,13 +1,11 @@
 require 'spec_helper'
 
 describe 'CoreExtensions::String' do
-
   before(:all) do
     String.include CoreExtensions::String
   end
 
   describe 'escape_double_quotes' do
-
     it 'escapes double quotes' do
       expect('word"word'.escape_double_quotes).to eq('word\\"word')
     end
@@ -26,7 +24,6 @@ describe 'CoreExtensions::String' do
   end
 
   describe 'escape_double_quotes!' do
-
     it 'escapes double quotes' do
       string = 'word"word'
       string.escape_double_quotes!
@@ -52,5 +49,3 @@ describe 'CoreExtensions::String' do
     end
   end
 end
-
-

@@ -1,14 +1,14 @@
 class GithubPushHookHandler
   include Rails.application.routes.url_helpers
 
-  PENDING_QUEUE = 'push_pending'
-  PROCESSING_QUEUE = 'push_processing'
-  CONTEXT_NAME = 'Pre-Deploy Checker'
+  PENDING_QUEUE = 'push_pending'.freeze
+  PROCESSING_QUEUE = 'push_processing'.freeze
+  CONTEXT_NAME = 'Pre-Deploy Checker'.freeze
   STATE_DESCRIPTIONS = {
-      Github::Api::Status::STATE_PENDING => 'Processing...',
-      Github::Api::Status::STATE_SUCCESS => 'OK to deploy',
-      Github::Api::Status::STATE_FAILED => 'Has unapproved errors'
-  }
+    Github::Api::Status::STATE_PENDING => 'Processing...',
+    Github::Api::Status::STATE_SUCCESS => 'OK to deploy',
+    Github::Api::Status::STATE_FAILED => 'Has unapproved errors'
+  }.freeze
 
   def queue!(push_hook_payload)
     Rails.logger.info('Queueing request')
@@ -43,7 +43,7 @@ class GithubPushHookHandler
 
   private
 
-  def set_status_for_push!(push)
+  def set_status_for_push!(push) # rubocop:disable Style/AccessorMethodName
     api = Github::Api::Status.new(Rails.application.secrets.github_user_name,
                                   Rails.application.secrets.github_password)
     api.set_status(push.branch.repository.name,
@@ -55,12 +55,12 @@ class GithubPushHookHandler
   end
 
   def should_ignore_push?(payload)
-    GlobalSettings.jira.ignore_branches.include_regexp?(payload.branch_name, regexp_options=Regexp::IGNORECASE)
+    GlobalSettings.jira.ignore_branches.include_regexp?(payload.branch_name, regexp_options: Regexp::IGNORECASE)
   end
 
   def should_include_push?(payload)
     if GlobalSettings.jira.only_branches.any?
-      GlobalSettings.jira.only_branches.include_regexp?(payload.branch_name, regexp_options=Regexp::IGNORECASE)
+      GlobalSettings.jira.only_branches.include_regexp?(payload.branch_name, regexp_options: Regexp::IGNORECASE)
     else
       true
     end

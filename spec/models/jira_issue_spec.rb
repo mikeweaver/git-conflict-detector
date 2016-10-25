@@ -78,7 +78,7 @@ describe 'JiraIssue' do
       issue = JiraIssue.create_from_jira_data!(jira_issue)
       expect(issue.commits.count).to eq(0)
       create_test_commits.each do |commit|
-        # TODO when commit dates are added, improve this test
+        # TODO: when commit dates are added, improve this test
         commit.jira_issue = issue
         commit.save!
       end
@@ -133,7 +133,7 @@ describe 'JiraIssue' do
       expect(updated_issue.parent_issue.key = 'STORY-9999')
     end
   end
-  
+
   context 'sorting' do
     context 'with parents' do
       before do
@@ -157,17 +157,17 @@ describe 'JiraIssue' do
 
       it 'can be sorted' do
         expected_issues = [
-            @issue_1,
-            @issue_2,
-            @issue_2_child_1,
-            @issue_2_child_2,
-            @issue_3,
-            @issue_3_child_1
+          @issue_1,
+          @issue_2,
+          @issue_2_child_1,
+          @issue_2_child_2,
+          @issue_3,
+          @issue_3_child_1
         ]
         expect(JiraIssue.all.sort).to match_array(expected_issues)
       end
     end
-    
+
     context 'with no parents' do
       before do
         # intentionally creating the issues out of order to verify we are not sorting by id
@@ -178,7 +178,7 @@ describe 'JiraIssue' do
       end
 
       it 'comparison' do
-        expect(@issue_2 <=> @issue_2).to eq(0)
+        expect(@issue_2 <=> @issue_2).to eq(0) # rubocop:disable Lint/UselessComparison
         expect(@issue_1 <=> @issue_2).to eq(-1)
         expect(@issue_3 <=> @issue_2).to eq(1)
         expect(@issue_4 <=> @issue_1).to eq(-1)
@@ -188,14 +188,13 @@ describe 'JiraIssue' do
 
       it 'can be sorted' do
         expected_issues = [
-            @issue_4,
-            @issue_1,
-            @issue_2,
-            @issue_3
+          @issue_4,
+          @issue_1,
+          @issue_2,
+          @issue_3
         ]
         expect(JiraIssue.all.sort).to match_array(expected_issues)
       end
     end
   end
 end
-

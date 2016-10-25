@@ -8,27 +8,28 @@ describe 'Commit' do
   it 'can create be constructed from github data' do
     commit = Commit.create_from_github_data!(payload)
     expect(commit.sha).to eq('6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25')
-    expect(commit.message).to_not be_nil
-    expect(commit.author.name).to_not be_nil
-    expect(commit.author.email).to_not be_nil
-    expect(commit.created_at).to_not be_nil
-    expect(commit.updated_at).to_not be_nil
+    expect(commit.message).not_to be_nil
+    expect(commit.author.name).not_to be_nil
+    expect(commit.author.email).not_to be_nil
+    expect(commit.created_at).not_to be_nil
+    expect(commit.updated_at).not_to be_nil
   end
 
   it 'can create be constructed from a git commit' do
     git_commit = Git::GitCommit.new(
-        '6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25',
-        'test message',
-        Time.now,
-        'author name',
-        'author@email.com')
+      '6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25',
+      'test message',
+      Time.current,
+      'author name',
+      'author@email.com'
+    )
     commit = Commit.create_from_git_commit!(git_commit)
     expect(commit.sha).to eq('6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25')
-    expect(commit.message).to_not be_nil
-    expect(commit.author.name).to_not be_nil
-    expect(commit.author.email).to_not be_nil
-    expect(commit.created_at).to_not be_nil
-    expect(commit.updated_at).to_not be_nil
+    expect(commit.message).not_to be_nil
+    expect(commit.author.name).not_to be_nil
+    expect(commit.author.email).not_to be_nil
+    expect(commit.created_at).not_to be_nil
+    expect(commit.updated_at).not_to be_nil
   end
 
   it 'does not create duplicate database records' do
@@ -43,11 +44,11 @@ describe 'Commit' do
     payload_hash = load_json_fixture('github_push_payload')
     payload_hash['head_commit']['id'] = '0' * 40
 
-    expect { Commit.create_from_github_data!(Github::Api::PushHookPayload.new(payload_hash)) }.to raise_exception(ActiveRecord::RecordInvalid)
+    expect { Commit.create_from_github_data!(Github::Api::PushHookPayload.new(payload_hash)) }.to \
+      raise_exception(ActiveRecord::RecordInvalid)
   end
 
   context 'with an existing commit' do
-
     before do
       @commit = Commit.create_from_github_data!(payload)
     end
@@ -88,4 +89,3 @@ describe 'Commit' do
     end
   end
 end
-

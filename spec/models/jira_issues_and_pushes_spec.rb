@@ -32,7 +32,11 @@ describe 'JiraIssuesAndPushes' do
     end
 
     it 'duplicate errors are consolidated' do
-      record = JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_WRONG_STATE])
+      record = JiraIssuesAndPushes.create_or_update!(
+        @issue,
+        @push,
+        [JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_WRONG_STATE]
+      )
       expect(record.error_list).to match_array([JiraIssuesAndPushes::ERROR_WRONG_STATE])
     end
 
@@ -46,7 +50,11 @@ describe 'JiraIssuesAndPushes' do
 
     context 'with ignored errors' do
       before do
-        @record = JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_NO_COMMITS])
+        @record = JiraIssuesAndPushes.create_or_update!(
+          @issue,
+          @push,
+          [JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_NO_COMMITS]
+        )
         @record.ignore_errors = true
         @record.save!
       end
@@ -59,9 +67,15 @@ describe 'JiraIssuesAndPushes' do
       end
 
       it 'existing errors do not clear the ignore flag, even if the error order is different' do
-        JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_NO_COMMITS, JiraIssuesAndPushes::ERROR_WRONG_STATE])
+        JiraIssuesAndPushes.create_or_update!(
+          @issue,
+          @push,
+          [JiraIssuesAndPushes::ERROR_NO_COMMITS, JiraIssuesAndPushes::ERROR_WRONG_STATE]
+        )
         @record.reload
-        expect(@record.error_list).to match_array([JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_NO_COMMITS])
+        expect(@record.error_list).to match_array(
+          [JiraIssuesAndPushes::ERROR_WRONG_STATE, JiraIssuesAndPushes::ERROR_NO_COMMITS]
+        )
         expect(@record.ignore_errors).to be_truthy
       end
 
@@ -73,11 +87,14 @@ describe 'JiraIssuesAndPushes' do
 
       it 'copies the ingore_errors flag from its predecessor' do
         new_push = create_test_push(sha: create_test_sha)
-        record = JiraIssuesAndPushes.create_or_update!(@issue, new_push, [JiraIssuesAndPushes::ERROR_NO_COMMITS, JiraIssuesAndPushes::ERROR_WRONG_STATE])
+        record = JiraIssuesAndPushes.create_or_update!(
+          @issue,
+          new_push,
+          [JiraIssuesAndPushes::ERROR_NO_COMMITS, JiraIssuesAndPushes::ERROR_WRONG_STATE]
+        )
         expect(record.ignore_errors).to be_truthy
       end
     end
-
   end
 
   context 'with_unignored_errors scope' do
@@ -85,7 +102,8 @@ describe 'JiraIssuesAndPushes' do
       JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE])
       @issue.reload
       expect(@issue.jira_issues_and_pushes.with_unignored_errors.count).to eq(1)
-      expect(JiraIssuesAndPushes.get_error_counts_for_push(@push)).to eq( { JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE => 1 } )
+      expect(JiraIssuesAndPushes.get_error_counts_for_push(@push)).to \
+        eq(JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE => 1)
     end
 
     it 'excludes pushes with ignored errors' do
@@ -94,14 +112,14 @@ describe 'JiraIssuesAndPushes' do
       record.save!
       @issue.reload
       expect(@issue.jira_issues_and_pushes.with_unignored_errors.count).to eq(0)
-      expect(JiraIssuesAndPushes.get_error_counts_for_push(@push)).to eq( {} )
+      expect(JiraIssuesAndPushes.get_error_counts_for_push(@push)).to eq({})
     end
 
     it 'excludes pushes without errors' do
       JiraIssuesAndPushes.create_or_update!(@issue, @push, [])
       @issue.reload
       expect(@issue.jira_issues_and_pushes.with_unignored_errors.count).to eq(0)
-      expect(JiraIssuesAndPushes.get_error_counts_for_push(@push)).to eq( {} )
+      expect(JiraIssuesAndPushes.get_error_counts_for_push(@push)).to eq({})
     end
   end
 
@@ -116,20 +134,20 @@ describe 'JiraIssuesAndPushes' do
         expect(@push.jira_issues.count).to eq(3)
       end
 
-      it 'should only destroy issues not in the list' do
+      it 'only destroys issues not in the list' do
         JiraIssuesAndPushes.destroy_if_jira_issue_not_in_list(@push, [@second_issue])
         expect(@push.jira_issues.count).to eq(1)
         expect(@push.jira_issues.first).to eq(@second_issue)
       end
 
-      it 'should destroy all issues if the list is empty' do
+      it 'destroys all issues if the list is empty' do
         JiraIssuesAndPushes.destroy_if_jira_issue_not_in_list(@push, [])
         expect(@push.jira_issues).to be_empty
       end
     end
 
     context 'without jira_issues' do
-      it 'should not fail if there are no issues to destroy' do
+      it 'does not fail if there are no issues to destroy' do
         expect(@push.jira_issues).to be_empty
         JiraIssuesAndPushes.destroy_if_jira_issue_not_in_list(@push, [@issue])
       end
@@ -151,7 +169,7 @@ describe 'JiraIssuesAndPushes' do
     end
 
     it 'by push first' do
-      expect(@push_2_issue_1 <=> @push_2_issue_1).to eq(0)
+      expect(@push_2_issue_1 <=> @push_2_issue_1).to eq(0) # rubocop:disable Lint/UselessComparison
       expect(@push_1_issue_1 <=> @push_2_issue_1).to eq(-1)
       expect(@push_1_issue_2 <=> @push_2_issue_1).to eq(-1)
       expect(@push_1_issue_3 <=> @push_2_issue_1).to eq(-1)
@@ -159,21 +177,20 @@ describe 'JiraIssuesAndPushes' do
     end
 
     it 'by jira issue second' do
-      expect(@push_1_issue_2 <=> @push_1_issue_2).to eq(0)
+      expect(@push_1_issue_2 <=> @push_1_issue_2).to eq(0) # rubocop:disable Lint/UselessComparison
       expect(@push_1_issue_1 <=> @push_1_issue_2).to eq(-1)
       expect(@push_1_issue_3 <=> @push_1_issue_2).to eq(1)
     end
 
     it 'can be sorted' do
       expected_issues_and_pushes = [
-          @push_1_issue_1,
-          @push_1_issue_2,
-          @push_1_issue_3,
-          @push_2_issue_1,
-          @push_3_issue_1
+        @push_1_issue_1,
+        @push_1_issue_2,
+        @push_1_issue_3,
+        @push_2_issue_1,
+        @push_3_issue_1
       ]
       expect(JiraIssuesAndPushes.all.sort).to match_array(expected_issues_and_pushes)
     end
   end
 end
-

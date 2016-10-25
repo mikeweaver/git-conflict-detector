@@ -11,14 +11,22 @@ describe 'PushManager' do
     end || []
   end
 
-  def mock_jira_find_issue_response(key, status: 'Ready to Deploy', targeted_deploy_date: Time.now.tomorrow, post_deploy_check_status: 'Ready to Run')
-    response = create_test_jira_issue_json(key: key, status: status, targeted_deploy_date: targeted_deploy_date, post_deploy_check_status: post_deploy_check_status)
+  def mock_jira_find_issue_response(key,
+                                    status: 'Ready to Deploy',
+                                    targeted_deploy_date: Time.current.tomorrow,
+                                    post_deploy_check_status: 'Ready to Run')
+    response = create_test_jira_issue_json(
+      key: key,
+      status: status,
+      targeted_deploy_date: targeted_deploy_date,
+      post_deploy_check_status: post_deploy_check_status
+    )
     stub_request(:get, /\/rest\/api\/2\/issue\/#{key}/).to_return(status: 200, body: response.to_json)
   end
 
   def mock_jira_jql_response(keys)
     response = {
-        "issues" => json_jira_issues(keys)
+      'issues' => json_jira_issues(keys)
     }
     stub_request(:get, /\/rest\/api\/2\/search\?jql.*/).to_return(status: 200, body: response.to_json)
   end
@@ -51,38 +59,44 @@ describe 'PushManager' do
   context 'detect jira_issue issues' do
     context 'with commits' do
       before do
-        expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
+        expect_any_instance_of(Git::Git).to \
+          receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
         mock_jira_jql_response([])
       end
 
       it 'in the wrong state' do
         mock_jira_find_issue_response('STORY-1234', status: 'Wrong State')
         push = PushManager.process_push!(Push.create_from_github_data!(payload))
-        expect(push.jira_issues_and_pushes.first.error_list).to match_array([JiraIssuesAndPushes::ERROR_WRONG_STATE])
+        expect(push.jira_issues_and_pushes.first.error_list).to \
+          match_array([JiraIssuesAndPushes::ERROR_WRONG_STATE])
       end
 
       it 'with the wrong post deploy check status' do
         mock_jira_find_issue_response('STORY-1234', post_deploy_check_status: 'Wrong Status')
         push = PushManager.process_push!(Push.create_from_github_data!(payload))
-        expect(push.jira_issues_and_pushes.first.error_list).to match_array([JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS])
+        expect(push.jira_issues_and_pushes.first.error_list).to \
+          match_array([JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS])
       end
 
       it 'with no post deploy check status' do
         mock_jira_find_issue_response('STORY-1234', post_deploy_check_status: nil)
         push = PushManager.process_push!(Push.create_from_github_data!(payload))
-        expect(push.jira_issues_and_pushes.first.error_list).to match_array([JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS])
+        expect(push.jira_issues_and_pushes.first.error_list).to \
+          match_array([JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS])
       end
 
       it 'without a deploy date' do
         mock_jira_find_issue_response('STORY-1234', targeted_deploy_date: nil)
         push = PushManager.process_push!(Push.create_from_github_data!(payload))
-        expect(push.jira_issues_and_pushes.first.error_list).to match_array([JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE])
+        expect(push.jira_issues_and_pushes.first.error_list).to \
+          match_array([JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE])
       end
 
       it 'with a deploy date in the past' do
-        mock_jira_find_issue_response('STORY-1234', targeted_deploy_date: Time.now.yesterday)
+        mock_jira_find_issue_response('STORY-1234', targeted_deploy_date: Time.current.yesterday)
         push = PushManager.process_push!(Push.create_from_github_data!(payload))
-        expect(push.jira_issues_and_pushes.first.error_list).to match_array([JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE])
+        expect(push.jira_issues_and_pushes.first.error_list).to \
+          match_array([JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE])
       end
     end
 
@@ -94,7 +108,8 @@ describe 'PushManager' do
     end
 
     it 'some with and some without any commits' do
-      expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
+      expect_any_instance_of(Git::Git).to \
+        receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
       mock_jira_find_issue_response('STORY-1234', status: 'Wrong State')
       mock_jira_jql_response(['STORY-9999'])
       push = PushManager.process_push!(Push.create_from_github_data!(payload))
@@ -106,16 +121,20 @@ describe 'PushManager' do
     it 'without a matching JIRA issue' do
       stub_request(:get, /.*STORY-1234/).to_return(status: 404, body: 'Not Found')
       mock_jira_jql_response([])
-      expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
+      expect_any_instance_of(Git::Git).to \
+        receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
       push = PushManager.process_push!(Push.create_from_github_data!(payload))
-      expect(push.commits_and_pushes.first.error_list).to match_array([CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
+      expect(push.commits_and_pushes.first.error_list).to \
+        match_array([CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
     end
 
     it 'without a JIRA issue number' do
       mock_jira_jql_response([])
-      expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'Description with issue number')])
+      expect_any_instance_of(Git::Git).to \
+        receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'Description with issue number')])
       push = PushManager.process_push!(Push.create_from_github_data!(payload))
-      expect(push.commits_and_pushes.first.error_list).to match_array([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
+      expect(push.commits_and_pushes.first.error_list).to \
+        match_array([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
     end
   end
 
@@ -134,7 +153,8 @@ describe 'PushManager' do
   it 'can handle commits with multiple issue numbers' do
     mock_jira_find_issue_response('STORY-1234')
     mock_jira_jql_response([])
-    expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 description STORY-5678')])
+    expect_any_instance_of(Git::Git).to \
+      receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 description STORY-5678')])
     push = PushManager.process_push!(Push.create_from_github_data!(payload))
     expect(push.jira_issues.count).to eq(1)
     expect(push.jira_issues.first.key).to eq('STORY-1234')
@@ -144,23 +164,24 @@ describe 'PushManager' do
     mock_jira_find_issue_response('STORY-1234')
     mock_jira_jql_response([])
     messages = [
-        'STORY-1234',
-        'STORY_1234',
-        'STORY 1234',
-        'story-1234',
-        'Story-1234',
-        '/STORY-1234',
-        '/STORY-1234/',
-        'STORY-1234/',
-        ' STORY-1234',
-        'STORY-1234 ',
-        ' STORY-1234 ',
-        '-STORY-1234',
-        'STORY-1234-',
-        '-STORY-1234-',
-        '_STORY-1234',
-        'STORY-1234_',
-        '_STORY-1234_']
+      'STORY-1234',
+      'STORY_1234',
+      'STORY 1234',
+      'story-1234',
+      'Story-1234',
+      '/STORY-1234',
+      '/STORY-1234/',
+      'STORY-1234/',
+      ' STORY-1234',
+      'STORY-1234 ',
+      ' STORY-1234 ',
+      '-STORY-1234',
+      'STORY-1234-',
+      '-STORY-1234-',
+      '_STORY-1234',
+      'STORY-1234_',
+      '_STORY-1234_'
+    ]
     commits = messages.collect do |message|
       create_test_git_commit(sha: create_test_sha, message: message)
     end
@@ -174,7 +195,8 @@ describe 'PushManager' do
 
   context 'status' do
     before do
-      allow_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
+      allow_any_instance_of(Git::Git).to \
+        receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
       mock_jira_jql_response([])
     end
 
@@ -273,13 +295,15 @@ describe 'PushManager' do
 
     it 'for default' do
       GlobalSettings.jira.ancestor_branches['default'] = 'default_ancestor'
-      allow_any_instance_of(Git::Git).to receive(:commit_diff_refs).with(anything, 'default_ancestor', anything).and_return([])
+      allow_any_instance_of(Git::Git).to \
+        receive(:commit_diff_refs).with(anything, 'default_ancestor', anything).and_return([])
       PushManager.process_push!(Push.create_from_github_data!(payload))
     end
 
     it 'for match' do
       GlobalSettings.jira.ancestor_branches['test/branch_name'] = 'mybranch_ancestor'
-      allow_any_instance_of(Git::Git).to receive(:commit_diff_refs).with(anything, 'mybranch_ancestor', anything).and_return([])
+      allow_any_instance_of(Git::Git).to \
+        receive(:commit_diff_refs).with(anything, 'mybranch_ancestor', anything).and_return([])
       PushManager.process_push!(Push.create_from_github_data!(payload))
     end
   end

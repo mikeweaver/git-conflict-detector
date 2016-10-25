@@ -14,12 +14,16 @@ module Git
       name
     end
 
-    def =~(rhs)
-      name =~ rhs
+    def =~(other) # rubocop:disable Rails/Delegate
+      name =~ other
     end
 
-    def ==(rhs)
-      repository_name == rhs.repository_name && name == rhs.name && last_modified_date == rhs.last_modified_date && author_email == rhs.author_email && author_name == rhs.author_name
+    def ==(other)
+      repository_name == other.repository_name \
+        && name == other.name && \
+        last_modified_date == other.last_modified_date \
+        && author_email == other.author_email \
+        && author_name == other.author_name
     end
 
     def self.name_from_ref(ref)

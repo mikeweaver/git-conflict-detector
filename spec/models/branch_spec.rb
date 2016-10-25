@@ -1,18 +1,17 @@
 require 'spec_helper'
 
 describe 'Branch' do
-
   it 'can create be constructed from git data' do
     branch = create_test_branch
     expect(branch.name).to eq('path/branch')
-    expect(branch.git_updated_at).to_not be_nil
+    expect(branch.git_updated_at).not_to be_nil
     expect(branch.git_tested_at).to be_nil
     expect(branch.created_at).not_to be_nil
     expect(branch.updated_at).not_to be_nil
   end
 
   it 'does not create duplicate database records' do
-    git_data = Git::GitBranch.new('repository_name', 'name', Time.now, 'author_name', 'author@email.com')
+    git_data = Git::GitBranch.new('repository_name', 'name', Time.current, 'author_name', 'author@email.com')
     Branch.create_from_git_data!(git_data)
     expect(Branch.all.count).to eq(1)
 
@@ -21,11 +20,11 @@ describe 'Branch' do
   end
 
   it 'distinguishes between branches in different repositories' do
-    git_data_a = Git::GitBranch.new('repository_name', 'name', Time.now, 'author_name', 'author@email.com')
+    git_data_a = Git::GitBranch.new('repository_name', 'name', Time.current, 'author_name', 'author@email.com')
     Branch.create_from_git_data!(git_data_a)
     expect(Branch.all.count).to eq(1)
 
-    git_data_b = Git::GitBranch.new('other_repository_name', 'name', Time.now, 'author_name', 'author@email.com')
+    git_data_b = Git::GitBranch.new('other_repository_name', 'name', Time.current, 'author_name', 'author@email.com')
     Branch.create_from_git_data!(git_data_b)
     expect(Branch.all.count).to eq(2)
   end
@@ -33,7 +32,7 @@ describe 'Branch' do
   it 'can be sorted alphabetically by name' do
     names = ['b', 'd', 'a', 'c']
     (0..3).each do |i|
-      git_data = create_test_branch(name: names[i])
+      create_test_branch(name: names[i])
     end
     # ensure they came out of the DB in the same order we put them in
     expect(Branch.first.name).to eq('b')
@@ -71,7 +70,6 @@ describe 'Branch' do
   end
 
   context 'with an existing branch' do
-
     before do
       @branch = create_test_branch
     end
@@ -87,14 +85,14 @@ describe 'Branch' do
 
     it 'can be marked as tested' do
       expect(@branch.git_tested_at).to be_nil
-      current_time = Time.now + 1000
+      current_time = Time.current + 1000
       Timecop.freeze(current_time) do
         @branch.mark_as_tested!
         @branch.reload
         expect(@branch.git_tested_at.to_i).to eq(current_time.to_i)
       end
 
-      current_time = Time.now + 2000
+      current_time = Time.current + 2000
       Timecop.freeze(current_time) do
         @branch.mark_as_tested!
         @branch.reload
@@ -102,6 +100,4 @@ describe 'Branch' do
       end
     end
   end
-
 end
-

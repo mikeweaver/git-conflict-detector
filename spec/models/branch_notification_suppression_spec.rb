@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe 'BranchNotificationSuppression' do
-
   before do
     @branches_a = create_test_branches(author_name: 'Author A', count: 2)
     @branches_b = create_test_branches(author_name: 'Author B', count: 2)
@@ -50,4 +49,3 @@ describe 'BranchNotificationSuppression' do
     expect(branch_ids).to eq([@branches_b[0].id, @branches_b[1].id])
   end
 end
-

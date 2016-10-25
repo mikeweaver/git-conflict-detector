@@ -46,4 +46,3 @@ describe 'PushHookPayload' do
     end
   end
 end
-

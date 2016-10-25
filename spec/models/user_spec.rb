@@ -2,16 +2,19 @@ require 'spec_helper'
 
 describe 'User' do
   def jira_user
-    @jira_user ||= JIRA::Resource::UserFactory.new(nil).build(load_json_fixture('jira_issue_response')['fields']['assignee'])
+    @jira_user ||= JIRA::Resource::UserFactory.new(nil).build(
+      load_json_fixture('jira_issue_response')['fields']['assignee']
+    )
   end
 
   it 'can create be constructed from git data' do
     git_data = Git::GitBranch.new(
-        'repository_name',
-        'mypath/mybranch',
-        DateTime.now,
-        'Author Name',
-        'author@email.com')
+      'repository_name',
+      'mypath/mybranch',
+      DateTime.current,
+      'Author Name',
+      'author@email.com'
+    )
     user = User.create_from_git_data!(git_data)
 
     expect(user.name).to eq('Author Name')
@@ -91,6 +94,4 @@ describe 'User' do
       expect(User.subscribed_users).to eq([@user_2])
     end
   end
-
 end
-

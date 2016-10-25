@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe 'AutoMerger' do
-
   def create_test_git_branches(target_branch_count)
     test_branches = []
     (0..(target_branch_count - 1)).each do |i|
@@ -23,23 +22,25 @@ describe 'AutoMerger' do
   def expect_merges(target_branch_count: 0, conflict_count: 0, branches_up_to_date: false)
     raise 'Conflict count must be <= target branch count' if conflict_count > target_branch_count
     expect_any_instance_of(Git::Git).to receive(:clone_repository)
-    expect_any_instance_of(Git::Git).to receive(:get_branch_list) { create_test_git_branches(target_branch_count) }
+    expect_any_instance_of(Git::Git).to receive(:branch_list) { create_test_git_branches(target_branch_count) }
     if branches_up_to_date
       expect_any_instance_of(Git::Git).not_to receive(:push)
     else
-      expect_any_instance_of(Git::Git).to receive(:push).exactly(target_branch_count - conflict_count).times.and_return(true)
+      expect_any_instance_of(Git::Git).to \
+        receive(:push).exactly(target_branch_count - conflict_count).times.and_return(true)
       if conflict_count > 0
         expect_any_instance_of(Git::Git).to receive(:reset).exactly(conflict_count).times
       end
     end
     conflict_results = []
-    (0..(conflict_count - 1)).each do |i|
+    (0..(conflict_count - 1)).each do
       conflict_results << [false, create_test_git_conflict(branch_a_name: 'source', branch_b_name: 'target/branch0')]
     end
-    (0..(target_branch_count - 1 - conflict_count)).each do |i|
+    (0..(target_branch_count - 1 - conflict_count)).each do
       conflict_results << [!branches_up_to_date, nil]
     end
-    expect_any_instance_of(Git::Git).to receive(:merge_branches).exactly(target_branch_count).times.and_return(*conflict_results)
+    expect_any_instance_of(Git::Git).to \
+      receive(:merge_branches).exactly(target_branch_count).times.and_return(*conflict_results)
     auto_merger = AutoMerger.new(@settings)
     # a single notification email should be sent
     expect(MergeMailer).to receive(:maybe_send_merge_email_to_user).and_call_original
@@ -96,5 +97,4 @@ describe 'AutoMerger' do
   it 'does not push branches that are already up to date' do
     expect_merges(target_branch_count: 2, branches_up_to_date: true)
   end
-
 end

@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe 'Git::GitConflict' do
-
   it 'can be created' do
     conflict = Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', ['file1', 'file2'])
 
@@ -12,12 +11,13 @@ describe 'Git::GitConflict' do
   end
 
   it 'cannot be created without conflicting files' do
-    expect { Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', nil) }.to raise_exception(ArgumentError, 'Must specify conflicting file list')
-    expect { Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', []) }.to raise_exception(ArgumentError, 'Must specify conflicting file list')
+    expect { Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', nil) }.to \
+      raise_exception(ArgumentError, 'Must specify conflicting file list')
+    expect { Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', []) }.to \
+      raise_exception(ArgumentError, 'Must specify conflicting file list')
   end
 
   it 'implements equality operator' do
-    last_modified_date = Time.now
     conflict_a = Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', ['file1', 'file2'])
 
     conflict_b = Git::GitConflict.new('repository_name', 'branch_a', 'branch_b', ['file1', 'file2'])

@@ -1,5 +1,4 @@
 class AutoMerger < BranchManager
-
   def run
     # destroy record of previous merges
     Merge.destroy_all
@@ -27,24 +26,25 @@ class AutoMerger < BranchManager
     end
 
     # note the time at which we started creating merge records, so we only send out emails for the new ones
-    start_time = DateTime.now
+    start_time = DateTime.current
 
     merge_and_push_branches(source_branch, tag_name, target_branches)
 
     # send notifications out
     MergeMailer.send_merge_emails(
-        @settings.repository_name,
-        start_time)
+      @settings.repository_name,
+      start_time
+    )
   end
 
   private
 
-  def get_target_branches
+  def get_target_branches # rubocop:disable Style/AccessorMethodName
     # get the list of branches that passed the filter
     filter_branch_list(Branch.from_repository(@settings.repository_name))
   end
 
-  def get_source_branch
+  def get_source_branch # rubocop:disable Style/AccessorMethodName
     source_branch = Branch.from_repository(@settings.repository_name).with_name(@settings.source_branch_name)
     if source_branch.empty?
       nil
@@ -57,15 +57,18 @@ class AutoMerger < BranchManager
 
   def merge_and_push_branch(target_branch, source_branch_tag, source_branch)
     # don't try to merge the branch with itself
-    target_branch.name != source_branch.name or return
+    target_branch.name != source_branch.name || return
 
-    Rails.logger.debug("Attempt to merge #{source_branch.name} with tag #{source_branch_tag} into #{target_branch.name}")
+    Rails.logger.debug(
+      "Attempt to merge #{source_branch.name} with tag #{source_branch_tag} into #{target_branch.name}"
+    )
     success, conflict = @git.merge_branches(
-        target_branch.name,
-        source_branch.name,
-        source_tag_name: source_branch_tag,
-        keep_changes: true,
-        commit_message: "Auto merge branch #{source_branch.name} into #{target_branch.name}")
+      target_branch.name,
+      source_branch.name,
+      source_tag_name: source_branch_tag,
+      keep_changes: true,
+      commit_message: "Auto merge branch #{source_branch.name} into #{target_branch.name}"
+    )
     if success
       Rails.logger.info("MERGED: #{source_branch.name} has been merged into #{target_branch.name} without conflicts")
       if @git.push
@@ -75,7 +78,10 @@ class AutoMerger < BranchManager
         raise "Failed to push #{target_branch.name} to origin, it was already up to date!"
       end
     elsif conflict.present?
-      Rails.logger.info("CONFLICT: #{target_branch.name} conflicts with #{source_branch.name}\nConflicting files:\n#{conflict.conflicting_files}")
+      Rails.logger.info(
+        "CONFLICT: #{target_branch.name} conflicts with " \
+        "#{source_branch.name}\nConflicting files:\n#{conflict.conflicting_files}"
+      )
       @git.reset
       Merge.create!(source_branch: source_branch, target_branch: target_branch, successful: false)
     else
@@ -90,4 +96,3 @@ class AutoMerger < BranchManager
     end
   end
 end
-

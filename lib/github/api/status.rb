@@ -4,7 +4,7 @@ module Github
       STATE_SUCCESS = :success
       STATE_PENDING = :pending
       STATE_FAILED = :failure
-      STATES = [STATE_SUCCESS, STATE_PENDING, STATE_FAILED]
+      STATES = [STATE_SUCCESS, STATE_PENDING, STATE_FAILED].freeze
 
       def initialize(username, password)
         @username = username
@@ -14,10 +14,10 @@ module Github
       def set_status(repo_path, sha, context, state, description, url)
         Rails.logger.info("Setting #{context} status to #{state} for #{repo_path}/#{sha}")
         body = {
-            state: state.to_s,
-            target_url: url.to_s,
-            description: description,
-            context: context
+          state: state.to_s,
+          target_url: url.to_s,
+          description: description,
+          context: context
         }
 
         uri = URI.parse("https://api.github.com/repos/#{repo_path}/statuses/#{sha}")
@@ -29,7 +29,7 @@ module Github
         http.use_ssl = true
         response = http.request(request)
 
-        if response.kind_of? Net::HTTPCreated
+        if response.is_a?(Net::HTTPCreated)
           JSON.parse(response.body)
         else
           response.error!

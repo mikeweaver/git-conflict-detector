@@ -14,8 +14,8 @@ module Git
       sha
     end
 
-    def ==(rhs)
-      sha == rhs.sha
+    def ==(other)
+      sha == other.sha
     end
   end
 end

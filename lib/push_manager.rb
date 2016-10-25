@@ -45,11 +45,11 @@ class PushManager
       /(?:^|\s|\/|_|-)((?:#{GlobalSettings.jira.project_keys.join('|')})[- _]\d+)/i
     end
 
-    def is_a_valid_jira_state(status)
+    def valid_jira_state?(status)
       GlobalSettings.jira.valid_statuses.any? { |valid_status| valid_status.casecmp(status) == 0 }
     end
 
-    def is_a_valid_post_deploy_check_status(status)
+    def valid_post_deploy_check_status?(status)
       if status
         GlobalSettings.jira.valid_post_deploy_check_statuses.any? { |valid_status| valid_status.casecmp(status) == 0 }
       else
@@ -64,15 +64,17 @@ class PushManager
     end
 
     def extract_jira_issue_key(commit)
-      if match = commit.message.match(jira_issue_regexp)
-        match.captures[0].upcase.sub(/[ _]/,'-')
+      match = commit.message.match(jira_issue_regexp)
+      if match
+        match.captures[0].upcase.sub(/[ _]/, '-')
       end
     end
 
     def get_jira_issues!(issue_keys)
       jira_client = JIRA::ClientWrapper.new(Rails.application.secrets.jira)
       issue_keys.collect do |ticket_number|
-        if issue = jira_client.find_issue_by_key(ticket_number)
+        issue = jira_client.find_issue_by_key(ticket_number)
+        if issue
           JiraIssue.create_from_jira_data!(issue)
         end
       end.compact
@@ -82,7 +84,9 @@ class PushManager
       quoted_statuses = GlobalSettings.jira.valid_statuses.map do |status|
         "\"#{status}\""
       end
-      jql = "status IN (#{quoted_statuses.join(', ')}) AND project IN (#{GlobalSettings.jira.project_keys.join(', ').upcase})"
+      jql = "status IN (#{quoted_statuses.join(', ')}) " \
+            "AND project IN (#{GlobalSettings.jira.project_keys.join(', ').upcase})"
+
       if issue_keys.any?
         jql += " AND key NOT IN (#{issue_keys.join(', ')})"
       end
@@ -111,11 +115,11 @@ class PushManager
 
     def detect_errors_for_jira_issue(jira_issue)
       errors = []
-      unless is_a_valid_jira_state(jira_issue.status)
+      unless valid_jira_state?(jira_issue.status)
         errors << JiraIssuesAndPushes::ERROR_WRONG_STATE
       end
-      
-      unless is_a_valid_post_deploy_check_status(jira_issue.post_deploy_check_status)
+
+      unless valid_post_deploy_check_status?(jira_issue.post_deploy_check_status)
         errors << JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS
       end
 
@@ -124,7 +128,7 @@ class PushManager
       end
 
       if jira_issue.targeted_deploy_date
-        if jira_issue.targeted_deploy_date.to_date < Date.today
+        if jira_issue.targeted_deploy_date.to_date < Time.zone.today
           errors << JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE
         end
       else
@@ -145,20 +149,26 @@ class PushManager
     def detect_errors_for_commit(commit)
       errors = []
       unless commit.jira_issue
-        if commit.message.match(jira_issue_regexp)
-          errors << CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND
-        else
-          errors << CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER
-        end
+        errors << if commit.message.match(jira_issue_regexp)
+                    CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND
+                  else
+                    CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER
+                  end
       end
     end
 
     def get_commits_from_push(push)
       git = Git::Git.new(push.branch.repository.name)
-      git.commit_diff_refs(push.head_commit.sha, ancestor_branch_name(push.branch.name), fetch: true).collect do |git_commit|
-        unless GlobalSettings.jira.ignore_commits_with_messages.include_regexp?(git_commit.message, regexp_options=Regexp::IGNORECASE)
-          Commit.create_from_git_commit!(git_commit)
-        end
+      git.commit_diff_refs(
+        push.head_commit.sha,
+        ancestor_branch_name(push.branch.name),
+        fetch: true
+      ).collect do |git_commit|
+        next if GlobalSettings.jira.ignore_commits_with_messages.include_regexp?(
+          git_commit.message,
+          regexp_options: Regexp::IGNORECASE
+        )
+        Commit.create_from_git_commit!(git_commit)
       end.compact
     end
   end

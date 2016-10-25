@@ -4,7 +4,7 @@ module Git
 
     def initialize(repository_name, branch_a, branch_b, conflicting_files)
       unless conflicting_files.present?
-        raise ArgumentError.new("Must specify conflicting file list")
+        raise ArgumentError, 'Must specify conflicting file list'
       end
 
       @repository_name = repository_name
@@ -13,8 +13,11 @@ module Git
       @conflicting_files = conflicting_files
     end
 
-    def ==(rhs)
-      repository_name == rhs.repository_name && branch_a == rhs.branch_a && branch_b == rhs.branch_b && conflicting_files == rhs.conflicting_files
+    def ==(other)
+      repository_name == other.repository_name \
+        && branch_a == other.branch_a \
+        && branch_b == other.branch_b \
+        && conflicting_files == other.conflicting_files
     end
 
     def contains_branch(branch_name)

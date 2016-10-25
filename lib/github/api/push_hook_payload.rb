@@ -40,26 +40,27 @@ module Github
       def git_branch_data
         @git_branch_data ||= Git::GitBranch.new(repository_path,
                                                 branch_name,
-                                                DateTime::parse(head_commit[:timestamp]),
+                                                DateTime.iso8601(head_commit[:timestamp]),
                                                 author_name,
                                                 author_email)
       end
 
       private
+
       def head_commit
-        @payload[:head_commit] or raise 'Payload does not include head commit'
+        @payload[:head_commit] || (raise 'Payload does not include head commit')
       end
 
       def author
-        head_commit[:author] or raise 'Payload does not include head commit author'
+        head_commit[:author] || (raise 'Payload does not include head commit author')
       end
 
       def repository
-        @payload[:repository] or raise 'Payload does not include repository'
+        @payload[:repository] || (raise 'Payload does not include repository')
       end
 
       def repository_owner
-        repository[:owner] or raise 'Payload does not include repository owner'
+        repository[:owner] || (raise 'Payload does not include repository owner')
       end
     end
   end

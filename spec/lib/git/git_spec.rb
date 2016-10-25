@@ -1,18 +1,23 @@
 require 'spec_helper'
 
+# rubocop:disable Metrics/LineLength
 describe 'Git::Git' do
   include FakeFS::SpecHelpers
 
   def create_mock_open_status(status)
-    status_object = double()
+    status_object = double
     allow(status_object).to receive(:success?) { status == 1 }
     allow(status_object).to receive(:to_s) { status.to_s }
-    return status_object
+    status_object
   end
 
   def mock_execute(stdout_andstderr_str, status, execution_count: 1, expected_command: anything)
     # mock the call and repsonse to execute the git command
-    expect(Open3).to receive(:capture2e).with(expected_command, anything).exactly(execution_count).times.and_return([stdout_andstderr_str, create_mock_open_status(status)])
+    expect(Open3).to \
+      receive(:capture2e) \
+      .with(expected_command, anything) \
+      .exactly(execution_count) \
+      .times.and_return([stdout_andstderr_str, create_mock_open_status(status)])
   end
 
   it 'can be created' do
@@ -23,7 +28,6 @@ describe 'Git::Git' do
   end
 
   context 'with a git repository' do
-
     before do
       @git = Git::Git.new('repository_name')
     end
@@ -35,19 +39,19 @@ describe 'Git::Git' do
 
     it 'raises GitError when a command fails' do
       mock_execute('sample output', 0)
-      expect{@git.execute('sample command')}.to raise_exception(Git::GitError)
+      expect { @git.execute('sample command') }.to raise_exception(Git::GitError)
     end
 
     describe 'clone_repository' do
       it 'can clone into a new directory' do
-        response =
-            "Cloning into '#{@git.repository_name}'..." +
-            "remote: Counting objects: 1080, done." +
-            "remote: Compressing objects: 100% (83/83), done." +
-            "remote: Total 1080 (delta 34), reused 0 (delta 0), pack-reused 994" +
-            "Receiving objects: 100% (1080/1080), 146.75 KiB | 0 bytes/s, done." +
-            "Resolving deltas: 100% (641/641), done." +
-            "Checking connectivity... done."
+        response = \
+          "Cloning into '#{@git.repository_name}'..." \
+          'remote: Counting objects: 1080, done.' \
+          'remote: Compressing objects: 100% (83/83), done.' \
+          'remote: Total 1080 (delta 34), reused 0 (delta 0), pack-reused 994' \
+          'Receiving objects: 100% (1080/1080), 146.75 KiB | 0 bytes/s, done.' \
+          'Resolving deltas: 100% (641/641), done.' \
+          'Checking connectivity... done.'
         mock_execute(response, 1)
         @git.clone_repository('default_branch')
       end
@@ -63,14 +67,14 @@ describe 'Git::Git' do
 
     describe 'push' do
       it 'can push a branch' do
-        response =
-            "Counting objects: 20, done." +
-            "Delta compression using up to 8 threads." +
-            "Compressing objects: 100% (18/18), done." +
-            "Writing objects: 100% (20/20), 2.47 KiB | 0 bytes/s, done." +
-            "Total 20 (delta 11), reused 0 (delta 0)" +
-            "To #{@git.repository_url}" +
-            "19087ab..9cdd9db  master -> master"
+        response = \
+          'Counting objects: 20, done.' \
+          'Delta compression using up to 8 threads.' \
+          'Compressing objects: 100% (18/18), done.' \
+          'Writing objects: 100% (20/20), 2.47 KiB | 0 bytes/s, done.' \
+          'Total 20 (delta 11), reused 0 (delta 0)' \
+          "To #{@git.repository_url}" \
+          '19087ab..9cdd9db  master -> master'
         mock_execute(response, 1)
         expect(@git.push).to eq(true)
       end
@@ -97,13 +101,13 @@ describe 'Git::Git' do
 
     describe 'reset' do
       it 'can reset a branch to HEAD of origin' do
-        expect(@git).to receive(:get_current_branch_name).and_return('master')
+        expect(@git).to receive(:current_branch_name).and_return('master')
         mock_execute("HEAD is now at beb5e09 Merge branch 'master'", 1)
         @git.reset
       end
 
       it 'escapes backticks in branch names' do
-        expect(@git).to receive(:get_current_branch_name).and_return('branch_`name')
+        expect(@git).to receive(:current_branch_name).and_return('branch_`name')
         mock_execute('sample output', 1, expected_command: '/usr/bin/git reset --hard origin/branch_\\`name')
         @git.reset
       end
@@ -112,166 +116,204 @@ describe 'Git::Git' do
     describe 'get_branch_list' do
       it 'can parse a branch list' do
         mock_execute(
-            "origin/test_1~2015-10-19 17:58:24 -0700~Nicholas Ellis~<nellis@invoca.com>\norigin/test_build~2015-10-19 15:03:22 -0700~Bob Smith~<bob@invoca.com>\norigin/test_build_b~2015-10-19 16:52:40 -0700~Nicholas Ellis~<nellis@invoca.com>",
-            1)
+          "origin/test_1~2015-10-19 17:58:24 -0700~Nicholas Ellis~<nellis@invoca.com>\norigin/test_build~2015-10-19 15:03:22 -0700~Bob Smith~<bob@invoca.com>\norigin/test_build_b~2015-10-19 16:52:40 -0700~Nicholas Ellis~<nellis@invoca.com>",
+          1
+        )
 
         branch_list = []
         branch_list << Git::GitBranch.new(
-            'repository_name',
-            'test_1',
-            DateTime::parse('2015-10-19 17:58:24 -0700'),
-            'Nicholas Ellis',
-            'nellis@invoca.com')
+          'repository_name',
+          'test_1',
+          DateTime.iso8601('2015-10-19T17:58:24-0700'),
+          'Nicholas Ellis',
+          'nellis@invoca.com'
+        )
         branch_list << Git::GitBranch.new(
-            'repository_name',
-            'test_build',
-            DateTime::parse('2015-10-19 15:03:22 -0700'),
-            'Bob Smith',
-            'bob@invoca.com')
+          'repository_name',
+          'test_build',
+          DateTime.iso8601('2015-10-19T15:03:22-0700'),
+          'Bob Smith',
+          'bob@invoca.com'
+        )
         branch_list << Git::GitBranch.new(
-            'repository_name',
-            'test_build_b',
-            DateTime::parse('2015-10-19 16:52:40 -0700'),
-            'Nicholas Ellis',
-            'nellis@invoca.com')
+          'repository_name',
+          'test_build_b',
+          DateTime.iso8601('2015-10-19T16:52:40-0700'),
+          'Nicholas Ellis',
+          'nellis@invoca.com'
+        )
 
-        expect(@git.get_branch_list).to eq(branch_list)
+        expect(@git.branch_list).to eq(branch_list)
       end
     end
 
     describe 'merge_branches' do
-
       it 'returns false, with conflicts, if merge is not clean' do
-        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
+        expect(@git).to receive(:current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
         mock_execute(
-            "From github.com:/Invoca/web\n" +
-                " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
-                "warning: Cannot merge binary files: test/fixtures/whitepages.sql (HEAD vs. fedc8e0cfa136d5e1f84005ab6d82235122b0006)\n" +
-                "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
-                "CONFLICT (content): Merge conflict in test/workers/adwords_detail_worker_test.rb\n" +
-                "CONFLICT (modify/delete): pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js deleted in fedc8e0cfa136d5e1f84005ab6d82235122b0006 and modified in HEAD. Version HEAD of pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js left in tree.\n" +
-                "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n" +
-                "Automatic merge failed; fix conflicts and then commit the result.\n",
-            0)
+          "From github.com:/Invoca/web\n" \
+          " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" \
+          "warning: Cannot merge binary files: test/fixtures/whitepages.sql (HEAD vs. fedc8e0cfa136d5e1f84005ab6d82235122b0006)\n" \
+          "Auto-merging test/workers/adwords_detail_worker_test.rb\n" \
+          "CONFLICT (content): Merge conflict in test/workers/adwords_detail_worker_test.rb\n" \
+          "CONFLICT (modify/delete): pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js deleted in fedc8e0cfa136d5e1f84005ab6d82235122b0006 and modified in HEAD. Version HEAD of pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js left in tree.\n" \
+          "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n" \
+          "Automatic merge failed; fix conflicts and then commit the result.\n",
+          0
+        )
 
         conflict = Git::GitConflict.new(
-            'repository_name',
+          'repository_name',
+          '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+          '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
+          ['test/workers/adwords_detail_worker_test.rb', 'pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js']
+        )
+        expect(
+          @git.merge_branches(
             '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
-            '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
-            ['test/workers/adwords_detail_worker_test.rb', 'pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js'])
-        expect(@git.merge_branches(
-                   '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
-                   '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size')).to eq([false, conflict])
+            '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size'
+          )
+        ).to eq([false, conflict])
       end
 
       it 'aborts unsuccessful merge if requested' do
-        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
+        expect(@git).to receive(:current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
         mock_execute(
-              "From github.com:/Invoca/web\n" +
-                  " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
-                  "warning: Cannot merge binary files: test/fixtures/whitepages.sql (HEAD vs. fedc8e0cfa136d5e1f84005ab6d82235122b0006)\n" +
-                  "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
-                  "CONFLICT (content): Merge conflict in test/workers/adwords_detail_worker_test.rb\n" +
-                  "CONFLICT (modify/delete): pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js deleted in fedc8e0cfa136d5e1f84005ab6d82235122b0006 and modified in HEAD. Version HEAD of pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js left in tree.\n" +
-                  "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n" +
-                  "Automatic merge failed; fix conflicts and then commit the result.",
-              0)
+          "From github.com:/Invoca/web\n" \
+          " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" \
+          "warning: Cannot merge binary files: test/fixtures/whitepages.sql (HEAD vs. fedc8e0cfa136d5e1f84005ab6d82235122b0006)\n" \
+          "Auto-merging test/workers/adwords_detail_worker_test.rb\n" \
+          "CONFLICT (content): Merge conflict in test/workers/adwords_detail_worker_test.rb\n" \
+          "CONFLICT (modify/delete): pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js deleted in fedc8e0cfa136d5e1f84005ab6d82235122b0006 and modified in HEAD. Version HEAD of pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js left in tree.\n" \
+          "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n" \
+          'Automatic merge failed; fix conflicts and then commit the result.',
+          0
+        )
         expect(@git).to receive(:reset)
 
         conflict = Git::GitConflict.new(
-            'repository_name',
+          'repository_name',
+          '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+          '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
+          [
+            'test/workers/adwords_detail_worker_test.rb',
+            'pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js'
+          ]
+        )
+        expect(
+          @git.merge_branches(
             '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
             '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
-            ['test/workers/adwords_detail_worker_test.rb', 'pegasus/backdraft/pegasus_dashboard/spec/views/call_cost_tile_spec.js'])
-        expect(@git.merge_branches(
-                   '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
-                   '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
-                   keep_changes: false)).to eq([false, conflict])
+            keep_changes: false
+          )
+        ).to eq([false, conflict])
       end
 
       it 'aborts successful merge if requested' do
-        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
+        expect(@git).to receive(:current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
         mock_execute(
-              "From github.com:/Invoca/web\n" +
-                  " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
-                  "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
-                  "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
-              1)
+          "From github.com:/Invoca/web\n" \
+          " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" \
+          "Auto-merging test/workers/adwords_detail_worker_test.rb\n" \
+          "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
+          1
+        )
         expect(@git).to receive(:reset)
 
-        expect(@git.merge_branches(
-                   '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
-                   '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
-                   keep_changes: false)).to eq([true, nil])
+        expect(
+          @git.merge_branches(
+            '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+            '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
+            keep_changes: false
+          )
+        ).to eq([true, nil])
       end
 
       it 'returns true, with no conflicts, if merge is clean' do
-        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
+        expect(@git).to receive(:current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
         mock_execute(
-              "From github.com:/Invoca/web\n" +
-                  " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
-                  "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
-                  "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
-              1)
+          "From github.com:/Invoca/web\n" \
+          " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" \
+          "Auto-merging test/workers/adwords_detail_worker_test.rb\n" \
+          "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
+          1
+        )
 
-        expect(@git.merge_branches(
-                   '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
-                   '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size')).to eq([true, nil])
+        expect(
+          @git.merge_branches(
+            '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+            '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size'
+          )
+        ).to eq([true, nil])
       end
 
       it 'returns false, with no conflicts, if nothing is merged' do
-        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
+        expect(@git).to receive(:current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
         mock_execute(
-             "From github.com:mikeweaver/git-conflict-detector\n" +
-              " * branch            master     -> FETCH_HEAD\n" +
-              "Already up-to-date.\n",
-              1)
-        expect(@git.merge_branches(
-                   '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
-                   '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size')).to eq([false, nil])
+          "From github.com:mikeweaver/git-conflict-detector\n" \
+          " * branch            master     -> FETCH_HEAD\n" \
+          "Already up-to-date.\n",
+          1
+        )
+        expect(
+          @git.merge_branches(
+            '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+            '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size'
+          )
+        ).to eq([false, nil])
       end
 
       it 'checks out branch if needed' do
-        expect(@git).to receive(:get_current_branch_name).and_return('not_the_right_branch')
+        expect(@git).to receive(:current_branch_name).and_return('not_the_right_branch')
         expect(@git).to receive(:checkout_branch)
         mock_execute(
-            "From github.com:mikeweaver/git-conflict-detector\n" +
-                " * branch            master     -> FETCH_HEAD\n" +
-                "Already up-to-date.\n",
-            1)
-        expect(@git.merge_branches(
-                   '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
-                   '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size')).to eq([false, nil])
+          "From github.com:mikeweaver/git-conflict-detector\n" \
+          " * branch            master     -> FETCH_HEAD\n" \
+          "Already up-to-date.\n",
+          1
+        )
+        expect(
+          @git.merge_branches(
+            '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+            '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size'
+          )
+        ).to eq([false, nil])
       end
 
       it 'merges a tag, if requested' do
-        expect(@git).to receive(:get_current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
+        expect(@git).to receive(:current_branch_name).and_return('91/eb/WEB-1723_Ringswitch_DB_Conn_Loss')
         mock_execute(
-            "From github.com:/Invoca/web\n" +
-            " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
-            "Auto-merging test/workers/adwords_detail_worker_test.rb\n" +
-            "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
-            1)
+          "From github.com:/Invoca/web\n" \
+          " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" \
+          "Auto-merging test/workers/adwords_detail_worker_test.rb\n" \
+          "    Auto-merging pegasus/backdraft/dist/pegasus_dashboard.js\n",
+          1
+        )
 
-        expect(@git.merge_branches(
-                   '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
-                   '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
-                   source_tag_name: 'tag_name')).to eq([true, nil])
+        expect(
+          @git.merge_branches(
+            '91/eb/WEB-1723_Ringswitch_DB_Conn_Loss',
+            '85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size',
+            source_tag_name: 'tag_name'
+          )
+        ).to eq([true, nil])
       end
 
       it 'escapes backticks and spaces in branch names but not commit messages' do
-        expect(@git).to receive(:get_current_branch_name).and_return('target`name')
+        expect(@git).to receive(:current_branch_name).and_return('target`name')
         mock_execute(
-            "From github.com:/Invoca/web\n" +
-                " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" +
-                "Auto-merging test/workers/adwords_detail_worker_test.rb\n",
-            1,
-            expected_command: '/usr/bin/git merge --no-edit -m "commit `message" origin/source\\`name\ space')
+          "From github.com:/Invoca/web\n" \
+              " * branch            85/t/trello_adwords_dashboard_tiles_auto_adjust_font_size -> FETCH_HEAD\n" \
+              "Auto-merging test/workers/adwords_detail_worker_test.rb\n",
+          1,
+          expected_command: '/usr/bin/git merge --no-edit -m "commit `message" origin/source\\`name\ space'
+        )
 
         @git.merge_branches(
-            'target`name',
-            'source`name space',
-            commit_message: 'commit `message')
+          'target`name',
+          'source`name space',
+          commit_message: 'commit `message'
+        )
       end
     end
 
@@ -300,9 +342,10 @@ describe 'Git::Git' do
 
       it 'escapes backticks in branch names' do
         mock_execute(
-            "file1.txt\nfile2.txt\n",
-            1,
-            expected_command: '/usr/bin/git diff --name-only $(git merge-base origin/ancestor\\`_branch origin/branch\\`name)..origin/branch\\`name')
+          "file1.txt\nfile2.txt\n",
+          1,
+          expected_command: '/usr/bin/git diff --name-only $(git merge-base origin/ancestor\\`_branch origin/branch\\`name)..origin/branch\\`name'
+        )
         @git.file_diff_branch_with_ancestor('branch`name', 'ancestor`_branch')
       end
     end
@@ -310,13 +353,14 @@ describe 'Git::Git' do
     describe 'commit_diff_refs' do
       it 'can diff a branch' do
         mocked_output = ["efd778098239838c165ffab2f12ad293f32824c8\tAuthor 1\tauthor1@email.com\t2016-07-14T10:09:45-07:00\tMerge branch 'production'\n",
-                        "667f3e5347c48c04663209682642fd8d6d93fde2\tAuthor 2\tauthor2@email.com\t2016-07-14T16:46:35-07:00\tMerge pull request #5584 from Owner/repo/dimension_repair\n"].join
+                         "667f3e5347c48c04663209682642fd8d6d93fde2\tAuthor 2\tauthor2@email.com\t2016-07-14T16:46:35-07:00\tMerge pull request #5584 from Owner/repo/dimension_repair\n"].join
         expected_array = [Git::GitCommit.new('efd778098239838c165ffab2f12ad293f32824c8', "Merge branch 'production'", nil, 'Author 1', 'author1@email.com'),
                           Git::GitCommit.new('667f3e5347c48c04663209682642fd8d6d93fde2', 'Merge pull request #5584 from Owner/repo/dimension_repair', nil, 'Author 2', 'author2@email.com')]
         mock_execute(
-            mocked_output,
-            1,
-            expected_command: "/usr/bin/git log --format='%H\t%an\t%ae\t%aI\t%s' --no-color origin/ancestor_branch..origin/branch")
+          mocked_output,
+          1,
+          expected_command: "/usr/bin/git log --format='%H\t%an\t%ae\t%aI\t%s' --no-color origin/ancestor_branch..origin/branch"
+        )
         expect(@git.commit_diff_refs('branch', 'ancestor_branch')).to eq(expected_array)
       end
 
@@ -333,25 +377,28 @@ describe 'Git::Git' do
 
       it 'can diff a sha with a branch' do
         mock_execute(
-            '',
-            1,
-            expected_command: "/usr/bin/git log --format='%H\t%an\t%ae\t%aI\t%s' --no-color origin/ancestor_branch..e2a7e607745d63da4d7f8486e0619e91a410f796")
+          '',
+          1,
+          expected_command: "/usr/bin/git log --format='%H\t%an\t%ae\t%aI\t%s' --no-color origin/ancestor_branch..e2a7e607745d63da4d7f8486e0619e91a410f796"
+        )
         @git.commit_diff_refs('e2a7e607745d63da4d7f8486e0619e91a410f796', 'ancestor_branch')
       end
 
       it 'can diff a sha with a sha' do
         mock_execute(
-            '',
-            1,
-            expected_command: "/usr/bin/git log --format='%H\t%an\t%ae\t%aI\t%s' --no-color c5e8de4eb36a2d1b9f66543966ede9ce9cc28a89..e2a7e607745d63da4d7f8486e0619e91a410f796")
+          '',
+          1,
+          expected_command: "/usr/bin/git log --format='%H\t%an\t%ae\t%aI\t%s' --no-color c5e8de4eb36a2d1b9f66543966ede9ce9cc28a89..e2a7e607745d63da4d7f8486e0619e91a410f796"
+        )
         @git.commit_diff_refs('e2a7e607745d63da4d7f8486e0619e91a410f796', 'c5e8de4eb36a2d1b9f66543966ede9ce9cc28a89')
       end
 
       it 'escapes backticks in ref names' do
         mock_execute(
-            '',
-            1,
-            expected_command: "/usr/bin/git log --format='%H\t%an\t%ae\t%aI\t%s' --no-color origin/ancestor\\`_branch..origin/branch\\`name")
+          '',
+          1,
+          expected_command: "/usr/bin/git log --format='%H\t%an\t%ae\t%aI\t%s' --no-color origin/ancestor\\`_branch..origin/branch\\`name"
+        )
         @git.commit_diff_refs('branch`name', 'ancestor`_branch')
       end
     end
@@ -359,7 +406,7 @@ describe 'Git::Git' do
     describe 'get_current_branch_name' do
       it 'can get the branch name' do
         mock_execute("path/branch\n", 1)
-        expect(@git.get_current_branch_name).to eq('path/branch')
+        expect(@git.current_branch_name).to eq('path/branch')
       end
     end
   end

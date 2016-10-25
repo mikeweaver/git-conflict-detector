@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe 'ConflictNotificationSuppression' do
-
   before do
     @branches_a = create_test_branches(author_name: 'Author A', count: 2)
     @branches_b = create_test_branches(author_name: 'Author B', count: 2)
@@ -55,4 +54,3 @@ describe 'ConflictNotificationSuppression' do
     expect(conflict_ids).to eq([@conflict.id, conflict_b.id])
   end
 end
-

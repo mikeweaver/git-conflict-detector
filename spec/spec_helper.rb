@@ -31,7 +31,6 @@ RSpec.configure do |config|
       example.run
     end
   end
-
 end
 
 def load_json_fixture(fixture_name)
@@ -44,7 +43,7 @@ end
 
 def create_test_git_branch(repository_name: 'repository_name',
                            name: 'path/branch',
-                           last_modified_date: Time.now,
+                           last_modified_date: Time.current,
                            author_name: 'Author Name',
                            author_email: 'author@email.com')
   Git::GitBranch.new(repository_name, name, last_modified_date, author_name, author_email)
@@ -61,21 +60,22 @@ def create_test_git_commit(sha: '1234567890123456789012345678901234567890',
                            message: 'Commit message',
                            author_name: 'Author Name',
                            author_email: 'author@email.com',
-                           commit_date: Time.now)
+                           commit_date: Time.current)
   Git::GitCommit.new(sha, message, commit_date, author_name, author_email)
 end
 
 def create_test_branch(repository_name: 'repository_name',
                        name: 'path/branch',
-                       last_modified_date: Time.now,
+                       last_modified_date: Time.current,
                        author_name: 'Author Name',
                        author_email: 'author@email.com')
   git_data = create_test_git_branch(
-      repository_name: repository_name,
-      name: name,
-      last_modified_date: last_modified_date,
-      author_name: author_name,
-      author_email: author_email)
+    repository_name: repository_name,
+    name: name,
+    last_modified_date: last_modified_date,
+    author_name: author_name,
+    author_email: author_email
+  )
   Branch.create_from_git_data!(git_data)
 end
 
@@ -86,11 +86,12 @@ def create_test_branches(repository_name: 'repository_name',
   branches = []
   (0..count - 1).each do |i|
     branches << create_test_branch(
-        repository_name: repository_name,
-        name: "path/#{author_name}/branch#{i}",
-        last_modified_date: DateTime.now,
-        author_name: author_name,
-        author_email: author_email)
+      repository_name: repository_name,
+      name: "path/#{author_name}/branch#{i}",
+      last_modified_date: DateTime.current,
+      author_name: author_name,
+      author_email: author_email
+    )
   end
   branches
 end
@@ -109,15 +110,16 @@ def create_test_commits(author_name: 'Author Name', author_email: 'author@email.
   commits = []
   (0..count - 1).each do |i|
     commits << create_test_commit(
-        sha: "#{i+1}".ljust(40, '0'),
-        message: "Commit message #{i+1}",
-        author_name: author_name,
-        author_email: author_email)
+      sha: (i + 1).to_s.ljust(40, '0'),
+      message: "Commit message #{i + 1}",
+      author_name: author_name,
+      author_email: author_email
+    )
   end
   commits
 end
 
-def create_test_conflict(branch_a, branch_b, tested_at: Time.now, file_list: ['test/file.rb'])
+def create_test_conflict(branch_a, branch_b, tested_at: Time.current, file_list: ['test/file.rb'])
   Conflict.create!(branch_a, branch_b, file_list, tested_at)
 end
 
@@ -136,7 +138,7 @@ end
 
 def create_test_jira_issue_json(key: nil,
                                 status: nil,
-                                targeted_deploy_date: Time.now.tomorrow,
+                                targeted_deploy_date: Time.current.tomorrow,
                                 post_deploy_check_status: 'Ready to Run',
                                 deploy_type: nil,
                                 parent_key: nil)
@@ -145,7 +147,7 @@ def create_test_jira_issue_json(key: nil,
          else
            load_json_fixture('jira_issue_response')
          end
-  json['id'] = "#{SecureRandom.random_number(100000)}"
+  json['id'] = SecureRandom.random_number(100000).to_s
   if key
     json['key'] = key
   end
@@ -173,18 +175,22 @@ end
 
 def create_test_jira_issue(key: nil,
                            status: nil,
-                           targeted_deploy_date: Time.now.tomorrow,
+                           targeted_deploy_date: Time.current.tomorrow,
                            post_deploy_check_status: nil,
                            deploy_type: nil,
                            parent_key: nil)
   JiraIssue.create_from_jira_data!(
-      JIRA::Resource::IssueFactory.new(nil).build(
-          create_test_jira_issue_json(key: key,
-                                      status: status,
-                                      targeted_deploy_date: targeted_deploy_date,
-                                      post_deploy_check_status: post_deploy_check_status,
-                                      deploy_type: deploy_type,
-                                      parent_key: parent_key)))
+    JIRA::Resource::IssueFactory.new(nil).build(
+      create_test_jira_issue_json(
+        key: key,
+        status: status,
+        targeted_deploy_date: targeted_deploy_date,
+        post_deploy_check_status: post_deploy_check_status,
+        deploy_type: deploy_type,
+        parent_key: parent_key
+      )
+    )
+  )
 end
 
 def create_test_sha

@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe 'CommitsAndPushes' do
-  
   before do
     @commit = create_test_commit
     @push = create_test_push
@@ -32,7 +31,11 @@ describe 'CommitsAndPushes' do
     end
 
     it 'duplicate errors are consolidated' do
-      record = CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
+      record = CommitsAndPushes.create_or_update!(
+        @commit,
+        @push,
+        [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER]
+      )
       expect(record.error_list).to match_array([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
     end
 
@@ -46,7 +49,11 @@ describe 'CommitsAndPushes' do
 
     context 'with ignored errors' do
       before do
-        @record = CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
+        @record = CommitsAndPushes.create_or_update!(
+          @commit,
+          @push,
+          [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND]
+        )
         @record.ignore_errors = true
         @record.save!
       end
@@ -59,9 +66,14 @@ describe 'CommitsAndPushes' do
       end
 
       it 'existing errors do not clear the ignore flag, even if the error order is different' do
-        CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND, CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
+        CommitsAndPushes.create_or_update!(
+          @commit,
+          @push,
+          [CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND, CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER]
+        )
         @record.reload
-        expect(@record.error_list).to match_array([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
+        expect(@record.error_list).to match_array([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER,
+                                                   CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
         expect(@record.ignore_errors).to be_truthy
       end
 
@@ -73,11 +85,14 @@ describe 'CommitsAndPushes' do
 
       it 'copies the ingore_errors flag from its predecessor' do
         new_push = create_test_push(sha: create_test_sha)
-        record = CommitsAndPushes.create_or_update!(@commit, new_push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
+        record = CommitsAndPushes.create_or_update!(
+          @commit,
+          new_push,
+          [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER, CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND]
+        )
         expect(record.ignore_errors).to be_truthy
       end
     end
-
   end
 
   context 'with_unignored_errors scope' do
@@ -85,7 +100,8 @@ describe 'CommitsAndPushes' do
       CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
       @commit.reload
       expect(@commit.commits_and_pushes.with_unignored_errors.count).to eq(1)
-      expect(CommitsAndPushes.get_error_counts_for_push(@push)).to eq( { CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND => 1 } )
+      expect(CommitsAndPushes.get_error_counts_for_push(@push)).to \
+        eq(CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND => 1)
     end
 
     it 'excludes pushes with ignored errors' do
@@ -94,14 +110,14 @@ describe 'CommitsAndPushes' do
       record.save!
       @commit.reload
       expect(@commit.commits_and_pushes.with_unignored_errors.count).to eq(0)
-      expect(CommitsAndPushes.get_error_counts_for_push(@push)).to eq( {} )
+      expect(CommitsAndPushes.get_error_counts_for_push(@push)).to eq({})
     end
 
     it 'excludes pushes without errors' do
       CommitsAndPushes.create_or_update!(@commit, @push, [])
       @commit.reload
       expect(@commit.commits_and_pushes.with_unignored_errors.count).to eq(0)
-      expect(CommitsAndPushes.get_error_counts_for_push(@push)).to eq( {} )
+      expect(CommitsAndPushes.get_error_counts_for_push(@push)).to eq({})
     end
   end
 
@@ -116,24 +132,23 @@ describe 'CommitsAndPushes' do
         expect(@push.commits.count).to eq(3)
       end
 
-      it 'should only destroy commits not in the list' do
+      it 'only destroy commits not in the list' do
         CommitsAndPushes.destroy_if_commit_not_in_list(@push, [@second_commit])
         expect(@push.commits.count).to eq(1)
         expect(@push.commits.first).to eq(@second_commit)
       end
 
-      it 'should destroy all commits if the list is empty' do
+      it 'destroys all commits if the list is empty' do
         CommitsAndPushes.destroy_if_commit_not_in_list(@push, [])
         expect(@push.commits).to be_empty
       end
     end
 
     context 'without commits' do
-      it 'should not fail if there are no commits to destroy' do
+      it 'does not fail if there are no commits to destroy' do
         expect(@push.commits).to be_empty
         CommitsAndPushes.destroy_if_commit_not_in_list(@push, [@commit])
       end
     end
   end
 end
-

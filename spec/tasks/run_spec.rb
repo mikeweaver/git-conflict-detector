@@ -7,15 +7,15 @@ describe 'run namespace rake task' do
       settings = OpenStruct.new(DEFAULT_CONFLICT_DETECTION_SETTINGS)
       settings.repository_name = 'repository_name'
       settings.default_branch_name = 'master'
-      GlobalSettings.repositories_to_check_for_conflicts = {'MyRepo' => settings}
+      GlobalSettings.repositories_to_check_for_conflicts = { 'MyRepo' => settings }
     end
 
     let :run_rake_task do
       Rake.application.invoke_task('run:conflict_detector')
     end
 
-    it "should call the conflict detector for each repository" do
-      conflict_detector = double(ConflictDetector)
+    it 'calls the conflict detector for each repository' do
+      conflict_detector = instance_double(ConflictDetector)
       expect(conflict_detector).to receive(:run)
       expect(ConflictDetector).to receive(:new).and_return(conflict_detector)
       run_rake_task
@@ -28,15 +28,15 @@ describe 'run namespace rake task' do
       settings.repository_name = 'repository_name'
       settings.default_branch_name = 'master'
       settings.source_branch_name = 'master'
-      GlobalSettings.branches_to_merge = {'MyRepo-branch' => settings}
+      GlobalSettings.branches_to_merge = { 'MyRepo-branch' => settings }
     end
 
     let :run_rake_task do
       Rake.application.invoke_task('run:auto_merger')
     end
 
-    it "should call the auto_merger for each repository" do
-      auto_merger = double(AutoMerger)
+    it 'calls the auto_merger for each repository' do
+      auto_merger = instance_double(AutoMerger)
       expect(auto_merger).to receive(:run)
       expect(AutoMerger).to receive(:new).and_return(auto_merger)
       run_rake_task

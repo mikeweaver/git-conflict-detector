@@ -4,12 +4,12 @@ module JIRA
   class ClientWrapper < JIRA::Client
     def initialize(settings)
       client_options = {
-          signature_method: 'RSA-SHA1',
-          consumer_key: settings['consumer_key'],
-          site: settings['site'],
-          context_path: '',
-          use_ssl: true,
-          private_key_file: settings['private_key_file']
+        signature_method: 'RSA-SHA1',
+        consumer_key: settings['consumer_key'],
+        site: settings['site'],
+        context_path: '',
+        use_ssl: true,
+        private_key_file: settings['private_key_file']
       }
 
       super(client_options)
@@ -20,7 +20,7 @@ module JIRA
     def find_issue_by_key(key)
       self.Issue.find(key)
     rescue JIRA::HTTPError => ex
-      if ex.response.code == "404"
+      if ex.response.code == '404'
         nil
       else
         raise
@@ -28,10 +28,9 @@ module JIRA
     end
 
     def find_issues_by_jql(jql)
-      self.Issue.jql(jql, { max_results: 100 })
+      self.Issue.jql(jql, max_results: 100)
     rescue JIRA::HTTPError => ex
       raise ex
     end
   end
 end
-

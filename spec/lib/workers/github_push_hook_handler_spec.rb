@@ -23,16 +23,17 @@ describe 'GithubPushHookHandler' do
   end
 
   it 'can create be constructed' do
-    handler = GithubPushHookHandler.new()
+    handler = GithubPushHookHandler.new
     expect(handler).not_to be_nil
   end
 
   it 'sets sha status when queued' do
     mock_status_request(
-        Github::Api::Status::STATE_PENDING,
-        GithubPushHookHandler::STATE_DESCRIPTIONS[Github::Api::Status::STATE_PENDING])
+      Github::Api::Status::STATE_PENDING,
+      GithubPushHookHandler::STATE_DESCRIPTIONS[Github::Api::Status::STATE_PENDING]
+    )
 
-    GithubPushHookHandler.new().queue!(payload)
+    GithubPushHookHandler.new.queue!(payload)
 
     # a job should be queued
     expect(Delayed::Job.count).to eq(1)
@@ -47,7 +48,7 @@ describe 'GithubPushHookHandler' do
   it 'does not process pushes for branches in the ignore list' do
     expect_any_instance_of(Github::Api::Status).not_to receive(:set_status)
     GlobalSettings.jira.ignore_branches << '.*branch_name'
-    GithubPushHookHandler.new().queue!(payload)
+    GithubPushHookHandler.new.queue!(payload)
 
     # a job should be queued
     expect(Delayed::Job.count).to eq(1)
@@ -62,7 +63,7 @@ describe 'GithubPushHookHandler' do
   it 'does not process pushes for branches not in the only list' do
     expect_any_instance_of(Github::Api::Status).not_to receive(:set_status)
     GlobalSettings.jira.only_branches << 'not_a_match'
-    GithubPushHookHandler.new().queue!(payload)
+    GithubPushHookHandler.new.queue!(payload)
 
     # a job should be queued
     expect(Delayed::Job.count).to eq(1)
@@ -76,15 +77,16 @@ describe 'GithubPushHookHandler' do
 
   it 'sets GitHub push status after processing' do
     mock_status_request(
-        Github::Api::Status::STATE_SUCCESS,
-        GithubPushHookHandler::STATE_DESCRIPTIONS[Github::Api::Status::STATE_SUCCESS])
+      Github::Api::Status::STATE_SUCCESS,
+      GithubPushHookHandler::STATE_DESCRIPTIONS[Github::Api::Status::STATE_SUCCESS]
+    )
 
     push = Push.create_from_github_data!(Github::Api::PushHookPayload.new(payload))
     push.status = Github::Api::Status::STATE_SUCCESS.to_s
     push.save!
     expect(PushManager).to receive(:process_push!).and_return(push)
 
-    GithubPushHookHandler.new().process_push!(push.id)
+    GithubPushHookHandler.new.process_push!(push.id)
 
     # a job should be queued
     expect(Delayed::Job.count).to eq(1)
@@ -101,7 +103,7 @@ describe 'GithubPushHookHandler' do
     push.save!
     expect(PushManager).to receive(:process_push!).and_return(push)
 
-    GithubPushHookHandler.new().process_push!(push.id)
+    GithubPushHookHandler.new.process_push!(push.id)
 
     # a job should be queued
     expect(Delayed::Job.count).to eq(1)
