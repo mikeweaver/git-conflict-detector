@@ -43,6 +43,7 @@ group :test do
   gem 'stub_env'
   gem 'brakeman', require: false
   gem 'rubocop', require: false
+  gem 'bundler-audit', require: false
 end
 
 group :development do
