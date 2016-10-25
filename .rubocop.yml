@@ -40,7 +40,7 @@ Metrics/ParameterLists:
   Enabled: false
 AllCops:
   Include:
-    - 'spec/**/*'
+    - '**/*.rb'
   Exclude:
     - 'spec/fixtures/**/*'
     - 'db/migrate/**/*'
