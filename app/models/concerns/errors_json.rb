@@ -11,7 +11,7 @@ module ErrorsJson
     scope :with_unignored_errors, lambda { with_errors.where(ignore_errors: false) }
 
     def error_list
-      @error_list ||= JSON.parse(self.errors_json || '[]').uniq
+      @error_list ||= JSON.parse(errors_json || '[]').uniq
     end
 
     def error_list=(list)
@@ -39,19 +39,19 @@ module ErrorsJson
       @error_list = nil
     end
 
-    def has_errors?
+    def errors?
       error_list.any?
     end
 
-    def has_unignored_errors?
-      has_errors? && !ignore_errors
+    def unignored_errors?
+      errors? && !ignore_errors
     end
 
-    def has_ignored_errors?
-      has_errors? && ignore_errors
+    def ignored_errors?
+      errors? && ignore_errors
     end
 
-    def has_error?(error)
+    def has_error?(error) # rubocop:disable Style/PredicateName
       error_list.include?(error)
     end
   end

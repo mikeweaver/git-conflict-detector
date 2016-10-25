@@ -1,6 +1,5 @@
 source 'https://rubygems.org'
 
-
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.7.1'
 # Use sqlite3 as the database for Active Record
@@ -42,7 +41,8 @@ group :test do
   gem 'rspec-rails'
   gem 'database_cleaner'
   gem 'stub_env'
-  gem "brakeman", :require => false
+  gem 'brakeman', require: false
+  gem 'rubocop', require: false
 end
 
 group :development do

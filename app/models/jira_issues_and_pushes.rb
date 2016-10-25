@@ -1,18 +1,18 @@
 class JiraIssuesAndPushes < ActiveRecord::Base
   include ErrorsJson
 
-  ERROR_WRONG_STATE = 'wrong_state'
-  ERROR_POST_DEPLOY_CHECK_STATUS = 'wrong_post_deploy_status'
-  ERROR_NO_COMMITS = 'no_commits'
-  ERROR_WRONG_DEPLOY_DATE = 'wrong_deploy_date'
-  ERROR_NO_DEPLOY_DATE = 'no_deploy_date'
+  ERROR_WRONG_STATE = 'wrong_state'.freeze
+  ERROR_POST_DEPLOY_CHECK_STATUS = 'wrong_post_deploy_status'.freeze
+  ERROR_NO_COMMITS = 'no_commits'.freeze
+  ERROR_WRONG_DEPLOY_DATE = 'wrong_deploy_date'.freeze
+  ERROR_NO_DEPLOY_DATE = 'no_deploy_date'.freeze
 
   belongs_to :push, inverse_of: :jira_issues_and_pushes, required: true
   belongs_to :jira_issue, inverse_of: :jira_issues_and_pushes, required: true
 
   scope :for_push, lambda { |push| where(push: push) }
 
-  def self.create_or_update!(jira_issue, push, error_list=nil)
+  def self.create_or_update!(jira_issue, push, error_list = nil)
     record = JiraIssuesAndPushes.where(jira_issue: jira_issue, push: push).first_or_initialize
     # preserve existing errors if not specified
     if error_list
@@ -39,16 +39,17 @@ class JiraIssuesAndPushes < ActiveRecord::Base
   end
 
   def copy_ignore_flag_from_most_recent_push
-    if previous_record = JiraIssuesAndPushes.where(jira_issue: self.jira_issue).where.not(id: self.id).order('id desc').first
+    previous_record = JiraIssuesAndPushes.where(jira_issue: jira_issue).where.not(id: id).order('id desc').first
+    if previous_record
       self.ignore_errors = previous_record.ignore_errors
     end
   end
 
-  def <=> (other)
-    if self.push == other.push
-      self.jira_issue <=> other.jira_issue
+  def <=>(other)
+    if push == other.push
+      jira_issue <=> other.jira_issue
     else
-      self.push <=> other.push
+      push <=> other.push
     end
   end
 end

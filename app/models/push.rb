@@ -4,7 +4,7 @@ class Push < ActiveRecord::Base
     timestamps
   end
 
-  validates_inclusion_of :status, :in => Github::Api::Status::STATES.map { |state| state.to_s }
+  validates_inclusion_of :status, in: Github::Api::Status::STATES.map(&:to_s)
 
   belongs_to :head_commit, class_name: 'Commit', required: true
   has_many :commits_and_pushes, class_name: :CommitsAndPushes, inverse_of: :push
@@ -23,7 +23,9 @@ class Push < ActiveRecord::Base
     push.reload
   end
 
-  scope :from_repository, lambda { |repository_name| joins(:branch).joins(:repository).where("repositories.name = ?", repository_name) }
+  scope :from_repository, lambda { |repository_name|
+    joins(:branch).joins(:repository).where('repositories.name = ?', repository_name)
+  }
 
   scope :with_sha, lambda { |sha| joins(:commit).where(sha: sha) }
 
@@ -31,11 +33,11 @@ class Push < ActiveRecord::Base
     "#{branch.name}/#{head_commit.sha}"
   end
 
-  def has_jira_issues
+  def jira_issues?
     jira_issues.any?
   end
 
-  def has_jira_issues_with_errors?
+  def jira_issues_with_errors?
     jira_issues_with_errors.any?
   end
 
@@ -43,15 +45,15 @@ class Push < ActiveRecord::Base
     jira_issues_and_pushes.with_errors
   end
 
-  def has_jira_issues_with_unignored_errors?
+  def jira_issues_with_unignored_errors?
     jira_issues_and_pushes.with_unignored_errors.any?
   end
 
-  def has_commits_with_errors?
+  def commits_with_errors?
     commits_with_errors.any?
   end
 
-  def has_commits_with_unignored_errors?
+  def commits_with_unignored_errors?
     commits_with_errors.with_unignored_errors.any?
   end
 
@@ -59,19 +61,19 @@ class Push < ActiveRecord::Base
     commits_and_pushes.with_errors
   end
 
-  def has_errors?
-    has_commits_with_errors? || has_jira_issues_with_errors?
+  def errors?
+    commits_with_errors? || jira_issues_with_errors?
   end
 
-  def <=>(rhs)
-    to_s <=> rhs.to_s
+  def <=>(other)
+    to_s <=> other.to_s
   end
 
   def compute_status!
-    self.status = if has_commits_with_unignored_errors? || has_jira_issues_with_unignored_errors?
-      Github::Api::Status::STATE_FAILED
-    else
-      Github::Api::Status::STATE_SUCCESS
-    end
+    self.status = if commits_with_unignored_errors? || jira_issues_with_unignored_errors?
+                    Github::Api::Status::STATE_FAILED
+                  else
+                    Github::Api::Status::STATE_SUCCESS
+                  end
   end
 end

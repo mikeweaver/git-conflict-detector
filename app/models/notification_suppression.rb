@@ -1,5 +1,4 @@
 class NotificationSuppression < ActiveRecord::Base
-
   fields do
     suppress_until :datetime, null: true
     timestamps

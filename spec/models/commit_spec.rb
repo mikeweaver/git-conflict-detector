@@ -86,28 +86,6 @@ describe 'Commit' do
       expect(@commit.pushes.count).to eq(1)
       expect(@push.commits.count).to eq(1)
     end
-
-    context 'has_unignored_errors?' do
-      it 'includes pushes with errors' do
-        CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
-        @commit.reload
-        expect(@commit.has_unignored_errors?(@push)).to be_truthy
-      end
-
-      it 'excludes pushes with ignored errors' do
-        record = CommitsAndPushes.create_or_update!(@commit, @push, [CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
-        record.ignore_errors = true
-        record.save!
-        @commit.reload
-        expect(@commit.has_unignored_errors?(@push)).to be_falsey
-      end
-
-      it 'excludes pushes without errors' do
-        CommitsAndPushes.create_or_update!(@commit, @push, [])
-        @commit.reload
-        expect(@commit.has_unignored_errors?(@push)).to be_falsey
-      end
-    end
   end
 end
 

@@ -66,9 +66,9 @@ describe 'CommitsAndPushes' do
       end
 
       it 'detects the ignored errors' do
-        expect(@record.has_errors?).to be_truthy
-        expect(@record.has_ignored_errors?).to be_truthy
-        expect(@record.has_unignored_errors?).to be_falsey
+        expect(@record.errors?).to be_truthy
+        expect(@record.ignored_errors?).to be_truthy
+        expect(@record.unignored_errors?).to be_falsey
       end
 
       it 'copies the ingore_errors flag from its predecessor' do

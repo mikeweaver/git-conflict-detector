@@ -2,31 +2,32 @@ module Jira
   module Status
     class PushController < ApplicationController
       ERROR_CODE_PLURAL_MAP = {
-          'commit' => {
-              CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER.to_s => "Commit(s) with no JIRA issue number",
-              CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND.to_s => "Commit(s) with an unknown JIRA issue number"
-          },
-          'jira_issue' => {
-              JiraIssuesAndPushes::ERROR_WRONG_STATE.to_s => "JIRA issue(s) in the wrong state",
-              JiraIssuesAndPushes::ERROR_NO_COMMITS.to_s => "JIRA issue(s) with no commits",
-              JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE.to_s => "JIRA issue(s) with a deploy date in the past",
-              JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE.to_s => "JIRA issue(s) with no deploy date",
-              JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS.to_s => "JIRA issue(s) with the wrong post deploy check status",
-          }
-      }
+        'commit' => {
+          CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER.to_s => 'Commit(s) with no JIRA issue number',
+          CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND.to_s => 'Commit(s) with an unknown JIRA issue number'
+        },
+        'jira_issue' => {
+          JiraIssuesAndPushes::ERROR_WRONG_STATE.to_s => 'JIRA issue(s) in the wrong state',
+          JiraIssuesAndPushes::ERROR_NO_COMMITS.to_s => 'JIRA issue(s) with no commits',
+          JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE.to_s => 'JIRA issue(s) with a deploy date in the past',
+          JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE.to_s => 'JIRA issue(s) with no deploy date',
+          JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS.to_s =>
+            'JIRA issue(s) with the wrong post deploy check status'
+        }
+      }.freeze
       ERROR_CODE_SINGULAR_MAP = {
-          'commit' => {
-              CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER.to_s => "Has no JIRA issue number",
-              CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND.to_s => "Has an unknown JIRA issue number"
-          },
-          'jira_issue' => {
-              JiraIssuesAndPushes::ERROR_WRONG_STATE.to_s => "In the wrong state",
-              JiraIssuesAndPushes::ERROR_NO_COMMITS.to_s => "Has no commits",
-              JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE.to_s => "The deploy date in the past",
-              JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE.to_s => "Has no deploy date",
-              JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS.to_s => "Wrong post deploy check status",
-          }
-      }
+        'commit' => {
+          CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER.to_s => 'Has no JIRA issue number',
+          CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND.to_s => 'Has an unknown JIRA issue number'
+        },
+        'jira_issue' => {
+          JiraIssuesAndPushes::ERROR_WRONG_STATE.to_s => 'In the wrong state',
+          JiraIssuesAndPushes::ERROR_NO_COMMITS.to_s => 'Has no commits',
+          JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE.to_s => 'The deploy date in the past',
+          JiraIssuesAndPushes::ERROR_NO_DEPLOY_DATE.to_s => 'Has no deploy date',
+          JiraIssuesAndPushes::ERROR_POST_DEPLOY_CHECK_STATUS.to_s => 'Wrong post deploy check status'
+        }
+      }.freeze
 
       before_action :find_resources
 
@@ -41,15 +42,15 @@ module Jira
           commit_shas_to_ignore = params['push']['commit_shas_to_ignore'] || []
         end
 
-
-        updated_record_count = update_ignored_jira_issues(jira_issue_keys_to_ignore) + update_ignored_commits(commit_shas_to_ignore)
+        updated_record_count = update_ignored_jira_issues(jira_issue_keys_to_ignore) + \
+                               update_ignored_commits(commit_shas_to_ignore)
 
         if updated_record_count > 0
           flash[:alert] = 'Push updated, refreshing JIRA and Git data'
-          GithubPushHookHandler.new().submit_push_for_processing!(@push)
+          GithubPushHookHandler.new.submit_push_for_processing!(@push)
         elsif params['refresh']
           flash[:alert] = 'Refreshing JIRA and Git data'
-          GithubPushHookHandler.new().submit_push_for_processing!(@push)
+          GithubPushHookHandler.new.submit_push_for_processing!(@push)
         else
           flash[:alert] = 'No changes made'
         end
@@ -66,37 +67,37 @@ module Jira
       end
       helper_method :jira_url_for_issue
 
-      def get_combined_error_counts
+      def combined_error_counts
         error_counts = {}
         error_counts['jira_issue'] = JiraIssuesAndPushes.get_error_counts_for_push(@push)
         error_counts['commit'] = CommitsAndPushes.get_error_counts_for_push(@push)
         error_counts
       end
-      helper_method :get_combined_error_counts
+      helper_method :combined_error_counts
 
       def map_error_code_to_message(error_object, error_code)
         ERROR_CODE_PLURAL_MAP[error_object][error_code]
       end
       helper_method :map_error_code_to_message
 
-      def get_jira_error_messages(error_list)
+      def jira_error_messages(error_list)
         error_list.collect do |error_code|
           ERROR_CODE_SINGULAR_MAP['jira_issue'][error_code]
         end.join(', ')
       end
-      helper_method :get_jira_error_messages
+      helper_method :jira_error_messages
 
-      def get_commit_error_messages(error_list)
+      def commit_error_messages(error_list)
         error_list.collect do |error_code|
           ERROR_CODE_SINGULAR_MAP['commit'][error_code]
         end.join(', ')
       end
-      helper_method :get_commit_error_messages
+      helper_method :commit_error_messages
 
-      def get_ancestor_branch()
+      def ancestor_branch
         PushManager.ancestor_branch_name(@push.branch.name)
       end
-      helper_method :get_ancestor_branch
+      helper_method :ancestor_branch
 
       def error_class_if_error_present(error_object, error_codes)
         has_error = error_codes.any? do |error_code|
@@ -110,7 +111,7 @@ module Jira
 
       def find_resources
         @push = Push.joins(:head_commit).where('commits.sha = ?', params[:id]).first!
-      rescue ActiveRecord::RecordNotFound => e
+      rescue ActiveRecord::RecordNotFound
         flash[:alert] = 'The push could not be found'
         redirect_to controller: '/errors', action: 'bad_request'
       end
@@ -137,4 +138,3 @@ module Jira
     end
   end
 end
-

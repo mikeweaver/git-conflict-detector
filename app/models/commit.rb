@@ -5,7 +5,7 @@ class Commit < ActiveRecord::Base
     timestamps
   end
 
-  validates :sha, uniqueness: { message: "SHAs must be globally unique" }
+  validates :sha, uniqueness: { message: 'SHAs must be globally unique' }
   validates :sha, format: { without: /[0]{40}/ }
 
   belongs_to :author, class_name: User, inverse_of: :commits, required: true
@@ -31,18 +31,14 @@ class Commit < ActiveRecord::Base
   end
 
   def short_sha
-    sha[0,7]
+    sha[0, 7]
   end
 
   def to_s
     sha
   end
 
-  def <=>(rhs)
-    sha <=> rhs.sha
-  end
-
-  def has_unignored_errors?(push)
-    commits_and_pushes.with_unignored_errors.for_push(push).any?
+  def <=>(other)
+    sha <=> other.sha
   end
 end

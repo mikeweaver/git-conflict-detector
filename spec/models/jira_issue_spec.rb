@@ -101,28 +101,6 @@ describe 'JiraIssue' do
       expect(@issue.pushes.count).to eq(1)
       expect(@push.jira_issues.count).to eq(1)
     end
-
-    context 'has_unignored_errors?' do
-      it 'includes pushes with errors' do
-        JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE])
-        @issue.reload
-        expect(@issue.has_unignored_errors?(@push)).to be_truthy
-      end
-
-      it 'excludes pushes with ignored errors' do
-        record = JiraIssuesAndPushes.create_or_update!(@issue, @push, [JiraIssuesAndPushes::ERROR_WRONG_DEPLOY_DATE])
-        record.ignore_errors = true
-        record.save!
-        @issue.reload
-        expect(@issue.has_unignored_errors?(@push)).to be_falsey
-      end
-
-      it 'excludes pushes without errors' do
-        JiraIssuesAndPushes.create_or_update!(@issue, @push, [])
-        @issue.reload
-        expect(@issue.has_unignored_errors?(@push)).to be_falsey
-      end
-    end
   end
 
   context 'subtask parent' do

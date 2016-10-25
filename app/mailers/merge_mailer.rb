@@ -7,7 +7,7 @@ class MergeMailer < ActionMailer::Base
       if GlobalSettings.email_override.present?
         user.email = GlobalSettings.email_override
       end
-      maybe_send_merge_email_to_user(user, repository_name,  merges_newer_than).deliver_now
+      maybe_send_merge_email_to_user(user, repository_name, merges_newer_than).deliver_now
     end
   end
 
@@ -19,11 +19,7 @@ class MergeMailer < ActionMailer::Base
     successful_merges = scope.successful
     unsuccessful_merges = scope.unsuccessful
     unless successful_merges.blank? && unsuccessful_merges.blank?
-      send_merge_email_to_user(
-          user,
-          repository_name,
-          successful_merges,
-          unsuccessful_merges)
+      send_merge_email_to_user(user, repository_name, successful_merges, unsuccessful_merges)
     end
   end
 
@@ -40,6 +36,11 @@ class MergeMailer < ActionMailer::Base
     @user = user
     @successful_merges = map_merge_list_to_hash(successful_merges)
     @unsuccessful_merges = map_merge_list_to_hash(unsuccessful_merges)
-    mail(to: user.email, bcc: GlobalSettings.bcc_emails, subject: "Automatic Merges in #{repository_name}", template_name: 'merge_email')
+    mail(
+      to: user.email,
+      bcc: GlobalSettings.bcc_emails,
+      subject: "Automatic Merges in #{repository_name}",
+      template_name: 'merge_email'
+    )
   end
 end

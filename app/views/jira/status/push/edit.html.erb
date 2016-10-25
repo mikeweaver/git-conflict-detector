@@ -15,7 +15,7 @@
     </div>
   <%when Github::Api::Status::STATE_SUCCESS.to_s%>
     <div class="alert alert-success">
-      <%if @push.has_errors? %>
+      <%if @push.errors? %>
       Push failed some checks, but all of them have been approved
       <%else%>
       Push passed all checks
@@ -25,7 +25,7 @@
     <div class="alert alert-danger">
       Warning: Branch is not ready to deploy.<br>
       <ul>
-      <%get_combined_error_counts.each do |error_object, error_counts|%>
+      <% combined_error_counts.each do |error_object, error_counts|%>
           <%error_counts.each do |error_code, count|%>
             <li><%=count%> <%=map_error_code_to_message(error_object, error_code)%>
         <%end%>
@@ -33,7 +33,7 @@
       </ul>
     </div>
   <%end%>
-  <%if @push.has_jira_issues%>
+  <%if @push.jira_issues?%>
     <div>
       <h4><%=@push.jira_issues.count%> JIRA issues(s) in this branch
       <button class="btn btn-default" type="button" data-clipboard-target="#jira_issues_clipboard">
@@ -60,14 +60,14 @@
       <%@push.jira_issues_and_pushes.sort.each do |jira_issue_and_push|%>
         <%
           jira_issue = jira_issue_and_push.jira_issue
-          row_class = if jira_issue_and_push.has_unignored_errors?
+          row_class = if jira_issue_and_push.unignored_errors?
                         'danger'
-                      elsif jira_issue_and_push.has_ignored_errors?
+                      elsif jira_issue_and_push.ignored_errors?
                         'warning'
                       end
         %>
-        <tr class="<%=row_class%>" title="<%=get_jira_error_messages(jira_issue_and_push.error_list)%>">
-          <td align="center" style="width: 50px;"><%= check_box_tag "push[jira_issue_keys_to_ignore][]", jira_issue.key, jira_issue_and_push.has_ignored_errors?, disabled: !jira_issue_and_push.has_errors? %></td>
+        <tr class="<%=row_class%>" title="<%=jira_error_messages(jira_issue_and_push.error_list)%>">
+          <td align="center" style="width: 50px;"><%= check_box_tag "push[jira_issue_keys_to_ignore][]", jira_issue.key, jira_issue_and_push.ignored_errors?, disabled: !jira_issue_and_push.errors? %></td>
           <td nowrap class="issue_key">
             <%if jira_issue.parent_issue %>
               <%=link_to(jira_issue.parent_issue.key, jira_url_for_issue(jira_issue.parent_issue), target: '_blank')%><br/>&#8627;
@@ -110,7 +110,7 @@
   </div>
 
 
-  <%if @push.has_commits_with_errors? %>
+  <%if @push.commits_with_errors? %>
     <h4><%=@push.commits_with_errors.count%> Commit(s) with errors</h4>
     <table class="table table-striped">
       <thead>
@@ -125,14 +125,14 @@
       <%@push.commits_and_pushes.with_errors.each do |commit_and_push|%>
         <%
           commit = commit_and_push.commit
-          row_class = if commit_and_push.has_unignored_errors?
+          row_class = if commit_and_push.unignored_errors?
                         'danger'
-                      elsif commit_and_push.has_ignored_errors?
+                      elsif commit_and_push.ignored_errors?
                         'warning'
                       end
         %>
-        <tr class="<%=row_class%>" title="<%=get_commit_error_messages(commit_and_push.error_list)%>">
-          <td align="center" style="width: 50px;"><%= check_box_tag "push[commit_shas_to_ignore][]", commit.sha, commit_and_push.has_ignored_errors?, disabled: !commit_and_push.has_errors? %></td>
+        <tr class="<%=row_class%>" title="<%=commit_error_messages(commit_and_push.error_list)%>">
+          <td align="center" style="width: 50px;"><%= check_box_tag "push[commit_shas_to_ignore][]", commit.sha, commit_and_push.ignored_errors?, disabled: !commit_and_push.errors? %></td>
           <td><%=link_to(commit.short_sha, github_url_for_commit(commit), target: '_blank')%></td>
           <td nowrap><%=commit.author.name%></td>
           <td><%=commit.message%></td>
@@ -182,7 +182,7 @@
   <%= form.submit('Save Approvals', name: 'save', class: 'btn btn-default') %>
   <%= form.submit('Refresh JIRA and Git data', name: 'refresh', class: 'btn btn-default') %>
   <div style="margin-top: 15px">
-    '<%=@push.branch.name%>' branch compared with '<%=get_ancestor_branch%>' branch on <%=@push.updated_at%>
+    '<%=@push.branch.name%>' branch compared with '<%=ancestor_branch%>' branch on <%=@push.updated_at%>
   </div>
   <!--
   TODO:

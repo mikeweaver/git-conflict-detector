@@ -1,13 +1,14 @@
 class SuppressionsController < ApplicationController
   before_action :load_user_and_conflict, only: [:new, :create]
 
-  SUPPRESSION_DURATION_ONE_DAY = '1 day'
-  SUPPRESSION_DURATION_ONE_WEEK = '1 week'
-  SUPPRESSION_DURATION_FOREVER = 'Forever'
+  SUPPRESSION_DURATION_ONE_DAY = '1 day'.freeze
+  SUPPRESSION_DURATION_ONE_WEEK = '1 week'.freeze
+  SUPPRESSION_DURATION_FOREVER = 'Forever'.freeze
   SUPPRESSION_DURATIONS = [
-      SUPPRESSION_DURATION_ONE_DAY,
-      SUPPRESSION_DURATION_ONE_WEEK,
-      SUPPRESSION_DURATION_FOREVER]
+    SUPPRESSION_DURATION_ONE_DAY,
+    SUPPRESSION_DURATION_ONE_WEEK,
+    SUPPRESSION_DURATION_FOREVER
+  ].freeze
 
   class InvalidSuppressionDuration < StandardError
     def initialize(duration_string)
@@ -22,30 +23,35 @@ class SuppressionsController < ApplicationController
     suppression_params = params['suppression'] || {}
 
     if suppression_params['suppress_conflict'] == '1'
-      #"suppress_conflict_until_files_change"=>"0" TODO: Add support for this
+      # "suppress_conflict_until_files_change"=>"0" TODO: Add support for this
 
       @conflict_notification_suppression = ConflictNotificationSuppression.create!(
-          @user,
-          @conflict,
-          suppression_duration_string_to_suppression_date(suppression_params['suppression_duration_conflict']))
+        @user,
+        @conflict,
+        suppression_duration_string_to_suppression_date(suppression_params['suppression_duration_conflict'])
+      )
     end
 
     if suppression_params['suppress_branch_a'] == '1'
       @branch_a_notification_suppression = BranchNotificationSuppression.create!(
-          @user,
-          @conflict.branch_a,
-          suppression_duration_string_to_suppression_date(suppression_params['suppression_duration_branch_a']))
+        @user,
+        @conflict.branch_a,
+        suppression_duration_string_to_suppression_date(suppression_params['suppression_duration_branch_a'])
+      )
     end
 
     if suppression_params['suppress_branch_b'] == '1'
       @branch_b_notification_suppression = BranchNotificationSuppression.create!(
-          @user,
-          @conflict.branch_b,
-          suppression_duration_string_to_suppression_date(suppression_params['suppression_duration_branch_b']))
+        @user,
+        @conflict.branch_b,
+        suppression_duration_string_to_suppression_date(suppression_params['suppression_duration_branch_b'])
+      )
     end
 
-    unless @conflict_notification_suppression || @branch_a_notification_suppression || @branch_b_notification_suppression
-        redirect_to action: 'new', conflict_id: @conflict.id, user_id: @user.id
+    unless @conflict_notification_suppression ||
+           @branch_a_notification_suppression ||
+           @branch_b_notification_suppression
+      redirect_to action: 'new', conflict_id: @conflict.id, user_id: @user.id
     end
   end
 
@@ -59,14 +65,14 @@ class SuppressionsController < ApplicationController
 
   def suppression_duration_string_to_suppression_date(duration_string)
     case duration_string
-      when SUPPRESSION_DURATION_ONE_DAY
-        1.day.from_now
-      when SUPPRESSION_DURATION_ONE_WEEK
-        1.week.from_now
-      when SUPPRESSION_DURATION_FOREVER
-        nil
-      else
-        raise InvalidSuppressionDuration.new(duration_string)
+    when SUPPRESSION_DURATION_ONE_DAY
+      1.day.from_now
+    when SUPPRESSION_DURATION_ONE_WEEK
+      1.week.from_now
+    when SUPPRESSION_DURATION_FOREVER
+      nil
+    else
+      raise InvalidSuppressionDuration, duration_string
     end
   end
 
@@ -78,7 +84,7 @@ class SuppressionsController < ApplicationController
     end
     @repository_name = @conflict.branch_a.repository.name
     nil
-  rescue ActiveRecord::RecordNotFound => e
+  rescue ActiveRecord::RecordNotFound
     flash[:alert] = 'The conflict or user no longers exists'
     redirect_to controller: 'errors', action: 'bad_request'
   end

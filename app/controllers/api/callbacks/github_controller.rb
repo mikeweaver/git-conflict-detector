@@ -5,8 +5,10 @@ module Api
       before_filter :parse_request
 
       def push
-        Rails.logger.info("Received Github push callback. Adding to delayed job queue. Current queue depth: #{Delayed::Job.count}")
-        GithubPushHookHandler.new().queue!(@payload)
+        Rails.logger.info(
+          "Received Github push callback. Adding to delayed job queue. Current queue depth: #{Delayed::Job.count}"
+        )
+        GithubPushHookHandler.new.queue!(@payload)
         render(nothing: true, status: :ok)
       end
 
