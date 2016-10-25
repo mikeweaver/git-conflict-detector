@@ -11,6 +11,6 @@ class NotificationSuppression < ActiveRecord::Base
   end
 
   def self.not_expired
-    where('suppress_until IS NULL OR suppress_until >= ?', Time.now)
+    where('suppress_until IS NULL OR suppress_until >= ?', Time.current)
   end
 end

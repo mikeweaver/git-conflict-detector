@@ -26,7 +26,7 @@ class User < ActiveRecord::Base
   end
 
   def self.unsubscribe_by_id!(user_id)
-    User.where(id: user_id).first.unsubscribe!
+    User.find_by(id: user_id).unsubscribe!
   end
 
   def unsubscribe!

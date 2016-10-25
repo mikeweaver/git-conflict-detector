@@ -18,14 +18,14 @@ class Branch < ActiveRecord::Base
     repository = Repository.create!(branch_data.repository_name)
     branch = Branch.where(repository: repository, name: branch_data.name).first_or_initialize
     branch.git_updated_at = branch_data.last_modified_date
-    branch.updated_at = Time.now # force updated time
+    branch.updated_at = Time.current # force updated time
     branch.author = User.create_from_git_data!(branch_data)
     branch.save!
     branch
   end
 
   def mark_as_tested!
-    update_column(:git_tested_at, Time.now)
+    update_column(:git_tested_at, Time.current)
   end
 
   scope :untested_branches, lambda {
@@ -44,7 +44,7 @@ class Branch < ActiveRecord::Base
     name
   end
 
-  def =~(other)
+  def =~(other) # rubocop:disable Rails/Delegate
     name =~ other
   end
 

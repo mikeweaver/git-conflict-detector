@@ -2,7 +2,7 @@ module Api
   module Callbacks
     class GithubController < ApplicationController
       protect_from_forgery with: :null_session
-      before_filter :parse_request
+      before_action :parse_request
 
       def push
         Rails.logger.info(

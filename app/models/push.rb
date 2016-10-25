@@ -4,7 +4,7 @@ class Push < ActiveRecord::Base
     timestamps
   end
 
-  validates_inclusion_of :status, in: Github::Api::Status::STATES.map(&:to_s)
+  validates :status, inclusion: Github::Api::Status::STATES.map(&:to_s)
 
   belongs_to :head_commit, class_name: 'Commit', required: true
   has_many :commits_and_pushes, class_name: :CommitsAndPushes, inverse_of: :push
