@@ -43,3 +43,5 @@ AllCops:
     - 'spec/**/*'
   Exclude:
     - 'spec/fixtures/**/*'
+    - 'db/migrate/**/*'
+    - 'db/schema.rb'
