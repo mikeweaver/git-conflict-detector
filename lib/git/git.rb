@@ -14,16 +14,15 @@ module Git
 
     def execute(command, run_in_repository_path = true)
       Rails.logger.debug("git #{command}")
-      command = "#{GIT_PATH} #{command}"
 
       options = if run_in_repository_path
                   { chdir: @repository_path }
                 else
                   {}
                 end
-      stdout_andstderr_str, status = Open3.capture2e(command, options)
+      stdout_andstderr_str, status = Open3.capture2e(GIT_PATH, *command.split(' '), options)
       unless status.success?
-        raise GitError.new(command, status, stdout_andstderr_str)
+        raise GitError.new("#{GIT_PATH} #{command}", status, stdout_andstderr_str)
       end
 
       stdout_andstderr_str

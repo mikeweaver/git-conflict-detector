@@ -13,11 +13,16 @@ describe 'Git::Git' do
 
   def mock_execute(stdout_andstderr_str, status, execution_count: 1, expected_command: anything)
     # mock the call and repsonse to execute the git command
-    expect(Open3).to \
-      receive(:capture2e) \
-      .with(expected_command, anything) \
-      .exactly(execution_count) \
-      .times.and_return([stdout_andstderr_str, create_mock_open_status(status)])
+    expect(Open3).to receive(:capture2e).exactly(execution_count).times do |*args|
+      if !expected_command.is_a?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher) && !expected_command.nil?
+        # remove the options hash, we are not going to verify it's contents
+        args.reject! { |arg| arg.is_a?(Hash) }
+
+        # confirm we got the args we expected
+        expect(args).to eq(expected_command.split(' '))
+      end
+      [stdout_andstderr_str, create_mock_open_status(status)]
+    end
   end
 
   it 'can be created' do
