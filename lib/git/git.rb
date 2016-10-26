@@ -20,7 +20,7 @@ module Git
                 else
                   {}
                 end
-      stdout_andstderr_str, status = Open3.capture2e(GIT_PATH, *command.split(' '), options)
+      stdout_andstderr_str, status = Open3.capture2e(GIT_PATH, *command.split(/ /), options)
       unless status.success?
         raise GitError.new("#{GIT_PATH} #{command}", status, stdout_andstderr_str)
       end

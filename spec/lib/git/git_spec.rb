@@ -19,7 +19,7 @@ describe 'Git::Git' do
         args.reject! { |arg| arg.is_a?(Hash) }
 
         # confirm we got the args we expected
-        expect(args).to eq(expected_command.split(' '))
+        expect(args).to eq(expected_command.split(/ /))
       end
       [stdout_andstderr_str, create_mock_open_status(status)]
     end
