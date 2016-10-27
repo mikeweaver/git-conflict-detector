@@ -1,6 +1,6 @@
 #!/bin/sh
-mkdir -p ~/.ssh
 if [ -n "$SETTINGS_FILE_CONTENT" ]; then
+    mkdir -p ./data/config
     echo -n $SETTINGS_FILE_CONTENT > ./data/config/settings.$RAILS_ENV.yml
 fi
 if [ -n "$GITHUB_PRIVATE_KEY" ]; then
