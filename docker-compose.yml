@@ -35,6 +35,10 @@ services:
     # GITHUB_PASSWORD
     # GITHUB_PRIVATE_KEY - Private key that can clone the repos you want to process
     # JIRA_PRIVATE_KEY - Private key used to read from JIRA via OAuth
+    # JIRA_SITE - The URL of the JIRA instance to use
+    # JIRA_CONSUMER_KEY - The OAuth consumer key to use
+    # JIRA_ACCESS_KEY - The OAuth access key to use
+    # JIRA_ACCESS_TOKEN - The OAuth access token to use
     environment:
       RAILS_ENV: development
     command: ./script/docker_entry_points/delayed_job.sh
