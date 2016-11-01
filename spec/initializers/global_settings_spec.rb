@@ -16,11 +16,37 @@ describe 'GlobalSettings' do
     expect { load_global_settings }.to raise_exception(InvalidSettings, /repository.*merge.*jira/)
   end
 
+  it 'repositories_to_check_for_conflicts or branches_to_merge are required or jira (empty hashes)' do
+    invalid_settings = {
+      repositories_to_check_for_conflicts: nil,
+      branches_to_merge: nil,
+      jira: nil
+    }
+    File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", invalid_settings.to_yaml)
+    puts invalid_settings.to_yaml
+    expect { load_global_settings }.to raise_exception(InvalidSettings, /repository.*merge.*jira/)
+  end
+
   it 'skips all validations if VALIDATE_SETTINGS is false' do
     stub_env('VALIDATE_SETTINGS', 'false')
+    # no file
+    load_global_settings
+    expect(load_global_settings).to eq(OpenStruct.new(DEFAULT_SETTINGS))
+
+    # empty file
     File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", '')
     load_global_settings
     expect(load_global_settings).to eq(OpenStruct.new(DEFAULT_SETTINGS))
+
+    # invalid file
+    invalid_settings = {
+      ignore_me: {
+        'key' => 'value'
+      }
+    }
+    File.write("#{Rails.root}/data/config/settings.#{Rails.env}.yml", invalid_settings.to_yaml)
+    load_global_settings
+    expect(load_global_settings).to eq(OpenStruct.new(DEFAULT_SETTINGS.merge(invalid_settings)))
   end
 
   context 'with repositories_to_check_for_conflicts' do

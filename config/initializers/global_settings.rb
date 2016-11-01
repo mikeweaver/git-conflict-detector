@@ -57,7 +57,9 @@ end
 def validate_common_settings(settings)
   return if skip_validations
 
-  if settings.repositories_to_check_for_conflicts.empty? && settings.branches_to_merge.empty? && settings.jira.empty?
+  unless settings.repositories_to_check_for_conflicts._?.any? \
+         || settings.branches_to_merge._?.any? \
+         || settings.jira._?.any?
     raise InvalidSettings,
           'Must specify at least one repository to check for conflicts, or one branch to merge, or jira settings'
   end
@@ -130,13 +132,13 @@ def load_global_settings
   validate_common_settings(settings_object)
 
   # convert nested conflict hashes to open struct and validate them
-  settings_object.repositories_to_check_for_conflicts.each do |repository_name, repository_settings|
+  settings_object.repositories_to_check_for_conflicts._?.each do |repository_name, repository_settings|
     conflict_settings = OpenStruct.new(DEFAULT_CONFLICT_DETECTION_SETTINGS.merge(repository_settings))
     validate_repository_settings(repository_name, conflict_settings)
     settings_object.repositories_to_check_for_conflicts[repository_name] = conflict_settings
   end
 
-  settings_object.branches_to_merge.each do |branch_name, repository_settings|
+  settings_object.branches_to_merge._?.each do |branch_name, repository_settings|
     auto_merge_settings = OpenStruct.new(DEFAULT_AUTO_MERGE_SETTINGS.merge(repository_settings))
     validate_repository_settings(branch_name, auto_merge_settings)
     if auto_merge_settings.source_branch_name.blank?
