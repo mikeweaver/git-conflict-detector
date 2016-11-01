@@ -1,12 +1,12 @@
 version: '2'
 
 services:
-  post_deploy_checker_web:
+  pre_deploy_checker_web:
     build:
       context: .
       args:
         RAILS_ENV: development
-    image: invocaops/post_deploy_checker
+    image: mikeweaver/pre_deploy_checker
     ports:
        - "3000:3000"
     env_file: docker-secrets.env
@@ -22,12 +22,12 @@ services:
     volumes:
       - ./data:/usr/src/pre_deploy_checker/data
       - ./log/docker:/usr/src/pre_deploy_checker/log
-  post_deploy_checker_delayed_job:
+  pre_deploy_checker_delayed_job:
     build:
       context: .
       args:
         RAILS_ENV: development
-    image: invocaops/post_deploy_checker
+    image: mikeweaver/pre_deploy_checker
     env_file: docker-secrets.env
     # Must define the following the docker-secrets.env file
     # SECRET_KEY_BASE - Rails secret key
@@ -43,6 +43,6 @@ services:
       RAILS_ENV: development
     command: ./script/docker_entry_points/delayed_job.sh
     volumes_from:
-       - post_deploy_checker_web
+       - pre_deploy_checker_web
 
 
