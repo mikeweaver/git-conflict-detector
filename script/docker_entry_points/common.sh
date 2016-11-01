@@ -11,5 +11,5 @@ if [ -n "$GITHUB_PRIVATE_KEY" ]; then
     eval "$(ssh-agent -s)"
 fi
 if [ -n "$JIRA_PRIVATE_KEY" ]; then
-    echo -n $JIRA_PRIVATE_KEY > ./jira_rsakey.pem
+    echo -n $JIRA_PRIVATE_KEY > $JIRA_PRIVATE_KEY_FILE
 fi
