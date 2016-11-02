@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ -n "$SETTINGS_FILE_CONTENT" ]; then
     mkdir -p ./data/config
-    echo -n $SETTINGS_FILE_CONTENT > ./data/config/settings.$RAILS_ENV.yml
+    ruby -ryaml -e 'puts ENV["SETTINGS_FILE_CONTENT"]' > ./data/config/settings.$RAILS_ENV.yml
 fi
 if [ -n "$GITHUB_PRIVATE_KEY" ]; then
     mkdir -p ~/.ssh
