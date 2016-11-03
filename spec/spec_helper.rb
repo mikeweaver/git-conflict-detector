@@ -27,6 +27,9 @@ RSpec.configure do |config|
   end
 
   config.around(:each) do |example|
+    # reload settings each time in case the tests are mutating them
+    Object.send(:remove_const, :GlobalSettings)
+    GlobalSettings = load_global_settings
     DatabaseCleaner.cleaning do
       example.run
     end
