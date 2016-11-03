@@ -159,6 +159,7 @@ class PushManager
 
     def get_commits_from_push(push)
       git = Git::Git.new(push.branch.repository.name)
+      git.clone_repository(GlobalSettings.jira.ancestor_branches['default'])
       git.commit_diff_refs(
         push.head_commit.sha,
         ancestor_branch_name(push.branch.name),

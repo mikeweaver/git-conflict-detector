@@ -34,6 +34,7 @@ describe 'PushManager' do
   it 'can create jira issues, commits, and link them together' do
     commits = [create_test_git_commit(sha: create_test_sha, message: 'STORY-1234 Description1'),
                create_test_git_commit(sha: create_test_sha, message: 'STORY-5678 Description2')]
+    expect_any_instance_of(Git::Git).to receive(:clone_repository)
     expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return(commits)
 
     ['STORY-1234', 'STORY-5678'].each do |key|
@@ -59,6 +60,7 @@ describe 'PushManager' do
   context 'detect jira_issue issues' do
     context 'with commits' do
       before do
+        expect_any_instance_of(Git::Git).to receive(:clone_repository)
         expect_any_instance_of(Git::Git).to \
           receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
         mock_jira_jql_response([])
@@ -101,6 +103,7 @@ describe 'PushManager' do
     end
 
     it 'without any commits' do
+      expect_any_instance_of(Git::Git).to receive(:clone_repository)
       expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return([])
       mock_jira_jql_response(['STORY-1234'])
       push = PushManager.process_push!(Push.create_from_github_data!(payload))
@@ -108,6 +111,7 @@ describe 'PushManager' do
     end
 
     it 'some with and some without any commits' do
+      expect_any_instance_of(Git::Git).to receive(:clone_repository)
       expect_any_instance_of(Git::Git).to \
         receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
       mock_jira_find_issue_response('STORY-1234', status: 'Wrong State')
@@ -121,6 +125,7 @@ describe 'PushManager' do
     it 'without a matching JIRA issue' do
       stub_request(:get, /.*STORY-1234/).to_return(status: 404, body: 'Not Found')
       mock_jira_jql_response([])
+      expect_any_instance_of(Git::Git).to receive(:clone_repository)
       expect_any_instance_of(Git::Git).to \
         receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
       push = PushManager.process_push!(Push.create_from_github_data!(payload))
@@ -130,6 +135,7 @@ describe 'PushManager' do
 
     it 'without a JIRA issue number' do
       mock_jira_jql_response([])
+      expect_any_instance_of(Git::Git).to receive(:clone_repository)
       expect_any_instance_of(Git::Git).to \
         receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'Description with issue number')])
       push = PushManager.process_push!(Push.create_from_github_data!(payload))
@@ -144,6 +150,7 @@ describe 'PushManager' do
     commits = [create_test_git_commit(sha: create_test_sha, message: '--Ignore1--'),
                create_test_git_commit(sha: create_test_sha, message: '--Ignore2--'),
                create_test_git_commit(sha: create_test_sha, message: 'KeepMe')]
+    expect_any_instance_of(Git::Git).to receive(:clone_repository)
     expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return(commits)
     push = PushManager.process_push!(Push.create_from_github_data!(payload))
     expect(push.commits.count).to eq(1)
@@ -153,6 +160,7 @@ describe 'PushManager' do
   it 'can handle commits with multiple issue numbers' do
     mock_jira_find_issue_response('STORY-1234')
     mock_jira_jql_response([])
+    expect_any_instance_of(Git::Git).to receive(:clone_repository)
     expect_any_instance_of(Git::Git).to \
       receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 description STORY-5678')])
     push = PushManager.process_push!(Push.create_from_github_data!(payload))
@@ -185,6 +193,7 @@ describe 'PushManager' do
     commits = messages.collect do |message|
       create_test_git_commit(sha: create_test_sha, message: message)
     end
+    expect_any_instance_of(Git::Git).to receive(:clone_repository)
     expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return(commits)
     push = PushManager.process_push!(Push.create_from_github_data!(payload))
     expect(push.commits.count).to eq(17)
@@ -195,6 +204,7 @@ describe 'PushManager' do
 
   context 'status' do
     before do
+      allow_any_instance_of(Git::Git).to receive(:clone_repository)
       allow_any_instance_of(Git::Git).to \
         receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
       mock_jira_jql_response([])
@@ -222,7 +232,8 @@ describe 'PushManager' do
       end
 
       it 'when there are no commits' do
-        allow_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return([])
+        expect_any_instance_of(Git::Git).to receive(:clone_repository)
+        expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return([])
         push = PushManager.process_push!(Push.create_from_github_data!(payload))
         expect(push.commits.count).to eq(0)
         expect(push.status).to eq('success')
@@ -257,6 +268,7 @@ describe 'PushManager' do
       @commits = [create_test_git_commit(sha: create_test_sha, message: 'STORY-1234 Description'),
                   create_test_git_commit(sha: create_test_sha, message: 'STORY-5678 Description')]
       mock_jira_jql_response([])
+      allow_any_instance_of(Git::Git).to receive(:clone_repository).with(anything)
     end
 
     it 'commits' do
@@ -294,15 +306,17 @@ describe 'PushManager' do
     end
 
     it 'for default' do
+      expect_any_instance_of(Git::Git).to receive(:clone_repository).with('default_ancestor')
       GlobalSettings.jira.ancestor_branches['default'] = 'default_ancestor'
-      allow_any_instance_of(Git::Git).to \
+      expect_any_instance_of(Git::Git).to \
         receive(:commit_diff_refs).with(anything, 'default_ancestor', anything).and_return([])
       PushManager.process_push!(Push.create_from_github_data!(payload))
     end
 
     it 'for match' do
+      expect_any_instance_of(Git::Git).to receive(:clone_repository).with('master')
       GlobalSettings.jira.ancestor_branches['test/branch_name'] = 'mybranch_ancestor'
-      allow_any_instance_of(Git::Git).to \
+      expect_any_instance_of(Git::Git).to \
         receive(:commit_diff_refs).with(anything, 'mybranch_ancestor', anything).and_return([])
       PushManager.process_push!(Push.create_from_github_data!(payload))
     end
