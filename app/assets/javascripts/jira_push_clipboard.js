@@ -2,11 +2,9 @@ function prepareClipboardTable() {
     var clipboardTable = $('#jira_issues_clipboard > tbody');
     clipboardTable.empty();
     $('#jira_issues > tbody > tr').each(function (i, row) {
-        if (!$(row).find(':checkbox').is(":checked")) {
-            var key = $(row).children('.issue_key').html();
-            var summary = $(row).children('.issue_summary').html();
-            clipboardTable.append('<tr><td nowrap>' + key + '</td><td>' + summary + '</td></tr>');
-        }
+        var key = $(row).children('.issue_key').html();
+        var summary = $(row).children('.issue_summary').html();
+        clipboardTable.append('<tr><td nowrap>' + key + '</td><td>' + summary + '</td></tr>');
     });
 }
 
