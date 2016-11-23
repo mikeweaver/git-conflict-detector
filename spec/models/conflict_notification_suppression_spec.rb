@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe 'ConflictNotificationSuppression' do
   before do
-    @branches_a = create_test_branches(author_name: 'Author A', count: 2)
-    @branches_b = create_test_branches(author_name: 'Author B', count: 2)
+    @branches_a = GitModels::TestHelpers.create_branches(author_name: 'Author A', count: 2)
+    @branches_b = GitModels::TestHelpers.create_branches(author_name: 'Author B', count: 2)
     @conflict = create_test_conflict(@branches_a[0], @branches_b[1])
   end
 

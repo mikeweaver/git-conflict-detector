@@ -4,7 +4,7 @@ describe 'Conflict' do
   DIFFERENT_NAME = 'Different Name'.freeze
 
   before do
-    @branches = create_test_branches(author_name: 'Author Name', count: 3)
+    @branches = GitModels::TestHelpers.create_branches(author_name: 'Author Name', count: 3)
   end
 
   it 'can be created' do
@@ -85,7 +85,7 @@ describe 'Conflict' do
   end
 
   it 'does not allow conflicts between repositories' do
-    branch_in_different_repository = create_test_branch(repository_name: 'other_repository_name')
+    branch_in_different_repository = GitModels::TestHelpers.create_branch(repository_name: 'other_repository_name')
     expect { create_test_conflict(@branches[0], branch_in_different_repository) }.to \
       raise_exception(ActiveRecord::RecordInvalid)
   end
@@ -138,7 +138,7 @@ describe 'Conflict' do
 
   context 'with branches from multiple users' do
     before do
-      @other_branches = create_test_branches(author_name: DIFFERENT_NAME, count: 2)
+      @other_branches = GitModels::TestHelpers.create_branches(author_name: DIFFERENT_NAME, count: 2)
       @conflict_1 = create_test_conflict(@branches[0], @branches[1])
       @conflict_2 = create_test_conflict(@other_branches[0], @other_branches[1])
     end
@@ -232,8 +232,8 @@ describe 'Conflict' do
     it 'returns branches from a repository' do
       @conflict_1 = create_test_conflict(@branches[0], @branches[1])
       @conflict_2 = create_test_conflict(
-        create_test_branch(repository_name: 'repository_b', name: 'name_a'),
-        create_test_branch(repository_name: 'repository_b', name: 'name_b')
+        GitModels::TestHelpers.create_branch(repository_name: 'repository_b', name: 'name_a'),
+        GitModels::TestHelpers.create_branch(repository_name: 'repository_b', name: 'name_b')
       )
 
       conflicts = Conflict.from_repository('repository_b').all

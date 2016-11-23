@@ -54,6 +54,7 @@ group :production do
 end
 
 gem 'git-lib',  '1.0.0', git: 'git@github.com:mikeweaver/git-lib', ref: '4f99d6547d9fbee16bbd12af6025e5dda8a59f3c'
+gem 'git_models', '1.0.0', git: 'git@github.com:mikeweaver/git_models', ref: '422934ea5233b581fb5de8824c01e4be9de2e209'
 gem 'hobo_fields'
 gem 'delayed_job_active_record'
 gem 'daemons'

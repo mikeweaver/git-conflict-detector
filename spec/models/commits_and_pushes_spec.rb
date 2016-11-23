@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'CommitsAndPushes' do
   before do
-    @commit = create_test_commit
+    @commit = GitModels::TestHelpers.create_commit
     @push = create_test_push
     # remove head commit so we don't confuse it with the commit we are testing
     @push.commits_and_pushes.destroy_all
@@ -125,9 +125,9 @@ describe 'CommitsAndPushes' do
     context 'with commits' do
       before do
         CommitsAndPushes.create_or_update!(@commit, @push)
-        @second_commit = create_test_commit(sha: Git::TestHelpers.create_sha)
+        @second_commit = GitModels::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha)
         CommitsAndPushes.create_or_update!(@second_commit, @push)
-        @third_commit = create_test_commit(sha: Git::TestHelpers.create_sha)
+        @third_commit = GitModels::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha)
         CommitsAndPushes.create_or_update!(@third_commit, @push)
         expect(@push.commits.count).to eq(3)
       end

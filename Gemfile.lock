@@ -6,6 +6,16 @@ GIT
     git-lib (1.0.0)
       activesupport (= 4.2.7.1)
 
+GIT
+  remote: git@github.com:mikeweaver/git_models
+  revision: 422934ea5233b581fb5de8824c01e4be9de2e209
+  ref: 422934ea5233b581fb5de8824c01e4be9de2e209
+  specs:
+    git_models (1.0.0)
+      git-lib (= 1.0.0)
+      hobo_fields (= 2.2.6)
+      rails (= 4.2.7.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -306,6 +316,7 @@ DEPENDENCIES
   delayed_job_active_record
   fakefs
   git-lib (= 1.0.0)!
+  git_models (= 1.0.0)!
   hobo_fields
   jbuilder (~> 2.0)
   jira-ruby (= 0.1.17)

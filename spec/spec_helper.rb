@@ -4,6 +4,7 @@ Coveralls.wear!('rails') if ENV['CI'] == 'true'
 require_relative '../config/environment'
 require 'rails/test_help'
 require 'git/git_test_helpers'
+require 'git_models/test_helpers'
 require 'database_cleaner'
 require 'rake'
 require 'rspec/rails'
@@ -38,61 +39,6 @@ end
 
 def load_fixture_file(fixture_file_name)
   File.read(Rails.root.join("spec/fixtures/#{fixture_file_name}"))
-end
-
-def create_test_branch(repository_name: 'repository_name',
-                       name: 'path/branch',
-                       last_modified_date: Time.current,
-                       author_name: 'Author Name',
-                       author_email: 'author@email.com')
-  git_data = Git::TestHelpers.create_branch(
-    repository_name: repository_name,
-    name: name,
-    last_modified_date: last_modified_date,
-    author_name: author_name,
-    author_email: author_email
-  )
-  Branch.create_from_git_data!(git_data)
-end
-
-def create_test_branches(repository_name: 'repository_name',
-                         author_name: 'Author Name',
-                         author_email: 'author@email.com',
-                         count: 2)
-  branches = []
-  (0..count - 1).each do |i|
-    branches << create_test_branch(
-      repository_name: repository_name,
-      name: "path/#{author_name}/branch#{i}",
-      last_modified_date: DateTime.current,
-      author_name: author_name,
-      author_email: author_email
-    )
-  end
-  branches
-end
-
-def create_test_commit(sha: '1234567890123456789012345678901234567890',
-                       message: 'Commit message',
-                       author_name: 'Author Name',
-                       author_email: 'author@email.com')
-  commit = Commit.create(sha: sha, message: message)
-  commit.author = User.first_or_create!(name: author_name, email: author_email)
-  commit.save!
-  commit
-end
-
-def create_test_commits(author_name: 'Author Name', author_email: 'author@email.com', count: 2)
-  commits = []
-  (0..count - 1).each do |i|
-    commits << create_test_commit(
-      sha: (i + 1).to_s.ljust(40, '0'),
-      message: "Commit message #{i + 1}",
-      author_name: author_name,
-      author_email: author_email
-    )
-  end
-  commits
 end
 
 def create_test_conflict(branch_a, branch_b, tested_at: Time.current, file_list: ['test/file.rb'])

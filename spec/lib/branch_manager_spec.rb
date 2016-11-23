@@ -16,44 +16,44 @@ describe 'BranchManager' do
 
       it 'includes all branches when the "ignore branch" list is empty' do
         @settings.ignore_branches = []
-        expect_filter_branch_list_equals([create_test_branch(name: 'straight_match')])
+        expect_filter_branch_list_equals([GitModels::TestHelpers.create_branch(name: 'straight_match')])
       end
 
       it 'ignores branches on the list when the "ignore branch" list is NOT empty' do
         @settings.ignore_branches = ['straight_match', 'regexp/.*']
         unfiltered_branch_list = [
-          create_test_branch(name: 'straight_match'),
-          create_test_branch(name: 'regexp/match'),
-          create_test_branch(name: 'no_match')
+          GitModels::TestHelpers.create_branch(name: 'straight_match'),
+          GitModels::TestHelpers.create_branch(name: 'regexp/match'),
+          GitModels::TestHelpers.create_branch(name: 'no_match')
         ]
         expect_filter_branch_list_equals([unfiltered_branch_list[2]])
       end
 
       it 'includes all branches when the "only branch" list is empty' do
         @settings.only_branches = []
-        expect_filter_branch_list_equals([create_test_branch(name: 'straight_match')])
+        expect_filter_branch_list_equals([GitModels::TestHelpers.create_branch(name: 'straight_match')])
       end
 
       it 'includes branches on the list when the "only branch" list is NOT empty' do
         @settings.only_branches = ['straight_match', 'regexp/.*']
         unfiltered_branch_list = [
-          create_test_branch(name: 'straight_match'),
-          create_test_branch(name: 'regexp/match'),
-          create_test_branch(name: 'no_match')
+          GitModels::TestHelpers.create_branch(name: 'straight_match'),
+          GitModels::TestHelpers.create_branch(name: 'regexp/match'),
+          GitModels::TestHelpers.create_branch(name: 'no_match')
         ]
         expect_filter_branch_list_equals([unfiltered_branch_list[0], unfiltered_branch_list[1]])
       end
 
       it 'includes all branches when the "modified days ago" is zero' do
         @settings.ignore_branches_modified_days_ago = 0
-        expect_filter_branch_list_equals([create_test_branch(name: 'straight_match')])
+        expect_filter_branch_list_equals([GitModels::TestHelpers.create_branch(name: 'straight_match')])
       end
 
       it 'includes new branches when the "modified days ago" is > 0' do
         @settings.ignore_branches_modified_days_ago = 1
         unfiltered_branch_list = [
-          create_test_branch(name: 'old', last_modified_date: 2.days.ago),
-          create_test_branch(name: 'new', last_modified_date: 1.minute.from_now)
+          GitModels::TestHelpers.create_branch(name: 'old', last_modified_date: 2.days.ago),
+          GitModels::TestHelpers.create_branch(name: 'new', last_modified_date: 1.minute.from_now)
         ]
         expect_filter_branch_list_equals([unfiltered_branch_list[1]])
       end
@@ -62,8 +62,8 @@ describe 'BranchManager' do
     context 'update_branch_list!' do
       it 'creates new branches, update existing branches, and delete stale branches' do
         # create an old branch that will be deleted because it isn't found in the current git data
-        create_test_branch(name: 'old', last_modified_date: 1.minute.ago)
-        create_test_branch(name: 'updatable', last_modified_date: 1.minute.from_now)
+        GitModels::TestHelpers.create_branch(name: 'old', last_modified_date: 1.minute.ago)
+        GitModels::TestHelpers.create_branch(name: 'updatable', last_modified_date: 1.minute.from_now)
         expect(Branch.all.count).to eq(2)
 
         # mock the current git data

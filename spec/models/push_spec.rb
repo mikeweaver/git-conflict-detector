@@ -31,7 +31,7 @@ describe 'Push' do
     end
 
     it 'can own some' do
-      create_test_commits.each do |commit|
+      GitModels::TestHelpers.create_commits.each do |commit|
         CommitsAndPushes.create_or_update!(commit, @push)
       end
       @push.reload
@@ -47,7 +47,7 @@ describe 'Push' do
       expect(@push.commits_with_errors.count).to eq(0)
       expect(@push.errors?).to be_falsey
       expect(@push.commits_with_unignored_errors?).to be_falsey
-      create_test_commits.each do |commit|
+      GitModels::TestHelpers.create_commits.each do |commit|
         CommitsAndPushes.create_or_update!(commit, @push, [CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
       end
       expect(@push.commits_with_errors?).to be_truthy
@@ -57,10 +57,10 @@ describe 'Push' do
     end
 
     it 'can compute status' do
-      CommitsAndPushes.create_or_update!(create_test_commit(sha: Git::TestHelpers.create_sha), @push)
+      CommitsAndPushes.create_or_update!(GitModels::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha), @push)
       expect(@push.compute_status!).to eq(Github::Api::Status::STATE_SUCCESS)
       error_record = CommitsAndPushes.create_or_update!(
-        create_test_commit(sha: Git::TestHelpers.create_sha),
+        GitModels::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha),
         @push,
         [CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND]
       )

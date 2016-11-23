@@ -1,14 +1,6 @@
 class Commit < ActiveRecord::Base
-  fields do
-    sha :text, limit: 40, null: false
-    message :text, limit: 1024, null: false
-    timestamps
-  end
+  include GitModels::Commit
 
-  validates :sha, uniqueness: { message: 'SHAs must be globally unique' }
-  validates :sha, format: { without: /[0]{40}/ }
-
-  belongs_to :author, class_name: User, inverse_of: :commits, required: true
   belongs_to :jira_issue, class_name: JiraIssue, inverse_of: :commits, required: false
 
   has_many :commits_and_pushes, class_name: :CommitsAndPushes, inverse_of: :commit
@@ -20,25 +12,5 @@ class Commit < ActiveRecord::Base
     commit.author = User.create_from_git_data!(github_data.git_branch_data)
     commit.save!
     commit
-  end
-
-  def self.create_from_git_commit!(git_commit)
-    commit = Commit.where(sha: git_commit.sha).first_or_initialize
-    commit.message = git_commit.message.truncate(1024)
-    commit.author = User.create_from_git_data!(git_commit)
-    commit.save!
-    commit
-  end
-
-  def short_sha
-    sha[0, 7]
-  end
-
-  def to_s
-    sha
-  end
-
-  def <=>(other)
-    sha <=> other.sha
   end
 end

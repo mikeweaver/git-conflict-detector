@@ -3,9 +3,18 @@ require 'spec_helper'
 describe ConflictsMailer do
   before do
     ActionMailer::Base.deliveries = []
-    @branches_a = create_test_branches(author_name: 'Author Name 1', author_email: 'author1@email.com')
-    @branches_b = create_test_branches(author_name: 'Author Name 2', author_email: 'author2@email.com')
-    @branches_c = create_test_branches(author_name: 'Author Name 3', author_email: 'author3@email.com')
+    @branches_a = GitModels::TestHelpers.create_branches(
+      author_name: 'Author Name 1',
+      author_email: 'author1@email.com'
+    )
+    @branches_b = GitModels::TestHelpers.create_branches(
+      author_name: 'Author Name 2',
+      author_email: 'author2@email.com'
+    )
+    @branches_c = GitModels::TestHelpers.create_branches(
+      author_name: 'Author Name 3',
+      author_email: 'author3@email.com'
+    )
   end
 
   context 'with conflict present' do

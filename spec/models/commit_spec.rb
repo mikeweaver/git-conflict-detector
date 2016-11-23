@@ -15,53 +15,6 @@ describe 'Commit' do
     expect(commit.updated_at).not_to be_nil
   end
 
-  it 'can create be constructed from a git commit' do
-    git_commit = Git::GitCommit.new(
-      '6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25',
-      'test message',
-      Time.current,
-      'author name',
-      'author@email.com'
-    )
-    commit = Commit.create_from_git_commit!(git_commit)
-    expect(commit.sha).to eq('6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25')
-    expect(commit.message).not_to be_nil
-    expect(commit.author.name).not_to be_nil
-    expect(commit.author.email).not_to be_nil
-    expect(commit.created_at).not_to be_nil
-    expect(commit.updated_at).not_to be_nil
-  end
-
-  it 'does not create duplicate database records' do
-    Commit.create_from_github_data!(payload)
-    expect(Commit.all.count).to eq(1)
-
-    Commit.create_from_github_data!(payload)
-    expect(Commit.all.count).to eq(1)
-  end
-
-  it 'rejects shas that are all zeros' do
-    payload_hash = load_json_fixture('github_push_payload')
-    payload_hash['head_commit']['id'] = '0' * 40
-
-    expect { Commit.create_from_github_data!(Github::Api::PushHookPayload.new(payload_hash)) }.to \
-      raise_exception(ActiveRecord::RecordInvalid)
-  end
-
-  context 'with an existing commit' do
-    before do
-      @commit = Commit.create_from_github_data!(payload)
-    end
-
-    it 'prints its sha when stringified' do
-      expect(@commit.to_s).to eq('6d8cc7db8021d3dbf90a4ebd378d2ecb97c2bc25')
-    end
-
-    it 'has a short sha' do
-      expect(@commit.short_sha).to eq('6d8cc7d')
-    end
-  end
-
   it 'can belong to a JIRA issue' do
     jira_issue = create_test_jira_issue
     commit = Commit.create_from_github_data!(payload)
@@ -72,7 +25,7 @@ describe 'Commit' do
 
   context 'pushes' do
     before do
-      @commit = create_test_commit
+      @commit = GitModels::TestHelpers.create_commit
       @push = create_test_push
       # remove head commit so we don't confuse it with the commit we are testing
       @push.commits_and_pushes.destroy_all

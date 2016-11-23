@@ -52,8 +52,10 @@ describe 'ConflictDetector' do
                                     target_branch_name: 'branch_a',
                                     source_branch_names: ['branch_b', 'branch_c'],
                                     alreadyUpToDate: false)
-      target_branch = create_test_branch(name: target_branch_name)
-      source_branches = source_branch_names.collect { |branch_name| create_test_branch(name: branch_name) }
+      target_branch = GitModels::TestHelpers.create_branch(name: target_branch_name)
+      source_branches = source_branch_names.collect do |branch_name|
+        GitModels::TestHelpers.create_branch(name: branch_name)
+      end
       conflict_detector = ConflictDetector.new(@settings)
       if unfiltered_conflict_list.empty?
         allow_any_instance_of(Git::Git).to receive(:merge_branches).and_return([!alreadyUpToDate, nil])

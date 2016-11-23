@@ -66,7 +66,7 @@ describe 'JiraIssue' do
     it 'can own some' do
       issue = JiraIssue.create_from_jira_data!(jira_issue)
       expect(issue.commits.count).to eq(0)
-      create_test_commits.each do |commit|
+      GitModels::TestHelpers.create_commits.each do |commit|
         commit.jira_issue = issue
         commit.save!
       end
@@ -77,7 +77,7 @@ describe 'JiraIssue' do
     it 'can find the latest' do
       issue = JiraIssue.create_from_jira_data!(jira_issue)
       expect(issue.commits.count).to eq(0)
-      create_test_commits.each do |commit|
+      GitModels::TestHelpers.create_commits.each do |commit|
         # TODO: when commit dates are added, improve this test
         commit.jira_issue = issue
         commit.save!
