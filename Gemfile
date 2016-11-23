@@ -22,15 +22,6 @@ gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc
 
-# Use ActiveModel has_secure_password
-# gem 'bcrypt', '~> 3.1.7'
-
-# Use Unicorn as the app server
-# gem 'unicorn'
-
-# Use Capistrano for deployment
-# gem 'capistrano-rails', group: :development
-
 group :test do
   gem 'webmock'
   gem 'fakefs', require: 'fakefs/safe'
@@ -62,6 +53,7 @@ group :production do
   gem 'unicorn'
 end
 
+gem 'git-lib',  '1.0.0', git: 'git@github.com:mikeweaver/git-lib', ref: '4f99d6547d9fbee16bbd12af6025e5dda8a59f3c'
 gem 'hobo_fields'
 gem 'delayed_job_active_record'
 gem 'daemons'

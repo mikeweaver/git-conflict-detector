@@ -4,7 +4,7 @@ describe 'ConflictDetector' do
   def create_test_git_branches
     test_branches = []
     (0..2).each do |i|
-      test_branches << create_test_git_branch(name: "path/branch#{i}")
+      test_branches << Git::TestHelpers.create_branch(name: "path/branch#{i}")
     end
     test_branches
   end
@@ -23,7 +23,7 @@ describe 'ConflictDetector' do
       receive(:file_diff_branch_with_ancestor).exactly(2).times.and_return(['file1', 'file2'])
     conflict_detector = ConflictDetector.new(@settings)
     expect(conflict_detector).to receive(:get_conflicts).exactly(3).times.and_return(
-      [create_test_git_conflict(branch_a_name: 'path/branch0', branch_b_name: 'path/branch1')],
+      [Git::TestHelpers.create_conflict(branch_a_name: 'path/branch0', branch_b_name: 'path/branch1')],
       [],
       []
     )
@@ -66,7 +66,11 @@ describe 'ConflictDetector' do
     end
 
     it 'includes all conflicts found' do
-      conflict_list = [create_test_git_conflict, nil, create_test_git_conflict(branch_b_name: 'branch_d')]
+      conflict_list = [
+        Git::TestHelpers.create_conflict,
+        nil,
+        Git::TestHelpers.create_conflict(branch_b_name: 'branch_d')
+      ]
       expected_conflict_list = [conflict_list[0], conflict_list[2]]
       expect_get_conflicts_equals(
         conflict_list,
@@ -81,7 +85,7 @@ describe 'ConflictDetector' do
 
     it 'ignores all conflicts when too many branches have been checked' do
       allow(GlobalSettings).to receive(:maximum_branches_to_check).and_return(1)
-      conflict_list = [create_test_git_conflict, create_test_git_conflict(branch_b_name: 'branch_c')]
+      conflict_list = [Git::TestHelpers.create_conflict, Git::TestHelpers.create_conflict(branch_b_name: 'branch_c')]
       expected_conflict_list = [conflict_list[0]]
       expect_get_conflicts_equals(conflict_list, expected_conflict_list)
     end
@@ -110,7 +114,7 @@ describe 'ConflictDetector' do
       it 'is empty when the "ignore files" list is empty' do
         @settings.ignore_conflicts_in_file_paths = []
         expect_get_conflicting_files_to_ignore_equals(
-          create_test_git_conflict(file_list: ['file1', 'file2', 'file3']),
+          Git::TestHelpers.create_conflict(file_list: ['file1', 'file2', 'file3']),
           [],
           inherited_conflicting_files: []
         )
@@ -119,12 +123,12 @@ describe 'ConflictDetector' do
       it 'contains the conflicting files on the "ignore files" list' do
         @settings.ignore_conflicts_in_file_paths = ['file_to_ignore']
         expect_get_conflicting_files_to_ignore_equals(
-          create_test_git_conflict(file_list: ['file1', 'file2', 'file3', 'file_to_ignore']),
+          Git::TestHelpers.create_conflict(file_list: ['file1', 'file2', 'file3', 'file_to_ignore']),
           ['file_to_ignore'],
           inherited_conflicting_files: []
         )
         expect_get_conflicting_files_to_ignore_equals(
-          create_test_git_conflict(file_list: ['file1', 'file2', 'file3']),
+          Git::TestHelpers.create_conflict(file_list: ['file1', 'file2', 'file3']),
           [],
           inherited_conflicting_files: []
         )
@@ -139,7 +143,7 @@ describe 'ConflictDetector' do
         )
 
         expect_get_conflicting_files_to_ignore_equals(
-          create_test_git_conflict(
+          Git::TestHelpers.create_conflict(
             file_list: ['modified_on_branch_a_and_b', 'modified_on_branch_a', 'modified_on_branch_b']
           ),
           ['modified_on_branch_a', 'modified_on_branch_b'],
@@ -154,7 +158,7 @@ describe 'ConflictDetector' do
         )
 
         expect_get_conflicting_files_to_ignore_equals(
-          create_test_git_conflict(file_list: ['modified_on_branch_a_and_b_1', 'modified_on_branch_a_and_b_2']),
+          Git::TestHelpers.create_conflict(file_list: ['modified_on_branch_a_and_b_1', 'modified_on_branch_a_and_b_2']),
           [],
           ignored_files: []
         )
@@ -163,7 +167,7 @@ describe 'ConflictDetector' do
 
     it 'contains the union of the inherited and ignored file lists' do
       expect_get_conflicting_files_to_ignore_equals(
-        create_test_git_conflict(file_list: ['inherited', 'ignored']),
+        Git::TestHelpers.create_conflict(file_list: ['inherited', 'ignored']),
         ['inherited', 'ignored'],
         inherited_conflicting_files: ['inherited'],
         ignored_files: ['ignored']

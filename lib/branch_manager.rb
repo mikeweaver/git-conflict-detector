@@ -1,7 +1,7 @@
 class BranchManager
   def initialize(settings)
     @settings = settings
-    @git = Git::Git.new(@settings.repository_name)
+    @git = Git::Git.new(@settings.repository_name, git_cache_path: GlobalSettings.cache_directory)
   end
 
   protected

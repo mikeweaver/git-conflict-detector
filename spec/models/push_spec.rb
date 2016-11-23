@@ -57,10 +57,10 @@ describe 'Push' do
     end
 
     it 'can compute status' do
-      CommitsAndPushes.create_or_update!(create_test_commit(sha: create_test_sha), @push)
+      CommitsAndPushes.create_or_update!(create_test_commit(sha: Git::TestHelpers.create_sha), @push)
       expect(@push.compute_status!).to eq(Github::Api::Status::STATE_SUCCESS)
       error_record = CommitsAndPushes.create_or_update!(
-        create_test_commit(sha: create_test_sha),
+        create_test_commit(sha: Git::TestHelpers.create_sha),
         @push,
         [CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND]
       )

@@ -71,7 +71,7 @@ class AutoMerger < BranchManager
     )
     if success
       Rails.logger.info("MERGED: #{source_branch.name} has been merged into #{target_branch.name} without conflicts")
-      if @git.push
+      if @git.push(dry_run: GlobalSettings.dry_run)
         Rails.logger.info("PUSHED: #{target_branch.name} to origin")
         Merge.create!(source_branch: source_branch, target_branch: target_branch, successful: true)
       else

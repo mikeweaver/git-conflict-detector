@@ -86,7 +86,7 @@ describe 'JiraIssuesAndPushes' do
       end
 
       it 'copies the ingore_errors flag from its predecessor' do
-        new_push = create_test_push(sha: create_test_sha)
+        new_push = create_test_push(sha: Git::TestHelpers.create_sha)
         record = JiraIssuesAndPushes.create_or_update!(
           @issue,
           new_push,

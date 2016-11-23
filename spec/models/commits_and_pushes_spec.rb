@@ -84,7 +84,7 @@ describe 'CommitsAndPushes' do
       end
 
       it 'copies the ingore_errors flag from its predecessor' do
-        new_push = create_test_push(sha: create_test_sha)
+        new_push = create_test_push(sha: Git::TestHelpers.create_sha)
         record = CommitsAndPushes.create_or_update!(
           @commit,
           new_push,
@@ -125,9 +125,9 @@ describe 'CommitsAndPushes' do
     context 'with commits' do
       before do
         CommitsAndPushes.create_or_update!(@commit, @push)
-        @second_commit = create_test_commit(sha: create_test_sha)
+        @second_commit = create_test_commit(sha: Git::TestHelpers.create_sha)
         CommitsAndPushes.create_or_update!(@second_commit, @push)
-        @third_commit = create_test_commit(sha: create_test_sha)
+        @third_commit = create_test_commit(sha: Git::TestHelpers.create_sha)
         CommitsAndPushes.create_or_update!(@third_commit, @push)
         expect(@push.commits.count).to eq(3)
       end

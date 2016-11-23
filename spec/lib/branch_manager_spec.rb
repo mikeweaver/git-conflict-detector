@@ -69,9 +69,9 @@ describe 'BranchManager' do
         # mock the current git data
         expect_any_instance_of(Git::Git).to receive(:clone_repository)
         expect_any_instance_of(Git::Git).to receive(:branch_list).and_return(
-          [create_test_git_branch(name: 'new1'),
-           create_test_git_branch(name: 'new2'),
-           create_test_git_branch(name: 'updatable')]
+          [Git::TestHelpers.create_branch(name: 'new1'),
+           Git::TestHelpers.create_branch(name: 'new2'),
+           Git::TestHelpers.create_branch(name: 'updatable')]
         )
 
         BranchManager.new(@settings).send(:update_branch_list!)

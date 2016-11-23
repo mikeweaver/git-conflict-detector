@@ -32,8 +32,8 @@ describe 'PushManager' do
   end
 
   it 'can create jira issues, commits, and link them together' do
-    commits = [create_test_git_commit(sha: create_test_sha, message: 'STORY-1234 Description1'),
-               create_test_git_commit(sha: create_test_sha, message: 'STORY-5678 Description2')]
+    commits = [Git::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha, message: 'STORY-1234 Description1'),
+               Git::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha, message: 'STORY-5678 Description2')]
     expect_any_instance_of(Git::Git).to receive(:clone_repository)
     expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return(commits)
 
@@ -62,7 +62,7 @@ describe 'PushManager' do
       before do
         expect_any_instance_of(Git::Git).to receive(:clone_repository)
         expect_any_instance_of(Git::Git).to \
-          receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
+          receive(:commit_diff_refs).and_return([Git::TestHelpers.create_commit(message: 'STORY-1234 Description')])
         mock_jira_jql_response([])
       end
 
@@ -113,7 +113,7 @@ describe 'PushManager' do
     it 'some with and some without any commits' do
       expect_any_instance_of(Git::Git).to receive(:clone_repository)
       expect_any_instance_of(Git::Git).to \
-        receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
+        receive(:commit_diff_refs).and_return([Git::TestHelpers.create_commit(message: 'STORY-1234 Description')])
       mock_jira_find_issue_response('STORY-1234', status: 'Wrong State')
       mock_jira_jql_response(['STORY-9999'])
       push = PushManager.process_push!(Push.create_from_github_data!(payload))
@@ -127,7 +127,7 @@ describe 'PushManager' do
       mock_jira_jql_response([])
       expect_any_instance_of(Git::Git).to receive(:clone_repository)
       expect_any_instance_of(Git::Git).to \
-        receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
+        receive(:commit_diff_refs).and_return([Git::TestHelpers.create_commit(message: 'STORY-1234 Description')])
       push = PushManager.process_push!(Push.create_from_github_data!(payload))
       expect(push.commits_and_pushes.first.error_list).to \
         match_array([CommitsAndPushes::ERROR_ORPHAN_JIRA_ISSUE_NOT_FOUND])
@@ -137,7 +137,9 @@ describe 'PushManager' do
       mock_jira_jql_response([])
       expect_any_instance_of(Git::Git).to receive(:clone_repository)
       expect_any_instance_of(Git::Git).to \
-        receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'Description with issue number')])
+        receive(:commit_diff_refs).and_return(
+          [Git::TestHelpers.create_commit(message: 'Description with issue number')]
+        )
       push = PushManager.process_push!(Push.create_from_github_data!(payload))
       expect(push.commits_and_pushes.first.error_list).to \
         match_array([CommitsAndPushes::ERROR_ORPHAN_NO_JIRA_ISSUE_NUMBER])
@@ -147,9 +149,9 @@ describe 'PushManager' do
   it 'ignore commits with matching messages, regardless of case' do
     mock_jira_jql_response([])
     GlobalSettings.jira.ignore_commits_with_messages = ['.*ignore1.*', '.*ignore2.*']
-    commits = [create_test_git_commit(sha: create_test_sha, message: '--Ignore1--'),
-               create_test_git_commit(sha: create_test_sha, message: '--Ignore2--'),
-               create_test_git_commit(sha: create_test_sha, message: 'KeepMe')]
+    commits = [Git::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha, message: '--Ignore1--'),
+               Git::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha, message: '--Ignore2--'),
+               Git::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha, message: 'KeepMe')]
     expect_any_instance_of(Git::Git).to receive(:clone_repository)
     expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return(commits)
     push = PushManager.process_push!(Push.create_from_github_data!(payload))
@@ -162,7 +164,9 @@ describe 'PushManager' do
     mock_jira_jql_response([])
     expect_any_instance_of(Git::Git).to receive(:clone_repository)
     expect_any_instance_of(Git::Git).to \
-      receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 description STORY-5678')])
+      receive(:commit_diff_refs).and_return(
+        [Git::TestHelpers.create_commit(message: 'STORY-1234 description STORY-5678')]
+      )
     push = PushManager.process_push!(Push.create_from_github_data!(payload))
     expect(push.jira_issues.count).to eq(1)
     expect(push.jira_issues.first.key).to eq('STORY-1234')
@@ -191,7 +195,7 @@ describe 'PushManager' do
       '_STORY-1234_'
     ]
     commits = messages.collect do |message|
-      create_test_git_commit(sha: create_test_sha, message: message)
+      Git::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha, message: message)
     end
     expect_any_instance_of(Git::Git).to receive(:clone_repository)
     expect_any_instance_of(Git::Git).to receive(:commit_diff_refs).and_return(commits)
@@ -206,7 +210,7 @@ describe 'PushManager' do
     before do
       allow_any_instance_of(Git::Git).to receive(:clone_repository)
       allow_any_instance_of(Git::Git).to \
-        receive(:commit_diff_refs).and_return([create_test_git_commit(message: 'STORY-1234 Description')])
+        receive(:commit_diff_refs).and_return([Git::TestHelpers.create_commit(message: 'STORY-1234 Description')])
       mock_jira_jql_response([])
     end
 
@@ -265,8 +269,8 @@ describe 'PushManager' do
 
   context 'purges stale' do
     before do
-      @commits = [create_test_git_commit(sha: create_test_sha, message: 'STORY-1234 Description'),
-                  create_test_git_commit(sha: create_test_sha, message: 'STORY-5678 Description')]
+      @commits = [Git::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha, message: 'STORY-1234 Description'),
+                  Git::TestHelpers.create_commit(sha: Git::TestHelpers.create_sha, message: 'STORY-5678 Description')]
       mock_jira_jql_response([])
       allow_any_instance_of(Git::Git).to receive(:clone_repository).with(anything)
     end

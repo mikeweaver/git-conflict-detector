@@ -4,10 +4,10 @@ describe 'AutoMerger' do
   def create_test_git_branches(target_branch_count)
     test_branches = []
     (0..(target_branch_count - 1)).each do |i|
-      test_branches << create_test_git_branch(name: "target/branch#{i}")
+      test_branches << Git::TestHelpers.create_branch(name: "target/branch#{i}")
     end
-    test_branches << create_test_git_branch(name: 'master')
-    test_branches << create_test_git_branch(name: 'source')
+    test_branches << Git::TestHelpers.create_branch(name: 'master')
+    test_branches << Git::TestHelpers.create_branch(name: 'source')
     test_branches
   end
 
@@ -34,7 +34,10 @@ describe 'AutoMerger' do
     end
     conflict_results = []
     (0..(conflict_count - 1)).each do
-      conflict_results << [false, create_test_git_conflict(branch_a_name: 'source', branch_b_name: 'target/branch0')]
+      conflict_results << [
+        false,
+        Git::TestHelpers.create_conflict(branch_a_name: 'source', branch_b_name: 'target/branch0')
+      ]
     end
     (0..(target_branch_count - 1 - conflict_count)).each do
       conflict_results << [!branches_up_to_date, nil]
