@@ -53,8 +53,8 @@ group :production do
   gem 'unicorn'
 end
 
-gem 'git-lib',  '1.0.0', git: 'git@github.com:mikeweaver/git-lib', ref: '4f99d6547d9fbee16bbd12af6025e5dda8a59f3c'
-gem 'git_models', '1.0.0', git: 'git@github.com:mikeweaver/git_models', ref: '422934ea5233b581fb5de8824c01e4be9de2e209'
+gem 'git_lib',  '1.0.0', git: 'git@github.com:mikeweaver/git_lib', ref: '41dcc374b195d0cd2b78763918343eb713e44fe0'
+gem 'git_models', '1.0.0', git: 'git@github.com:mikeweaver/git_models', ref: 'a38c1aed270689dc174a1e4f904cf34e9ecca4d3'
 gem 'hobo_fields'
 gem 'delayed_job_active_record'
 gem 'daemons'

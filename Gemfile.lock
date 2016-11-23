@@ -1,18 +1,18 @@
 GIT
-  remote: git@github.com:mikeweaver/git-lib
-  revision: 4f99d6547d9fbee16bbd12af6025e5dda8a59f3c
-  ref: 4f99d6547d9fbee16bbd12af6025e5dda8a59f3c
+  remote: git@github.com:mikeweaver/git_lib
+  revision: 41dcc374b195d0cd2b78763918343eb713e44fe0
+  ref: 41dcc374b195d0cd2b78763918343eb713e44fe0
   specs:
-    git-lib (1.0.0)
+    git_lib (1.0.0)
       activesupport (= 4.2.7.1)
 
 GIT
   remote: git@github.com:mikeweaver/git_models
-  revision: 422934ea5233b581fb5de8824c01e4be9de2e209
-  ref: 422934ea5233b581fb5de8824c01e4be9de2e209
+  revision: a38c1aed270689dc174a1e4f904cf34e9ecca4d3
+  ref: a38c1aed270689dc174a1e4f904cf34e9ecca4d3
   specs:
     git_models (1.0.0)
-      git-lib (= 1.0.0)
+      git_lib (= 1.0.0)
       hobo_fields (= 2.2.6)
       rails (= 4.2.7.1)
 
@@ -315,7 +315,7 @@ DEPENDENCIES
   database_cleaner
   delayed_job_active_record
   fakefs
-  git-lib (= 1.0.0)!
+  git_lib (= 1.0.0)!
   git_models (= 1.0.0)!
   hobo_fields
   jbuilder (~> 2.0)
