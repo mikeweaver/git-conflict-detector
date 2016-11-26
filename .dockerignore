@@ -5,12 +5,22 @@
 coverage/
 InstalledFiles
 pkg/
-spec/reports/
+spec/
 test/tmp/
 test/version_tmp/
 .git
 shared/
 docker-secrets.env
+local-secrets
+.gitignore
+.rubocop.yml
+coveralls.yml
+Dockerfile
+.dockerignore
+docker-compose.yml
+*.pem
+.semaphore-cache/
+
 
 ## Specific to RubyMotion:
 .dat*
@@ -52,5 +62,5 @@ public/
 # Ignore all logfiles and tempfiles.
 log/*
 !/log/.keep
-tmp
+tmp/
 log

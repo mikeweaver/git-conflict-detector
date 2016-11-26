@@ -45,3 +45,4 @@ AllCops:
     - 'spec/fixtures/**/*'
     - 'db/migrate/**/*'
     - 'db/schema.rb'
+    - 'vendor/**/*'
