@@ -36,7 +36,6 @@ DEFAULT_AUTO_MERGE_SETTINGS = {
   only_merge_source_branch_with_tag: ''
 }.merge(DEFAULT_BRANCH_FILTERS).merge(DEFAULT_REPOSITORY_SETTINGS).freeze
 
-
 class InvalidSettings < StandardError; end
 
 def skip_validations

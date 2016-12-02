@@ -38,11 +38,12 @@ Style/NumericLiterals:
   Enabled: false
 Metrics/ParameterLists:
   Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
 AllCops:
   Include:
     - '**/*.rb'
   Exclude:
-    - 'spec/fixtures/**/*'
     - 'db/migrate/**/*'
     - 'db/schema.rb'
     - 'vendor/**/*'
