@@ -1,4 +1,6 @@
 class ErrorsController < ApplicationController
+  protect_from_forgery with: :null_session
+
   def bad_request
     @message = params['message']
     render(status: 400)

@@ -20,7 +20,7 @@ services:
       RAILS_SERVE_STATIC_FILES: 1
     command: ./script/docker_entry_points/unicorn.sh
     volumes:
-      - ./data:/usr/src/pre_deploy_checker/data
-      - ./log/docker:/usr/src/pre_deploy_checker/log
+      - ./data:/usr/src/git_conflict_detector/data
+      - ./log/docker:/usr/src/git_conflict_detector/log
 
 
