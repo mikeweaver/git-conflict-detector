@@ -7,10 +7,6 @@ class User < ActiveRecord::Base
 
   has_many :notification_suppressions, dependent: :destroy
 
-  def self.create_from_jira_data!(jira_user_data)
-    User.where(name: jira_user_data.displayName, email: jira_user_data.emailAddress).first_or_create!
-  end
-
   def self.unsubscribe_by_id!(user_id)
     find_by(id: user_id).unsubscribe!
   end

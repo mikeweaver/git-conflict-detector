@@ -7,7 +7,6 @@ class Branch < ActiveRecord::Base
 
   has_many :conflicts, foreign_key: :branch_a_id, dependent: :destroy
   has_many :branch_notification_suppressions, dependent: :destroy
-  has_many :pushes, class_name: Push, dependent: :destroy
 
   def mark_as_tested!
     update_column(:git_tested_at, Time.current)

@@ -9,20 +9,4 @@ Rails.application.routes.draw do
   post 'users/:id/unsubscribe/create' => 'users#create_unsubscribe'
 
   resources :suppressions, except: [:show, :edit, :update, :destroy]
-
-  namespace 'jira' do
-    namespace 'status' do
-      resources :push, only: [:edit, :update]
-    end
-  end
-
-  namespace 'api' do
-    scope '/v1' do
-      namespace 'callbacks' do
-        scope '/github' do
-          post '/push' => 'github#push'
-        end
-      end
-    end
-  end
 end

@@ -1,22 +1,6 @@
 require 'spec_helper'
 
 describe 'User' do
-  def jira_user
-    @jira_user ||= JIRA::Resource::UserFactory.new(nil).build(
-      load_json_fixture('jira_issue_response')['fields']['assignee']
-    )
-  end
-
-  it 'can create be constructed from jira data' do
-    user = User.create_from_jira_data!(jira_user)
-
-    expect(user.name).to eq('Author Name')
-    expect(user.email).to eq('author@email.com')
-    expect(user.created_at).not_to be_nil
-    expect(user.updated_at).not_to be_nil
-    expect(user.unsubscribed).to be_falsey
-  end
-
   context 'with two users' do
     before do
       @user_1 = User.create(name: 'Author Name 1', email: 'email1@email.com')

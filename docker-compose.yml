@@ -1,12 +1,12 @@
 version: '2'
 
 services:
-  pre_deploy_checker_web:
+  git_conflict_detector_web:
     build:
       context: .
       args:
         RAILS_ENV: development
-    image: mikeweaver/pre_deploy_checker
+    image: mikeweaver/git_conflict_detector
     ports:
        - "3000:3000"
     env_file: docker-secrets.env
@@ -22,28 +22,5 @@ services:
     volumes:
       - ./data:/usr/src/pre_deploy_checker/data
       - ./log/docker:/usr/src/pre_deploy_checker/log
-  pre_deploy_checker_delayed_job:
-    build:
-      context: .
-      args:
-        RAILS_ENV: development
-    image: mikeweaver/pre_deploy_checker
-    env_file: docker-secrets.env
-    # Must define the following the docker-secrets.env file
-    # SECRET_KEY_BASE - Rails secret key
-    # GITHUB_USER_NAME
-    # GITHUB_PASSWORD
-    # GITHUB_PRIVATE_KEY - Private key that can clone the repos you want to process
-    # JIRA_PRIVATE_KEY - The newline delimited contents of the JIRA private key file
-    # JIRA_PRIVATE_KEY_FILE - Path to the file to write/read the JIRA OAuth private key from
-    # JIRA_SITE - The URL of the JIRA instance to use
-    # JIRA_CONSUMER_KEY - The OAuth consumer key to use
-    # JIRA_ACCESS_KEY - The OAuth access key to use
-    # JIRA_ACCESS_TOKEN - The OAuth access token to use
-    environment:
-      RAILS_ENV: development
-    command: ./script/docker_entry_points/delayed_job.sh
-    volumes_from:
-       - pre_deploy_checker_web
 
 

@@ -12,8 +12,7 @@ DEFAULT_SETTINGS = {
   web_server_url: '',
   repositories_to_check_for_conflicts: {},
   branches_to_merge: {},
-  dry_run: false,
-  jira: {}
+  dry_run: false
 }.freeze
 
 DEFAULT_BRANCH_FILTERS = {
@@ -37,16 +36,6 @@ DEFAULT_AUTO_MERGE_SETTINGS = {
   only_merge_source_branch_with_tag: ''
 }.merge(DEFAULT_BRANCH_FILTERS).merge(DEFAULT_REPOSITORY_SETTINGS).freeze
 
-DEFAULT_JIRA_SETTINGS = {
-  private_key_file: './rsakey.pem',
-  project_keys: [],
-  valid_statuses: [],
-  valid_post_deploy_check_statuses: [],
-  ignore_commits_with_messages: [],
-  ignore_branches: [],
-  only_branches: [],
-  ancestor_branches: {}
-}.freeze
 
 class InvalidSettings < StandardError; end
 
@@ -58,10 +47,9 @@ def validate_common_settings(settings)
   return if skip_validations
 
   unless settings.repositories_to_check_for_conflicts._?.any? \
-         || settings.branches_to_merge._?.any? \
-         || settings.jira._?.any?
+         || settings.branches_to_merge._?.any?
     raise InvalidSettings,
-          'Must specify at least one repository to check for conflicts, or one branch to merge, or jira settings'
+          'Must specify at least one repository to check for conflicts or one branch to merge'
   end
 
   if settings.web_server_url.blank?
@@ -77,40 +65,6 @@ def validate_repository_settings(name, settings)
   end
   if settings.default_branch_name.blank?
     raise InvalidSettings, "Must specify default branch name for #{name}"
-  end
-end
-
-def validate_jira_settings(settings)
-  return if skip_validations
-
-  if Rails.application.secrets.jira['site'].blank?
-    raise InvalidSettings, 'Must specify JIRA site URL'
-  end
-  if Rails.application.secrets.jira['consumer_key'].blank?
-    raise InvalidSettings, 'Must specify JIRA consumer key'
-  end
-  if Rails.application.secrets.jira['access_token'].blank?
-    raise InvalidSettings, 'Must specify JIRA access token'
-  end
-  if Rails.application.secrets.jira['access_key'].blank?
-    raise InvalidSettings, 'Must specify JIRA access key'
-  end
-  if Rails.application.secrets.jira['private_key_file'].blank?
-    raise InvalidSettings, 'Must specify JIRA private key file name'
-  end
-  if settings.project_keys.empty?
-    raise InvalidSettings, 'Must specify at least one JIRA project key'
-  end
-  if settings.ancestor_branches.empty?
-    raise InvalidSettings, 'Must specify at least one JIRA ancestor branch mapping'
-  end
-  if settings.valid_statuses.empty?
-    raise InvalidSettings, 'Must specify at least one valid JIRA status'
-  end
-  settings.ancestor_branches.each do |branch, ancestor_branch|
-    if ancestor_branch.blank?
-      raise InvalidSettings, "Must specify an ancestor branch for #{branch}"
-    end
   end
 end
 
@@ -145,11 +99,6 @@ def load_global_settings
       raise InvalidSettings, "Must specify auto-merge source branch name for #{branch_name}"
     end
     settings_object.branches_to_merge[branch_name] = auto_merge_settings
-  end
-
-  if settings_hash['jira']
-    settings_object.jira = OpenStruct.new(DEFAULT_JIRA_SETTINGS.merge(settings_object.jira))
-    validate_jira_settings(settings_object.jira)
   end
 
   # cleanup data

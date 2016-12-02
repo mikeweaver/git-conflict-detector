@@ -13,15 +13,3 @@ repositories_to_check_for_conflicts:
     ignore_conflicts_in_file_paths: ['^test/fixtures/.*$', '^lib/data/generated/.*$'] #regexp
     default_branch_name: 'master'
     suppress_conflicts_for_owners_of_branches: ['master', 'production']
-jira:
-  ancestor_branches:
-    default: 'master'
-    master: 'production'
-    release: 'production'
-    production: 'master'
-  project_keys: ['STORY', 'TECH', 'WEB', 'OPS']
-  valid_statuses: ['Ready to Deploy']
-  valid_post_deploy_check_statuses: ['Ready to Run', 'Not Needed']
-  ignore_commits_with_messages: ['(^|\s)merge($|\s)']  #regexp
-  ignore_branches: []  #regexp
-  only_branches: [] #regexp

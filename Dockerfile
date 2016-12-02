@@ -1,7 +1,7 @@
 FROM ruby:2.1.10
 
 ARG RAILS_ENV
-ENV HOME_DIR="/usr/src/pre_deploy_checker"
+ENV HOME_DIR="/usr/src/git_conflict_detector"
 
 RUN apt-get update && \
     apt-get install -y \
